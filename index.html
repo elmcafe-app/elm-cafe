@@ -385,23 +385,37 @@ var __startElmCafeApp__ = (() => {
   function EmptyState({ icon, title, body }) {
     return /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "56px 24px" } }, /* @__PURE__ */ React.createElement("div", { style: { width: 64, height: 64, borderRadius: "50%", background: "var(--forest-10)", color: "var(--forest)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" } }, icon), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 15, fontWeight: 700, color: "var(--ink-2)", marginBottom: 5 } }, title), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--ink-3)" } }, body));
   }
+  async function fetchAllRows(table, orderColumn, ascending = true) {
+    const pageSize = 500;
+    const rows = [];
+    for (let offset = 0; ; offset += pageSize) {
+      const { data, error } = await supabase.from(table).select("*")
+        .order(orderColumn, { ascending })
+        .order("id", { ascending: true })
+        .range(offset, offset + pageSize - 1);
+      if (error) throw error;
+      rows.push(...(data || []));
+      if (!data || data.length < pageSize) break;
+    }
+    return rows;
+  }
   async function fetchAll() {
-    const [emp, cat, cyc, ev, aud, rb, lookup] = await Promise.all([
+    const [emp, cat, cycles, evaluations, aud, rb, lookup] = await Promise.all([
       supabase.from("employees").select("*").order("name"),
       supabase.from("categories").select("*"),
-      supabase.from("cycles").select("*").order("created_at", { ascending: false }),
-      supabase.from("evaluations").select("*").order("created_at", { ascending: false }),
+      fetchAllRows("cycles", "created_at", false),
+      fetchAllRows("evaluations", "created_at", false),
       supabase.from("audit_log").select("*").order("created_at", { ascending: false }).limit(200),
       supabase.from("rating_bands").select("*").order("sort_order"),
       supabase.from("user_lookup").select("*")
     ]);
-    const failed = [emp, cat, cyc, ev].find(result => result.error);
+    const failed = [emp, cat, aud, rb, lookup].find(result => result.error);
     if (failed) throw failed.error;
     return {
       employees: emp.data || [],
       categories: cat.data || [],
-      cycles: cyc.data || [],
-      evaluations: ev.data || [],
+      cycles,
+      evaluations,
       audit: aud.data || [],
       ratingBands: rb.data && rb.data.length ? rb.data : DEFAULT_RATING_BANDS_FALLBACK,
       userLookup: lookup.data || []
