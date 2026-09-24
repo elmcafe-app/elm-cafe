@@ -171,6 +171,33 @@
   html[data-theme="dark"] .profile-actions button:first-child { color:#161719; }
   @media (max-width:350px) { .report-grid,.people-grid { grid-template-columns:1fr; }.executive-hero,.work-hero { padding:17px; } }
   @media print { .app-topbar,.app-bottomnav,.segmented,.modern-search,.text-action,.hero-actions,.create-cycle,.cycle-actions { display:none !important; } .report-grid { grid-template-columns:repeat(3,1fr); } }
+
+  .notification-dismiss { position:fixed; inset:0; z-index:18; background:transparent; }
+  .notification-popover { position:fixed; z-index:19; top:calc(69px + env(safe-area-inset-top, 0px)); left:max(12px, calc((100vw - 480px)/2 + 12px)); width:min(360px, calc(100vw - 24px)); max-height:min(65dvh, 510px); display:flex; flex-direction:column; overflow:hidden; border:1px solid var(--glass-border); border-radius:18px; background:var(--glass-strong); color:var(--ink); box-shadow:0 20px 55px rgba(0,0,0,.19); backdrop-filter:blur(28px) saturate(170%); -webkit-backdrop-filter:blur(28px) saturate(170%); animation:fadeIn .15s ease; }
+  .notification-heading { display:flex; align-items:center; justify-content:space-between; padding:13px 15px 11px; border-bottom:1px solid var(--border); }
+  .notification-heading div { display:grid; gap:1px; }.notification-heading strong { font-size:14px; }.notification-heading small { color:var(--ink-3); font-size:11px; }
+  .notification-heading button { border:0; background:transparent; color:var(--ink-2); font-size:23px; width:30px; height:30px; cursor:pointer; }
+  .notification-list { overflow-y:auto; overscroll-behavior:contain; padding:7px; }
+  .notification-item { padding:11px 12px; border-radius:12px; background:var(--red-10); margin-bottom:6px; border:1px solid var(--border); }
+  .notification-item.reviewed { background:var(--glass); }.notification-item-top { display:flex; justify-content:space-between; gap:8px; align-items:baseline; }.notification-item strong { font-size:13px; }.notification-item time,.notification-item small { font-size:10px; color:var(--ink-3); }
+  .notification-item p { margin:4px 0; font-size:12px; color:var(--ink-2); line-height:1.55; overflow-wrap:anywhere; }.notification-item button { background:var(--glass-strong); color:var(--forest); border:1px solid var(--glass-border); border-radius:9px; padding:6px 9px; margin-top:8px; font-size:11px; font-weight:800; cursor:pointer; }.notification-empty { padding:25px; text-align:center; color:var(--ink-3); font-size:12px; }
+  .profile-cycle-label { display:block; margin-top:8px; font-size:11px; opacity:.8; }.profile-stats { grid-template-columns:repeat(4,minmax(0,1fr)) !important; }.profile-stats > div { padding:12px 5px; }.profile-stats strong { font-size:19px; }.profile-stats small { font-size:10px; }
+  .profile-category-grid,.cycle-comparison { display:grid; gap:7px; }.profile-category { display:flex; align-items:center; gap:8px; border:1px solid var(--glass-border); border-radius:12px; padding:11px 12px; background:var(--glass); font-size:12px; }.profile-category strong { flex:1; font-size:12px; }.profile-category > span:last-child { color:var(--ink-3); }.category-dot { width:7px; height:7px; border-radius:50%; background:var(--red); }.category-dot.positive { background:var(--green); }
+  .cycle-comparison-row { display:grid; grid-template-columns:minmax(78px,1.1fr) minmax(50px,1fr) 30px 52px; align-items:center; gap:8px; padding:10px; background:var(--glass); border:1px solid var(--glass-border); border-radius:12px; font-size:11px; }.cycle-comparison-row > span { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }.cycle-comparison-row strong { font-size:14px; color:var(--forest); }.cycle-comparison-row small { color:var(--ink-3); }.comparison-track { height:5px; border-radius:8px; background:var(--border); overflow:hidden; }.comparison-track span { display:block; height:100%; border-radius:8px; background:var(--gold); }
+  @media(max-width:380px) { .profile-stats small { font-size:9px; } .cycle-comparison-row { grid-template-columns:75px minmax(30px,1fr) 25px 44px; gap:5px; } }
+  .history-screen { display:grid; gap:13px; }.history-hero { padding:18px; border-radius:21px; background:var(--glass); border:1px solid var(--glass-border); }.history-hero h1 { margin:2px 0 3px; font-size:21px; }.history-hero p { margin:0 0 16px; font-size:11px; color:var(--ink-3); }.history-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }.history-stats>div { display:grid; gap:2px; text-align:center; background:var(--glass-strong); border-radius:12px; padding:8px 3px; }.history-stats strong { font-size:18px; }.history-stats small { color:var(--ink-3); font-size:9px; }.history-cycle { display:grid; gap:5px; font-size:11px; color:var(--ink-3); font-weight:800; }.history-cycle select { width:100%; padding:10px; border-radius:12px; background:var(--glass); color:var(--ink); border:1px solid var(--glass-border); font-size:13px; }.history-list { display:grid; gap:9px; }.history-card { border:1px solid var(--glass-border); background:var(--glass); border-radius:17px; padding:14px; }.history-card.cancelled { opacity:.7; }.history-card-top { display:flex; gap:7px; align-items:center; }.history-card-top strong { flex:1; font-size:14px; }.history-card-top b { font-size:17px; color:var(--forest); }.history-type { font-size:10px; border-radius:8px; color:var(--red); background:var(--red-10); padding:4px 7px; }.history-type.positive { color:var(--green); background:var(--green-10); }.history-meta { display:flex; justify-content:space-between; gap:6px; margin-top:10px; font-size:10px; color:var(--ink-3); }.history-evaluator { font-size:11px; color:var(--ink-2); margin-top:6px; }.history-note { font-size:12px; line-height:1.6; margin:10px 0 0; padding:10px; border-radius:10px; background:var(--glass-strong); overflow-wrap:anywhere; }.history-cancelled { display:block; margin-top:8px; font-size:10px; color:var(--ink-3); }.history-cancel { border:0; color:var(--red); background:transparent; font-size:11px; padding:8px 0 0; cursor:pointer; }
+
+  .app-bottomnav { max-width:420px !important; border-radius:18px !important; }
+  .app-bottomnav button { position:relative; }
+  .app-bottomnav button[aria-current="page"]:after { content:""; position:absolute; bottom:2px; width:16px; height:2px; border-radius:3px; background:var(--forest); }
+  .app-topbar { box-shadow:0 6px 20px var(--glass-shadow), inset 0 1px var(--glass-border) !important; }
+  .app-toast { position:fixed; z-index:60; bottom:calc(73px + env(safe-area-inset-bottom, 0px)); left:50%; transform:translateX(-50%); width:min(360px,calc(100vw - 28px)); display:flex; align-items:flex-start; gap:9px; padding:10px 12px; border-radius:14px; border:1px solid var(--glass-border); background:var(--glass-strong); color:var(--ink); box-shadow:0 12px 30px rgba(0,0,0,.15); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); animation:fadeIn .18s ease; }
+  .app-toast.error { border-color:var(--red); }.toast-indicator { flex:none; width:20px; height:20px; border-radius:7px; display:grid; place-items:center; background:var(--forest-10); color:var(--forest); font-size:12px; font-weight:900; }.app-toast.error .toast-indicator { background:var(--red-10); color:var(--red); }
+  .toast-content { min-width:0; display:grid; gap:4px; overflow-wrap:anywhere; }.toast-content strong { font-size:11px; line-height:1.5; font-weight:700; }.toast-content button { border:0; padding:0; width:max-content; background:transparent; color:var(--forest); font-size:10px; cursor:pointer; }.toast-content small { font-size:10px; max-height:100px; overflow:auto; color:var(--ink-3); direction:ltr; text-align:left; }
+  .app-fallback { min-height:100dvh; padding:24px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:10px; color:var(--ink); background:var(--bg); }.app-fallback strong { font-size:19px; }.app-fallback p { font-size:13px; line-height:1.7; }.app-fallback button { border:0; padding:12px 16px; border-radius:12px; background:var(--forest); color:var(--bg); font-weight:800; }
+  .executive-dashboard .dashboard-panel { border:1px solid var(--glass-border); border-radius:20px; background:var(--glass); padding:13px; box-shadow:0 6px 19px var(--glass-shadow); }
+  .executive-dashboard .dashboard-panel .mvp-card,.executive-dashboard .dashboard-panel .pending-list button,.executive-dashboard .dashboard-panel .activity-feed { box-shadow:none; }
+  @media(prefers-reduced-motion:reduce) { .app-toast { animation:none; } }
 </style>
 </head>
 <body>
@@ -327,7 +354,7 @@ var __startElmCafeApp__ = (() => {
         session && h("button", { type: "button", onClick: onLogout, style: circleBtn, "aria-label": "تسجيل الخروج", title: "تسجيل الخروج" }, h(Icon, { svg: ICONS.logout, size: 17 }))));
   }
   const TABS = [
-    { key: "adminHome", icon: ICONS.home, label: "\u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629" },
+    { key: "adminHome", icon: ICONS.home, label: "لوحة التحكم" },
     { key: "home", icon: ICONS.users, label: "\u0627\u0644\u0645\u0648\u0638\u0641\u0648\u0646" },
     { key: "reportsOverall", icon: ICONS.file, label: "\u0627\u0644\u062A\u0642\u0627\u0631\u064A\u0631" },
     { key: "moreMenu", icon: ICONS.grid, label: "\u0627\u0644\u0645\u0632\u064A\u062F" }
@@ -342,7 +369,7 @@ var __startElmCafeApp__ = (() => {
     const active = tabForScreen(activeScreen);
     return /* @__PURE__ */ React.createElement("div", { className: "no-print app-bottomnav", style: s.bottomNav }, TABS.map((t) => {
       const isActive = active === t.key;
-      return /* @__PURE__ */ React.createElement("button", { key: t.key, onClick: () => onSelect(t.key), style: { ...s.bottomNavBtn, color: isActive ? "var(--forest)" : "var(--ink-3)" } }, /* @__PURE__ */ React.createElement("div", { style: { width: 38, height: 38, borderRadius: "50%", background: isActive ? "var(--forest-10)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", transition: "background .15s ease" } }, /* @__PURE__ */ React.createElement(Icon, { svg: t.icon, size: 22 })), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: isActive ? 700 : 500, marginTop: 2 } }, t.label));
+      return /* @__PURE__ */ React.createElement("button", { key: t.key, type: "button", onClick: () => onSelect(t.key), "aria-current": isActive ? "page" : void 0, style: { ...s.bottomNavBtn, color: isActive ? "var(--forest)" : "var(--ink-3)" } }, /* @__PURE__ */ React.createElement("div", { style: { width: 30, height: 30, borderRadius: 11, background: isActive ? "var(--forest-10)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", transition: "background .15s ease" } }, /* @__PURE__ */ React.createElement(Icon, { svg: t.icon, size: 19 })), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, fontWeight: isActive ? 700 : 500, marginTop: 0 } }, t.label));
     }));
   }
   function ScoreRing({ score, size = 148 }) {
@@ -369,8 +396,32 @@ var __startElmCafeApp__ = (() => {
     return /* @__PURE__ */ React.createElement("div", { style: s.modalOverlay, onClick: onClose }, /* @__PURE__ */ React.createElement("div", { style: s.modalCard, onClick: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 17, fontWeight: 700 } }, title), /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: s.iconBtn }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.x, size: 17 }))), /* @__PURE__ */ React.createElement("div", null, children), footer && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 18, display: "flex", gap: 8 } }, footer)));
   }
   function Toast({ toast }) {
+    const [expanded, setExpanded] = useState(false);
+    useEffect(() => setExpanded(false), [toast]);
     if (!toast) return null;
-    return /* @__PURE__ */ React.createElement("div", { style: { ...s.toast, ...toast.type === "error" ? { background: "var(--red)" } : toast.type === "warn" ? { background: "#B9862F" } : {} } }, toast.msg);
+    const raw = String(toast.msg || "");
+    const isError = toast.type === "error";
+    const dbDetail = raw.includes("foreign key constraint") ? "في بيانات مرتبطة بهذا العنصر. راجع خطوة إصلاح قاعدة البيانات." :
+      raw.includes("row-level security") || raw.includes("permission denied") ? "حسابك لا يملك صلاحية إتمام العملية." :
+      raw.includes("Failed to fetch") || raw.includes("NetworkError") ? "الاتصال انقطع. تأكد من الإنترنت وحاول مجددًا." : "";
+    const short = dbDetail || (raw.length > 115 ? raw.slice(0, 112).trimEnd() + "…" : raw);
+    return React.createElement("div", { className:`app-toast ${isError ? "error" : ""}`, role:isError?"alert":"status" },
+      React.createElement("span", { className:"toast-indicator" }, isError ? "!" : "✓"),
+      React.createElement("div", { className:"toast-content" }, React.createElement("strong",null,short),
+        isError && raw !== short && React.createElement("button", { type:"button", onClick:()=>setExpanded(!expanded) }, expanded ? "إخفاء التفاصيل" : "تفاصيل الخطأ"),
+        expanded && React.createElement("small",null,raw)));
+  }
+  class AppErrorBoundary extends React.Component {
+    constructor(props) { super(props); this.state = { failed:false }; }
+    static getDerivedStateFromError() { return { failed:true }; }
+    componentDidCatch(error) { console.error("Elm Cafe render error", error); }
+    render() {
+      if (!this.state.failed) return this.props.children;
+      return React.createElement("div",{className:"app-fallback"},
+        React.createElement("strong",null,"تعذّر عرض هذه الشاشة"),
+        React.createElement("p",null,"يمكنك إعادة تحميل التطبيق. لو كنت بتكتب تقييم، راجع السجل قبل إعادة المحاولة حتى لا يتكرر."),
+        React.createElement("button",{type:"button",onClick:()=>location.reload()},"إعادة تحميل التطبيق"));
+    }
   }
   function Field({ label, children }) {
     return /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("label", { style: { display: "block", fontSize: 13, color: "var(--ink-2)", marginBottom: 6 } }, label), children);
@@ -455,14 +506,19 @@ var __startElmCafeApp__ = (() => {
     const [ratingBands, setRatingBands] = useState(DEFAULT_RATING_BANDS_FALLBACK);
     const [profiles, setProfiles] = useState([]);
     const [userLookup, setUserLookup] = useState([]);
+    const refreshVersion = useRef(0);
+    const toastTimer = useRef(null);
     const showToast = useCallback((msg, type = "ok") => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
       setToast({ msg, type });
-      setTimeout(() => setToast(null), 2600);
+      toastTimer.current = setTimeout(() => setToast(null), type === "error" ? 5200 : 2800);
     }, []);
     async function refetch() {
+      const request = ++refreshVersion.current;
       let d;
       try { d = await fetchAll(); }
-      catch (error) { showToast("تعذّر تحميل البيانات. اضغط تحديث للمحاولة مجددًا", "error"); return false; }
+      catch (error) { if (request === refreshVersion.current) showToast("تعذّر تحميل البيانات. اضغط تحديث للمحاولة مجددًا", "error"); return false; }
+      if (request !== refreshVersion.current) return false;
       setEmployees(d.employees);
       setCategories(d.categories);
       setCycles(d.cycles);
@@ -520,10 +576,21 @@ var __startElmCafeApp__ = (() => {
     }, []);
     useEffect(() => {
       if (!session) return;
-      const channel = supabase.channel("elm-realtime").on("postgres_changes", { event: "*", schema: "public", table: "evaluations" }, refetch).on("postgres_changes", { event: "*", schema: "public", table: "employees" }, refetch).on("postgres_changes", { event: "*", schema: "public", table: "categories" }, refetch).on("postgres_changes", { event: "*", schema: "public", table: "cycles" }, refetch).on("postgres_changes", { event: "*", schema: "public", table: "rating_bands" }, refetch).on("postgres_changes", { event: "*", schema: "public", table: "audit_log" }, refetch).on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, refetchProfiles).subscribe();
-      return () => {
-        supabase.removeChannel(channel);
+      let timer = null;
+      const scheduleRefresh = () => {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => { refetch(); }, 350);
       };
+      const channel = supabase.channel("elm-realtime")
+        .on("postgres_changes", { event:"*", schema:"public", table:"evaluations" }, scheduleRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"employees" }, scheduleRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"categories" }, scheduleRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"cycles" }, scheduleRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"rating_bands" }, scheduleRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"audit_log" }, scheduleRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"profiles" }, () => { scheduleRefresh(); refetchProfiles(); })
+        .subscribe();
+      return () => { if (timer) clearTimeout(timer); supabase.removeChannel(channel); };
     }, [session]);
     async function manualRefresh() {
       setRefreshing(true);
@@ -650,7 +717,7 @@ var __startElmCafeApp__ = (() => {
         theme,
         onToggleTheme: toggleTheme
       }
-    ), /* @__PURE__ */ React.createElement("div", { key: screen + "-" + (ctx.employeeId || ""), style: { ...session.role === "super_admin" ? { ...s.body, paddingBottom: "calc(96px + env(safe-area-inset-bottom, 0px))" } : s.body, animation: "fadeIn .22s ease" } }, screen === "home" && /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ React.createElement("div", { key: screen + "-" + (ctx.employeeId || ""), style: { ...session.role === "super_admin" ? { ...s.body, paddingBottom: "calc(78px + env(safe-area-inset-bottom, 0px))" } : s.body, animation: "fadeIn .22s ease" } }, screen === "home" && /* @__PURE__ */ React.createElement(
       EvaluatorHome,
       {
         employees: employees.filter((e) => !e.archived),
@@ -705,6 +772,8 @@ var __startElmCafeApp__ = (() => {
       {
         employee: employees.find((e) => e.id === ctx.employeeId),
         evaluations: evaluations.filter((e) => e.employee_id === ctx.employeeId),
+         cycles: cycles.filter((c) => !c.deleted_at),
+         activeCycle,
         session,
         onCancel: async (evId, reason) => {
           const patch = { status: "cancelled", edited_by: session.name, edited_at: nowISO(), cancel_reason: reason };
@@ -1021,6 +1090,7 @@ var __startElmCafeApp__ = (() => {
             return;
           }
           setCycles((prev) => prev.filter((c) => c.id !== id));
+           setEvaluations((prev) => prev.filter((e) => e.cycle_id !== id));
           showToast("\u062A\u0645 \u062D\u0630\u0641 \u0627\u0644\u062F\u0648\u0631\u0629 \u0646\u0647\u0627\u0626\u064A\u064B\u0627");
         },
         onRestoreAudit: async (id) => {
@@ -1046,6 +1116,7 @@ var __startElmCafeApp__ = (() => {
             const { error } = await supabase.from("cycles").delete().in("id", cycleIds);
             if (error) { showToast(`تعذّر حذف الدورات: ${error.message}`, "error"); return; }
             setCycles(prev => prev.filter(c => !cycleIds.includes(c.id)));
+             setEvaluations(prev => prev.filter(e => !cycleIds.includes(e.cycle_id)));
           }
           if (auditIds.length) {
             const { error } = await supabase.from("audit_log").delete().in("id", auditIds);
@@ -1180,19 +1251,41 @@ var __startElmCafeApp__ = (() => {
           h("strong", null, e.name), h("small", null, e.profession || "موظف", " · ", e.employee_code),
           activeCycle && h("span", { className: counts.has(e.id) ? "status-chip done" : "status-chip" }, counts.has(e.id) ? `قيّمته ${counts.get(e.id)} مرة في هذه الدورة` : "لم تقيّمه في هذه الدورة")))) : h("div", { className:"dash-empty" }, q ? "لا توجد نتائج للبحث." : "لا يوجد موظفون في هذا القسم.")));
   }
-  function EmployeeDetail({ employee, activeCycle, evaluations, computeScore, ratingFor, onNewEval, onHistory }) {
-    const h=React.createElement;
-    if(!employee)return h(EmptyState,{icon:h(Icon,{svg:ICONS.users,size:28}),title:"الموظف غير موجود",body:""});
-    const evs=activeCycle?evaluations.filter(e=>e.employee_id===employee.id&&e.cycle_id===activeCycle.id&&e.status==="active"):[];
-    const score=evs.length?computeScore(employee.id,activeCycle.id):null;
-    const positive=evs.filter(e=>e.type==="positive").length,negative=evs.filter(e=>e.type==="negative").length;
-    const recent=evaluations.filter(e=>e.employee_id===employee.id).slice(0,4);
-    return h("div",{className:"employee-profile"},
-      h("section",{className:"profile-hero"},h("span",{className:"person-avatar",style:{background:avatarColor(employee.name).bg,color:avatarColor(employee.name).fg}},employee.name.trim().slice(0,1)),h("span",{className:"eyebrow"},"ملف الموظف"),h("h1",null,employee.name),h("p",null,employee.profession||"موظف"," · رقم ",employee.employee_code),
-        h("div",{className:"profile-score"},h("strong",null,score===null?"—":Math.round(score)),h("span",null,score===null?"لم يُقيّم في الدورة الحالية":`${ratingFor(score)} · من 100`))),
-      h("div",{className:"report-stats"},[["تقييمات إيجابية",positive],["تقييمات سلبية",negative],["إجمالي التقييمات",evs.length]].map(([label,value])=>h("div",{key:label},h("strong",null,value),h("small",null,label)))),
-      h("div",{className:"profile-actions"},h("button",{type:"button",onClick:onNewEval,disabled:!activeCycle},h(Icon,{svg:ICONS.plus,size:17}),"تقييم جديد"),h("button",{type:"button",onClick:onHistory},h(Icon,{svg:ICONS.clipboard,size:17}),"السجل الكامل")),
-      h("section",{className:"dashboard-panel"},h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"النشاط"),h("h2",null,"آخر التقييمات"))),recent.length?h("div",{className:"profile-history"},recent.map(e=>h(EvalRow,{key:e.id,e}))):h("div",{className:"dash-empty"},"لا توجد تقييمات مسجلة بعد.")));
+  function EmployeeDetail({ employee, activeCycle, cycles = [], evaluations, computeScore, ratingFor, onNewEval, onHistory }) {
+    const h = React.createElement;
+    if (!employee) return h(EmptyState, { icon: h(Icon, { svg: ICONS.users, size: 28 }), title: "الموظف غير موجود", body: "" });
+    const all = evaluations.filter(e => e.employee_id === employee.id && cycles.some(c => c.id === e.cycle_id));
+    const evs = activeCycle ? all.filter(e => e.cycle_id === activeCycle.id && e.status === "active") : [];
+    const score = evs.length ? computeScore(employee.id, activeCycle.id) : null;
+    const positive = evs.filter(e => e.type === "positive").length;
+    const negative = evs.filter(e => e.type === "negative").length;
+    const evaluatorCount = new Set(evs.map(e => e.evaluator_id || e.evaluator_name)).size;
+    const recent = all.slice().sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+    const cycleRows = cycles.map(c => {
+      const records = all.filter(e => e.cycle_id === c.id && e.status === "active");
+      return { cycle:c, count:records.length, score:records.length ? computeScore(employee.id,c.id) : null };
+    }).filter(row => row.count).slice(0, 4);
+    const byCategory = Object.values(evs.reduce((acc, e) => {
+      const key = e.category_id || `${e.type}:${e.category_name}`;
+      if (!acc[key]) acc[key] = { name:e.category_name, type:e.type, count:0 };
+      acc[key].count++;
+      return acc;
+    }, {})).sort((a,b) => b.count - a.count).slice(0, 5);
+    return h("div", { className:"employee-profile" },
+      h("section", { className:"profile-hero" },
+        h("span", { className:"person-avatar", style:{ background:avatarColor(employee.name).bg, color:avatarColor(employee.name).fg } }, employee.name.trim().slice(0,1)),
+        h("span", { className:"eyebrow" }, "لوحة الموظف"), h("h1", null, employee.name),
+        h("p", null, employee.profession || "موظف", " · رقم ", employee.employee_code),
+        h("div", { className:"profile-score" }, h("strong", null, score === null ? "—" : Math.round(score)), h("span", null, score === null ? "لم يُقيّم في الدورة الحالية" : `${ratingFor(score)} · من 100`)),
+        h("small", { className:"profile-cycle-label" }, activeCycle ? activeCycle.name : "لا توجد دورة نشطة")),
+      h("div", { className:"report-stats profile-stats" }, [["تقييمات",evs.length],["مقيمون",evaluatorCount],["إيجابي",positive],["سلبي",negative]].map(([label,value]) => h("div", { key:label }, h("strong", null,value), h("small",null,label)))),
+      h("div", { className:"profile-actions" }, h("button", { type:"button", onClick:onNewEval, disabled:!activeCycle }, h(Icon,{svg:ICONS.plus,size:17}), "تقييم جديد"), h("button",{type:"button",onClick:onHistory},h(Icon,{svg:ICONS.clipboard,size:17}),"السجل الكامل")),
+      h("section", { className:"dashboard-panel" }, h("div", { className:"section-heading" }, h("div",null,h("span",{className:"eyebrow"},"الدورة الحالية"),h("h2",null,"أكثر البنود تسجيلًا"))),
+        byCategory.length ? h("div",{className:"profile-category-grid"},byCategory.map(row => h("div",{key:`${row.type}:${row.name}`,className:"profile-category"},h("span",{className:row.type === "positive" ? "category-dot positive" : "category-dot"}),h("strong",null,row.name),h("span",null,row.count," مرة")))) : h("div",{className:"dash-empty"},"ستظهر هنا البنود بعد تسجيل تقييمات هذه الدورة.")),
+      h("section", { className:"dashboard-panel" }, h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"المقارنة"),h("h2",null,"الأداء عبر الدورات"))),
+        cycleRows.length ? h("div",{className:"cycle-comparison"},cycleRows.map(row => h("div",{key:row.cycle.id,className:"cycle-comparison-row"},h("span",null,row.cycle.name),h("div",{className:"comparison-track"},h("span",{style:{width:`${Math.min(100,Math.max(0,row.score))}%`}})),h("strong",null,Math.round(row.score)),h("small",null,row.count," تقييم")))) : h("div",{className:"dash-empty"},"لا توجد دورات بها تقييمات لهذا الموظف.")),
+      h("section", { className:"dashboard-panel" },h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"الخط الزمني"),h("h2",null,"آخر التقييمات")),h("button",{type:"button",className:"text-action",onClick:onHistory},"عرض الكل")),
+        recent.length ? h("div",{className:"profile-history"},recent.map(e => h(EvalRow,{key:e.id,e}))) : h("div",{className:"dash-empty"},"لا توجد تقييمات مسجلة بعد.")));
   }
   function EvalRow({ e }) {
     const isPos = e.type === "positive";
@@ -1259,19 +1352,30 @@ var __startElmCafeApp__ = (() => {
     }
     return /* @__PURE__ */ React.createElement("div", { className: "evaluation-screen" }, restored && /* @__PURE__ */ React.createElement("div", { style: s.infoBanner }, "\u062A\u0645 \u0627\u0633\u062A\u0631\u062C\u0627\u0639 \u0645\u0633\u0648\u062F\u0629 \u062A\u0642\u064A\u064A\u0645 \u063A\u064A\u0631 \u0645\u0643\u062A\u0645\u0644\u0629 \u0644\u0647\u0630\u0627 \u0627\u0644\u0645\u0648\u0638\u0641."), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--ink-3)", marginBottom: 12 } }, "\u0627\u0644\u0645\u0648\u0638\u0641: ", /* @__PURE__ */ React.createElement("b", { style: { color: "var(--ink)" } }, employee.name)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 8 } }, "\u062A\u0642\u064A\u064A\u0645 \u0633\u0644\u0628\u064A"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8, marginBottom: 16 } }, negatives.map((c) => /* @__PURE__ */ React.createElement("button", { key: c.id, onClick: () => setCategory(c), style: { ...s.catCard, ...(category == null ? void 0 : category.id) === c.id ? s.catCardActiveNeg : {} } }, /* @__PURE__ */ React.createElement("span", null, c.name), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--red)", fontWeight: 700 } }, "-", c.points)))), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 8 } }, "\u062A\u0642\u064A\u064A\u0645 \u0625\u064A\u062C\u0627\u0628\u064A"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8, marginBottom: 16 } }, positives.map((c) => /* @__PURE__ */ React.createElement("button", { key: c.id, onClick: () => setCategory(c), style: { ...s.catCard, ...(category == null ? void 0 : category.id) === c.id ? s.catCardActivePos : {} } }, /* @__PURE__ */ React.createElement("span", null, c.name), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--green)", fontWeight: 700 } }, "+", c.points)))), category && /* @__PURE__ */ React.createElement(Field, { label: category.type === "negative" ? "\u0633\u0628\u0628 \u0627\u0644\u062A\u0642\u064A\u064A\u0645 (\u064A\u064F\u0641\u0636\u0651\u0644 \u062A\u0648\u0636\u064A\u062D\u0647)" : "\u0645\u0644\u0627\u062D\u0638\u0629 (\u0627\u062E\u062A\u064A\u0627\u0631\u064A)" }, /* @__PURE__ */ React.createElement("textarea", { style: { ...s.input, minHeight: 90, resize: "vertical" }, value: note, onChange: (e) => setNote(e.target.value), placeholder: "\u0627\u0643\u062A\u0628 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644 \u0647\u0646\u0627\u2026" })), category && category.type === "negative" && /* @__PURE__ */ React.createElement("div", { style: { ...s.card, maxWidth: "100%", marginBottom: 16, padding: "6px 16px" } }, /* @__PURE__ */ React.createElement(Switch, { checked: isViolation, onChange: setIsViolation, label: "\u0625\u0634\u0639\u0627\u0631 \u0628\u0627\u0644\u0645\u062E\u0627\u0644\u0641\u0629", description: "\u064A\u0633\u062A\u0648\u062C\u0628 \u0645\u0631\u0627\u062C\u0639\u0629 \u0627\u0644\u0645\u062F\u064A\u0631 \u0627\u0644\u0623\u0639\u0644\u0649 (\u0645\u062B\u0644\u064B\u0627: \u062E\u0635\u0645 \u0645\u0646 \u0627\u0644\u0631\u0627\u062A\u0628)" })), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 6 } }, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", style: { flex: 1 }, disabled: !category || saving, onClick: commit }, saving ? "\u062C\u0627\u0631\u0650 \u0627\u0644\u062D\u0641\u0638\u2026" : "\u062D\u0641\u0638 \u0627\u0644\u062A\u0642\u064A\u064A\u0645")));
   }
-  function HistoryScreen({ employee, evaluations, session, onCancel }) {
-    const [filter, setFilter] = useState("all");
-    const [cancelTarget, setCancelTarget] = useState(null);
-    const [reason, setReason] = useState("");
-    const filtered = evaluations.filter((e) => filter === "all" ? true : filter === "cancelled" ? e.status === "cancelled" : e.type === filter);
-    const canManage = (e) => session.role === "super_admin" || session.canManageAllEvaluations || e.evaluator_id === session.id;
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" } }, [["all", "\u0627\u0644\u0643\u0644"], ["positive", "\u0625\u064A\u062C\u0627\u0628\u064A"], ["negative", "\u0633\u0644\u0628\u064A"], ["cancelled", "\u0645\u0644\u063A\u0649"]].map(([k, l]) => /* @__PURE__ */ React.createElement("button", { key: k, onClick: () => setFilter(k), style: { ...s.chip, ...filter === k ? s.chipActive : {} } }, l))), !filtered.length ? /* @__PURE__ */ React.createElement(EmptyState, { icon: /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.clipboard, size: 28 }), title: "\u0644\u0627 \u064A\u0648\u062C\u062F \u0633\u062C\u0644\u0627\u062A", body: "" }) : /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } }, filtered.map((e) => /* @__PURE__ */ React.createElement("div", { key: e.id, style: s.card }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 14, color: e.status === "cancelled" ? "var(--ink-3)" : "var(--ink)", textDecoration: e.status === "cancelled" ? "line-through" : "none" } }, e.category_name), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "var(--ink-3)", marginTop: 2 } }, e.evaluator_name, " \xB7 ", fmtDateTime(e.created_at))), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, color: e.type === "positive" ? "var(--green)" : "var(--red)" } }, e.type === "positive" ? "+" : "-", e.category_points)), e.note && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--ink-2)", marginTop: 8, background: "var(--bg-2)", padding: "8px 10px", borderRadius: 8 } }, e.note), e.status === "cancelled" && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)", marginTop: 6 } }, "\u0645\u0644\u063A\u0649 \u0628\u0648\u0627\u0633\u0637\u0629 ", e.edited_by, " \u2014 ", fmtDateTime(e.edited_at), e.cancel_reason ? ` \xB7 ${e.cancel_reason}` : ""), e.status === "active" && canManage(e) && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 8 } }, /* @__PURE__ */ React.createElement("button", { onClick: () => {
-      setCancelTarget(e);
-      setReason("");
-    }, style: s.linkDanger }, "\u0625\u0644\u063A\u0627\u0621 \u0647\u0630\u0627 \u0627\u0644\u062A\u0642\u064A\u064A\u0645"))))), cancelTarget && /* @__PURE__ */ React.createElement(Modal, { title: "\u0625\u0644\u063A\u0627\u0621 \u0627\u0644\u062A\u0642\u064A\u064A\u0645", onClose: () => setCancelTarget(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => {
-      onCancel(cancelTarget.id, reason);
-      setCancelTarget(null);
-    } }, "\u062A\u0623\u0643\u064A\u062F \u0627\u0644\u0625\u0644\u063A\u0627\u0621"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setCancelTarget(null) }, "\u062A\u0631\u0627\u062C\u0639")) }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--ink-2)", marginBottom: 10 } }, '\u0633\u064A\u0628\u0642\u0649 \u0647\u0630\u0627 \u0627\u0644\u062A\u0642\u064A\u064A\u0645 \u0641\u064A \u0627\u0644\u0633\u062C\u0644 \u0643\u0640"\u0645\u0644\u063A\u0649" \u0648\u0644\u0646 \u064A\u064F\u062D\u062A\u0633\u0628 \u0636\u0645\u0646 \u0627\u0644\u0646\u0642\u0627\u0637.'), /* @__PURE__ */ React.createElement(Field, { label: "\u0633\u0628\u0628 \u0627\u0644\u0625\u0644\u063A\u0627\u0621 (\u0627\u062E\u062A\u064A\u0627\u0631\u064A)" }, /* @__PURE__ */ React.createElement("input", { style: s.input, value: reason, onChange: (e) => setReason(e.target.value) }))));
+  function HistoryScreen({ employee, evaluations, cycles = [], activeCycle, session, onCancel }) {
+    const h = React.createElement;
+    const [filter,setFilter] = useState("all");
+    const [cycleId,setCycleId] = useState(activeCycle?.id || "all");
+    const [cancelTarget,setCancelTarget] = useState(null);
+    const [reason,setReason] = useState("");
+    const visible = evaluations.filter(e => cycles.some(c => c.id === e.cycle_id));
+    const filtered = visible.filter(e => (cycleId === "all" || e.cycle_id === cycleId) && (filter === "all" || (filter === "cancelled" ? e.status === "cancelled" : e.type === filter && e.status === "active"))).slice().sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    const current = visible.filter(e => cycleId === "all" || e.cycle_id === cycleId);
+    const active = current.filter(e => e.status === "active");
+    const canManage = e => session.role === "super_admin" || session.canManageAllEvaluations || e.evaluator_id === session.id;
+    return h("div",{className:"history-screen"},
+      h("section",{className:"history-hero"},h("span",{className:"eyebrow"},"سجل التقييمات"),h("h1",null,employee?.name || "الموظف"),h("p",null,"كل تقييم باسم المقيم ووقته، موزع حسب الدورة."),
+        h("div",{className:"history-stats"},[["الإجمالي",active.length],["إيجابي",active.filter(e=>e.type==="positive").length],["سلبي",active.filter(e=>e.type==="negative").length],["ملغى",current.filter(e=>e.status==="cancelled").length]].map(([label,value])=>h("div",{key:label},h("strong",null,value),h("small",null,label))))),
+      h("label",{className:"history-cycle"},"الدورة",h("select",{value:cycleId,onChange:e=>setCycleId(e.target.value)},h("option",{value:"all"},"كل الدورات"),cycles.map(c=>h("option",{key:c.id,value:c.id},c.name)))),
+      h("div",{className:"segmented"},[["all","الكل"],["positive","إيجابي"],["negative","سلبي"],["cancelled","ملغى"]].map(([key,label])=>h("button",{key,type:"button",className:filter===key?"selected":"",onClick:()=>setFilter(key)},label))),
+      filtered.length ? h("div",{className:"history-list"},filtered.map(e=>h("article",{key:e.id,className:`history-card ${e.status==="cancelled"?"cancelled":""}`},
+        h("div",{className:"history-card-top"},h("span",{className:e.type==="positive"?"history-type positive":"history-type"},e.status==="cancelled"?"ملغى":e.type==="positive"?"إيجابي":"سلبي"),h("strong",null,e.category_name),h("b",null,(e.type==="positive"?"+":"−"),e.category_points)),
+        h("div",{className:"history-meta"},h("span",null,cycles.find(c=>c.id===e.cycle_id)?.name || "الدورة"),h("span",null,fmtDateTime(e.created_at))),
+        h("div",{className:"history-evaluator"},"سجّله ",e.evaluator_name),
+        e.note && h("p",{className:"history-note"},e.note),
+        e.status==="cancelled" ? h("small",{className:"history-cancelled"},"ألغاه ",e.edited_by," · ",fmtDateTime(e.edited_at),e.cancel_reason?` · ${e.cancel_reason}`:"") : canManage(e) && h("button",{type:"button",className:"history-cancel",onClick:()=>{setCancelTarget(e);setReason("");}},"إلغاء التقييم")))) : h("div",{className:"dash-empty"},"لا توجد تقييمات بهذه التصفية."),
+      cancelTarget && h(Modal,{title:"إلغاء التقييم",onClose:()=>setCancelTarget(null),footer:h(React.Fragment,null,h(Btn,{variant:"danger",onClick:()=>{onCancel(cancelTarget.id,reason);setCancelTarget(null);}},"تأكيد الإلغاء"),h(Btn,{variant:"ghost",onClick:()=>setCancelTarget(null)},"تراجع"))},
+        h("p",null,"سيبقى التقييم في السجل كملغى ولن يُحتسب ضمن النقاط."),h(Field,{label:"سبب الإلغاء (اختياري)"},h("input",{style:s.input,value:reason,onChange:e=>setReason(e.target.value)}))));
   }
   function AdminDashboard({ employees, evaluations, activeCycle, computeScore, audit, displayTarget, onGo, onOpenEmployee, onOpenNotifications }) {
     const h = React.createElement;
@@ -1517,12 +1621,21 @@ var __startElmCafeApp__ = (() => {
           h("strong",null,r.emp.name),h("small",null,r.emp.profession || "موظف"),h("span",{className:r.total?"status-chip done":"status-chip"},r.total?`${r.total} تقييم · ${r.rating}`:"لم يُقيّم بعد")))) : h("div",{className:"dash-empty"},"لا توجد نتائج مطابقة.")));
   }
   function NotificationsModal({ evaluations, employees, onClose, onReview }) {
-    const items = evaluations.filter((e) => e.is_violation && e.status === "active").sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    return /* @__PURE__ */ React.createElement(Modal, { title: "\u0625\u0634\u0639\u0627\u0631\u0627\u062A \u0627\u0644\u0645\u062E\u0627\u0644\u0641\u0627\u062A", onClose, footer: /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: onClose }, "\u0625\u063A\u0644\u0627\u0642") }, !items.length ? /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", padding: "24px 8px", color: "var(--ink-3)", fontSize: 13 } }, "\u0644\u0627 \u062A\u0648\u062C\u062F \u0625\u0634\u0639\u0627\u0631\u0627\u062A \u0645\u062E\u0627\u0644\u0641\u0627\u062A \u062D\u062A\u0649 \u0627\u0644\u0622\u0646.") : /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, items.map((e) => {
-      var _a;
-      const empName = ((_a = employees.find((emp) => emp.id === e.employee_id)) == null ? void 0 : _a.name) || "\u0645\u0648\u0638\u0641";
-      return /* @__PURE__ */ React.createElement("div", { key: e.id, style: { background: e.violation_reviewed ? "var(--bg-2)" : "var(--red-10)", border: "0.5px solid var(--border)", borderRadius: 12, padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 600, color: "var(--ink)" } }, "\u0642\u0627\u0645 ", /* @__PURE__ */ React.createElement("b", null, e.evaluator_name), " \u0628\u062A\u0646\u0628\u064A\u0647\u0643 \u0644\u0645\u062E\u0627\u0644\u0641\u0629 \u0627\u0644\u0645\u0648\u0638\u0641 ", /* @__PURE__ */ React.createElement("b", null, empName)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-2)", marginTop: 4 } }, e.category_name, e.note ? ` \u2014 ${e.note}` : ""), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "var(--ink-3)", marginTop: 4 } }, relTime(e.created_at)), !e.violation_reviewed ? /* @__PURE__ */ React.createElement("button", { onClick: () => onReview(e.id), style: { ...s.linkDanger, color: "var(--forest)", marginTop: 8, display: "flex", alignItems: "center", gap: 4 } }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.check, size: 13 }), " \u062A\u0645\u062A \u0627\u0644\u0645\u0631\u0627\u062C\u0639\u0629") : /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "var(--ink-3)", marginTop: 6 } }, "\u2713 \u062A\u0645\u062A \u0627\u0644\u0645\u0631\u0627\u062C\u0639\u0629"));
-    })));
+    const h = React.createElement;
+    const items = evaluations.filter(e => e.is_violation && e.status === "active").sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    const unread = items.filter(e => !e.violation_reviewed).length;
+    return h(React.Fragment,null,
+      h("div",{className:"notification-dismiss",onClick:onClose,"aria-hidden":"true"}),
+      h("aside",{className:"notification-popover",role:"dialog","aria-label":"إشعارات المخالفات"},
+        h("div",{className:"notification-heading"},h("div",null,h("strong",null,"إشعارات المخالفات"),h("small",null,unread ? `${unread} بحاجة للمراجعة` : "كل الإشعارات تمت مراجعتها")),h("button",{type:"button",onClick:onClose,"aria-label":"إغلاق الإشعارات"},"×")),
+        h("div",{className:"notification-list"},items.length ? items.map(e => {
+          const empName = employees.find(emp => emp.id === e.employee_id)?.name || "موظف";
+          return h("article",{key:e.id,className:`notification-item ${e.violation_reviewed ? "reviewed" : ""}`},
+            h("div",{className:"notification-item-top"},h("strong",null,empName),h("time",null,relTime(e.created_at))),
+            h("p",null,e.category_name,e.note ? ` · ${e.note}` : ""),
+            h("small",null,"سجله: ",e.evaluator_name),
+            !e.violation_reviewed && h("button",{type:"button",onClick:()=>onReview(e.id)},"تمت المراجعة"));
+        }) : h("div",{className:"notification-empty"},"لا توجد إشعارات مخالفة."))));
   }
   function AuditLogScreen({ audit, displayTarget, onTrash, onTrashAll }) {
     const [selected, setSelected] = useState(null);
@@ -1568,8 +1681,8 @@ var __startElmCafeApp__ = (() => {
   const s = {
     topbar: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, padding: "6px 8px 6px 14px", background: "var(--glass)", backdropFilter: "blur(22px) saturate(165%)", WebkitBackdropFilter: "blur(22px) saturate(165%)", position: "fixed", top: "calc(8px + env(safe-area-inset-top, 0px))", left: 10, right: 10, maxWidth: 460, margin: "0 auto", zIndex: 9, border: "1px solid var(--glass-border)", borderRadius: 22, boxShadow: "0 10px 30px rgba(33,30,24,.1), inset 0 1px rgba(255,255,255,.85)" },
     body: { padding: "18px 16px 44px", paddingTop: "calc(82px + env(safe-area-inset-top, 0px))" },
-    bottomNav: { position: "fixed", bottom: "calc(14px + env(safe-area-inset-bottom, 0px))", left: 14, right: 14, maxWidth: 452, margin: "0 auto", display: "flex", background: "rgba(255,255,255,0.72)", backdropFilter: "blur(16px) saturate(180%)", WebkitBackdropFilter: "blur(16px) saturate(180%)", border: "1px solid var(--glass-border)", borderRadius: 26, boxShadow: "0 8px 28px rgba(33,30,24,0.16), 0 2px 8px rgba(33,30,24,0.08)", zIndex: 8, padding: "4px 2px" },
-    bottomNavBtn: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "10px 4px 8px", background: "none", border: "none", cursor: "pointer" },
+    bottomNav: { position: "fixed", bottom: "calc(8px + env(safe-area-inset-bottom, 0px))", left: 16, right: 16, maxWidth: 452, margin: "0 auto", display: "flex", background: "rgba(255,255,255,0.72)", backdropFilter: "blur(16px) saturate(180%)", WebkitBackdropFilter: "blur(16px) saturate(180%)", border: "1px solid var(--glass-border)", borderRadius: 20, boxShadow: "0 8px 28px rgba(33,30,24,0.16), 0 2px 8px rgba(33,30,24,0.08)", zIndex: 8, padding: "2px 2px" },
+    bottomNavBtn: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "6px 4px 5px", minHeight: 48, background: "none", border: "none", cursor: "pointer" },
     iconBtn: { background: "transparent", border: "none", cursor: "pointer", padding: 10, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ink-2)", minWidth: 44, minHeight: 44 },
     centerScreen: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 16px", minHeight: "100vh" },
     card: { background: "var(--bg-2)", border: "0.5px solid var(--border)", borderRadius: 16, padding: "18px 18px", width: "100%", maxWidth: 340, boxSizing: "border-box", boxShadow: "0 1px 2px rgba(33,30,24,0.03), 0 4px 14px rgba(33,30,24,0.035)" },
@@ -1595,7 +1708,7 @@ var __startElmCafeApp__ = (() => {
     modalCard: { background: "var(--glass-strong)", borderRadius: 18, padding: 22, width: "100%", maxWidth: 360, boxSizing: "border-box", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 12px 40px rgba(20,18,14,0.22)" },
     toast: { position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)", background: "var(--forest)", color: "#fff", padding: "12px 20px", borderRadius: 18, fontSize: 13, fontWeight: 600, zIndex: 60, boxShadow: "0 6px 20px rgba(0,0,0,0.2)", maxWidth: "calc(100% - 32px)", textAlign: "center" }
   };
-  ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));
+  ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(AppErrorBoundary, null, React.createElement(App, null)));
 });
 
 (function boot(attemptsLeft) {
