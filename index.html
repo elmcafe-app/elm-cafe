@@ -574,7 +574,7 @@ var __startElmCafeApp__ = (() => {
       supabase.from("categories").select("*"),
       fetchAllRows("cycles", "created_at", false),
       fetchAllRows("evaluations", "created_at", false),
-      supabase.from("audit_log").select("*").order("created_at", { ascending: false }).limit(200),
+      fetchAllRows("audit_log", "created_at", false).then(data=>({data,error:null})).catch(error=>({data:null,error})),
       supabase.from("rating_bands").select("*").order("sort_order"),
       supabase.from("user_lookup").select("*"),
       supabase.from("cycle_awards").select("*").order("created_at", { ascending: false }),
@@ -772,7 +772,7 @@ var __startElmCafeApp__ = (() => {
     }
     async function addAudit(action, target, details = "") {
       const { data } = await supabase.from("audit_log").insert({ actor: session ? session.name : "\u0627\u0644\u0646\u0638\u0627\u0645", action, target, details }).select().single();
-      if (data) setAudit((prev) => [data, ...prev].slice(0, 200));
+      if (data) setAudit((prev) => [data, ...prev]);
     }
     function displayAuditTarget(target) {
       if (!target || target === "-") return "";
@@ -1296,9 +1296,10 @@ var __startElmCafeApp__ = (() => {
           showToast("\u062A\u0645 \u0627\u0633\u062A\u0631\u062C\u0627\u0639 \u0627\u0644\u062F\u0648\u0631\u0629");
         },
         onDeleteCycleForever: async (id) => {
-          const { error } = await supabase.from("cycles").delete().eq("id", id);
-          if (error) {
-            showToast(`\u062A\u0639\u0630\u0651\u0631 \u0627\u0644\u062D\u0630\u0641: ${error.message}`, "error");
+          const { data, error } = await supabase.from("cycles").delete().eq("id", id).not("deleted_at", "is", null).select("id");
+          if (error || !data?.some(row => row.id === id)) {
+            showToast(error ? `\u062A\u0639\u0630\u0651\u0631 \u0627\u0644\u062D\u0630\u0641: ${error.message}` : "لم تُحذف الدورة من قاعدة البيانات. راجع صلاحية الحذف النهائي.", "error");
+            await refetch();
             return;
           }
           setCycles((prev) => prev.filter((c) => c.id !== id));
@@ -1314,9 +1315,10 @@ var __startElmCafeApp__ = (() => {
           setAudit((prev) => prev.map((a) => a.id === id ? { ...a, deleted_at: null } : a));
         },
         onDeleteAuditForever: async (id) => {
-          const { error } = await supabase.from("audit_log").delete().eq("id", id);
-          if (error) {
-            showToast(`\u062A\u0639\u0630\u0651\u0631 \u0627\u0644\u062D\u0630\u0641: ${error.message}`, "error");
+          const { data, error } = await supabase.from("audit_log").delete().eq("id", id).not("deleted_at", "is", null).select("id");
+          if (error || !data?.some(row => row.id === id)) {
+            showToast(error ? `\u062A\u0639\u0630\u0651\u0631 \u0627\u0644\u062D\u0630\u0641: ${error.message}` : "لم يُحذف السجل من قاعدة البيانات. راجع صلاحية الحذف النهائي.", "error");
+            await refetch();
             return;
           }
           setAudit((prev) => prev.filter((a) => a.id !== id));
@@ -1325,14 +1327,22 @@ var __startElmCafeApp__ = (() => {
           const cycleIds = cycles.filter((c) => c.deleted_at).map((c) => c.id);
           const auditIds = audit.filter((a) => a.deleted_at).map((a) => a.id);
           if (cycleIds.length) {
-            const { error } = await supabase.from("cycles").delete().in("id", cycleIds);
-            if (error) { showToast(`تعذّر حذف الدورات: ${error.message}`, "error"); return; }
+            const { data, error } = await supabase.from("cycles").delete().in("id", cycleIds).not("deleted_at", "is", null).select("id");
+            if (error || data?.length !== cycleIds.length || !cycleIds.every(id => data.some(row => row.id === id))) {
+              showToast(error ? `تعذّر حذف الدورات: ${error.message}` : "لم تُحذف كل الدورات من قاعدة البيانات. راجع صلاحية الحذف النهائي.", "error");
+              await refetch();
+              return;
+            }
             setCycles(prev => prev.filter(c => !cycleIds.includes(c.id)));
              setEvaluations(prev => prev.filter(e => !cycleIds.includes(e.cycle_id)));
           }
           if (auditIds.length) {
-            const { error } = await supabase.from("audit_log").delete().in("id", auditIds);
-            if (error) { showToast(`تعذّر حذف السجل: ${error.message}`, "error"); return; }
+            const { data, error } = await supabase.from("audit_log").delete().in("id", auditIds).not("deleted_at", "is", null).select("id");
+            if (error || data?.length !== auditIds.length || !auditIds.every(id => data.some(row => row.id === id))) {
+              showToast(error ? `تعذّر حذف السجل: ${error.message}` : "لم تُحذف كل أحداث السجل من قاعدة البيانات. راجع صلاحية الحذف النهائي.", "error");
+              await refetch();
+              return;
+            }
             setAudit(prev => prev.filter(a => !auditIds.includes(a.id)));
           }
           showToast("تم إفراغ سلة المهملات نهائيًا");
