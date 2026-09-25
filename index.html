@@ -301,6 +301,46 @@
     #root { max-width: 480px; width: 100%; }
     .app-main-content { margin: 0 auto; }
   }
+  html, body { overscroll-behavior: none; }
+  .app-topbar, .app-bottomnav, .notification-popover {
+    background: rgba(248,247,242,.50) !important;
+    backdrop-filter: blur(20px) saturate(170%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(170%) !important;
+    border-color: rgba(255,255,255,.52) !important;
+  }
+  html[data-theme="dark"] .app-topbar,
+  html[data-theme="dark"] .app-bottomnav,
+  html[data-theme="dark"] .notification-popover {
+    background: rgba(19,21,24,.54) !important;
+    border-color: rgba(255,255,255,.13) !important;
+  }
+  input, select, textarea { font-size: 16px !important; }
+  .evaluation-hub-head { padding: 18px 4px 14px; }
+  .evaluation-hub-head h1 { font-size: clamp(23px,5vw,30px); margin: 4px 0; }
+  .evaluation-hub-head p { color: var(--ink-2); margin: 0 0 6px; font-size: 13px; }
+  .evaluation-hub-head small { color: var(--ink-3); }
+  .quick-evaluation-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin-top:12px; }
+  .quick-evaluation-item { display:flex;align-items:stretch;gap:4px;min-width:0; }
+  .quick-evaluation-pick { flex:1;display:flex;align-items:center;gap:9px;min-width:0;min-height:56px;padding:8px 10px;background:var(--glass);border:1px solid var(--glass-border);border-radius:15px;color:var(--ink);text-align:right;font:inherit;cursor:pointer; }
+  .quick-evaluation-pick span:nth-child(2) { flex:1;min-width:0;display:grid;gap:3px; }
+  .quick-evaluation-pick strong,.quick-evaluation-pick small { overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+  .quick-evaluation-pick small { color:var(--ink-3);font-size:11px; }
+  .quick-evaluation-profile { min-width:48px;padding:0 6px;border:1px solid var(--glass-border);border-radius:13px;background:var(--glass);color:var(--ink-2);font:inherit;font-size:12px;cursor:pointer; }
+  .evaluation-activity-list { display:grid;gap:7px; }
+  .evaluation-activity-item { display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:8px 10px;text-align:right;border:1px solid var(--glass-border);border-radius:14px;background:var(--glass);color:var(--ink);font:inherit;cursor:pointer; }
+  .evaluation-activity-main { flex:1;min-width:0;display:grid;gap:3px; }
+  .evaluation-activity-main strong,.evaluation-activity-main small { overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+  .evaluation-activity-main small,.evaluation-activity-date { color:var(--ink-3);font-size:11px; }
+  .evaluation-sign { border-radius:10px;padding:5px 6px;font-weight:700;color:var(--red);background:var(--red-10); }
+  .evaluation-sign.positive { color:var(--green);background:var(--green-10); }
+  .evaluation-detail { display:grid;gap:6px;line-height:1.6; }
+  .evaluation-detail p { margin:0; }
+  .evaluation-detail-note { margin-top:8px;padding:12px;border-radius:13px;background:var(--glass);white-space:pre-wrap;overflow-wrap:anywhere; }
+  .evaluation-detail-note small { color:var(--ink-3); }
+  .profile-primary-action { display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;margin:12px 0;border:0;border-radius:16px;background:var(--forest);color:white;font:inherit;font-weight:700;cursor:pointer; }
+  .profile-primary-action:disabled { opacity:.5;cursor:not-allowed; }
+  .pull-status { position:fixed;z-index:40;top:calc(env(safe-area-inset-top,0px) + 4px);left:50%;transform:translateX(-50%);padding:6px 12px;border-radius:20px;background:var(--glass-strong);backdrop-filter:blur(18px);color:var(--ink);font-size:12px;box-shadow:0 4px 16px var(--glass-shadow);pointer-events:none; }
+  @media (hover:hover) { .quick-evaluation-pick:hover,.quick-evaluation-profile:hover,.evaluation-activity-item:hover { border-color:var(--border-strong); } }
 </style>
 </head>
 <body>
@@ -596,7 +636,7 @@ var __startElmCafeApp__ = (() => {
       cycles,
       evaluations,
       audit: aud.data || [],
-      ratingBands: rb.data && rb.data.length ? rb.data : DEFAULT_RATING_BANDS_FALLBACK,
+      ratingBands: rb.data || DEFAULT_RATING_BANDS_FALLBACK,
       userLookup: lookup.data || [],
       cycleAwards: awardSchemaReady ? (awardResult.data || []) : [],
       awardsReady: awardSchemaReady,
@@ -624,6 +664,12 @@ var __startElmCafeApp__ = (() => {
       });
     }
     const [session, setSession] = useState(null);
+    const [isOwner,setIsOwner]=useState(false);
+    async function refreshOwner() {
+      const {data,error}=await supabase.rpc("is_app_owner");
+      setIsOwner(!error && data===true);
+      return !error && data===true;
+    }
     const [screen, setScreen] = useState("login");
     const [stack, setStack] = useState([]);
     const [ctx, setCtx] = useState({});
@@ -632,6 +678,8 @@ var __startElmCafeApp__ = (() => {
     const [connectionState, setConnectionState] = useState(() => navigator.onLine ? "checking" : "offline");
     const [lastSyncAt, setLastSyncAt] = useState(null);
     const [pendingNav, setPendingNav] = useState(null);
+    const [confirmLogout, setConfirmLogout] = useState(false);
+    const [pullState, setPullState] = useState("");
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const hasUnsavedRef = useRef(false);
     const [employees, setEmployees] = useState([]);
@@ -720,6 +768,7 @@ var __startElmCafeApp__ = (() => {
           const prof = await loadSessionProfile(authSession.user);
           if (prof) {
             setSession(prof);
+            await refreshOwner();
             await refetch();
             await refetchProfiles();
             setScreen(prof?.role === "super_admin" ? "adminHome" : "home");
@@ -765,11 +814,48 @@ var __startElmCafeApp__ = (() => {
       return () => { if (timer) clearTimeout(timer); supabase.removeChannel(channel); };
     }, [session]);
     async function manualRefresh() {
+      if (refreshing) return;
       setRefreshing(true);
-      try { await refetch(); await refetchProfiles(); }
+      try { const ok = await refetch(); if (ok !== false) await refetchProfiles(); }
       catch (_) { showToast("تعذّر تحديث الحسابات", "error"); }
       finally { setRefreshing(false); }
     }
+    useEffect(() => {
+      if (!session) return;
+      let start = null;
+      const onStart = event => {
+        if (event.touches.length !== 1 || refreshing || document.querySelector('[role="dialog"], .certificate-overlay')) return;
+        if (event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+        if ((document.scrollingElement?.scrollTop || window.scrollY) > 1) return;
+        start = { x:event.touches[0].clientX, y:event.touches[0].clientY, distance:0 };
+      };
+      const onMove = event => {
+        if (!start || event.touches.length !== 1) return;
+        const dx = event.touches[0].clientX - start.x;
+        const dy = event.touches[0].clientY - start.y;
+        if (dy <= 6 || Math.abs(dx) > dy * .5 || (document.scrollingElement?.scrollTop || window.scrollY) > 1) return;
+        start.distance = dy;
+        if (event.cancelable) event.preventDefault();
+        setPullState(dy >= 75 ? "ready" : "pulling");
+      };
+      const onEnd = () => {
+        const shouldRefresh = start?.distance >= 75;
+        start = null;
+        setPullState("");
+        if (shouldRefresh) manualRefresh();
+      };
+      const onCancel = () => { start = null; setPullState(""); };
+      window.addEventListener("touchstart", onStart, { passive:true });
+      window.addEventListener("touchmove", onMove, { passive:false });
+      window.addEventListener("touchend", onEnd, { passive:true });
+      window.addEventListener("touchcancel", onCancel, { passive:true });
+      return () => {
+        window.removeEventListener("touchstart", onStart);
+        window.removeEventListener("touchmove", onMove);
+        window.removeEventListener("touchend", onEnd);
+        window.removeEventListener("touchcancel", onCancel);
+      };
+    }, [session, refreshing]);
     async function addAudit(action, target, details = "") {
       const { data } = await supabase.from("audit_log").insert({ actor: session ? session.name : "\u0627\u0644\u0646\u0638\u0627\u0645", action, target, details }).select().single();
       if (data) setAudit((prev) => [data, ...prev]);
@@ -813,7 +899,7 @@ var __startElmCafeApp__ = (() => {
       else doNav();
     }
     useEffect(() => {
-      if (!session || !stack.length || pendingNav || notificationsOpen) return;
+      if (!session || pendingNav || notificationsOpen) return;
       let start = null;
       const overlays = '[role="dialog"], .certificate-overlay, .quick-search-scrim';
       const onTouchStart = (event) => {
@@ -836,7 +922,7 @@ var __startElmCafeApp__ = (() => {
         const dy = event.changedTouches[0].clientY - start.y;
         const inward = start.edge === "left" ? dx : -dx;
         start = null;
-        if (inward >= 72 && Math.abs(dy) < Math.min(60, inward * 0.6) && !document.querySelector(overlays)) goBack();
+        if (stack.length && inward >= 72 && Math.abs(dy) < Math.min(60, inward * 0.6) && !document.querySelector(overlays)) goBack();
       };
       const onTouchCancel = () => { start = null; };
       window.addEventListener("touchstart", onTouchStart, { passive: true });
@@ -853,6 +939,7 @@ var __startElmCafeApp__ = (() => {
     async function logout() {
       await supabase.auth.signOut();
       setSession(null);
+      setIsOwner(false);
       setStack([]);
       setCtx({});
       setScreen("login");
@@ -867,7 +954,7 @@ var __startElmCafeApp__ = (() => {
       return Math.max(0, Math.min(100, 100 + delta));
     }
     function ratingFor(score) {
-      const b = ratingBands.find((b2) => score >= b2.min && score <= b2.max);
+      const b = ratingBands.find((b2) => !b2.deleted_at && score >= b2.min && score <= b2.max);
       return b ? b.label : "-";
     }
     if (booting) return React.createElement("div", { className: "initial-splash" }, React.createElement(Logo, { size: 112 }), React.createElement("span", { className: "splash-pulse" }), React.createElement("span", null, "لحظات..."));
@@ -883,6 +970,7 @@ var __startElmCafeApp__ = (() => {
           const prof = await loadSessionProfile(data.user);
           if (!prof) return "\u0627\u0644\u062D\u0633\u0627\u0628 \u063A\u064A\u0631 \u0645\u0641\u0639\u0651\u0644 \u0623\u0648 \u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F";
           setSession(prof);
+          await refreshOwner();
           await refetch();
           await refetchProfiles();
           setScreen(prof?.role === "super_admin" ? "adminHome" : "home");
@@ -919,8 +1007,8 @@ var __startElmCafeApp__ = (() => {
         title: titleFor(screen, ctx, employees),
         onBack: stack.length ? goBack : null,
         session,
-        onLogout: logout,
-        onRefresh: manualRefresh,
+        onLogout: () => setConfirmLogout(true),
+        onRefresh: null,
         refreshing,
         violationCount: evaluations.filter((e) => e.is_violation && !e.violation_reviewed && e.status === "active").length,
         onOpenNotifications: () => setNotificationsOpen(true),
@@ -938,7 +1026,9 @@ var __startElmCafeApp__ = (() => {
         session,
         evaluations,
         onGo: (scr) => goto(scr),
-        onOpen: (emp) => goto("employee", { employeeId: emp.id })
+        onOpen: (emp) => goto("newEval", { employeeId: emp.id }),
+        onProfile: (emp) => goto("employee", { employeeId: emp.id }),
+        initialEvaluationId: ctx.evaluationId
       }
     ), screen === "employee" && /* @__PURE__ */ React.createElement(
       EmployeeDetail,
@@ -962,7 +1052,7 @@ var __startElmCafeApp__ = (() => {
       NewEvaluationScreen,
       {
         employee: employees.find((e) => e.id === ctx.employeeId),
-        categories: categories.filter((c) => c.active),
+        categories: categories.filter((c) => c.active && !c.deleted_at),
         activeCycle,
         session,
         hasUnsavedRef,
@@ -1017,8 +1107,9 @@ var __startElmCafeApp__ = (() => {
         computeScore,
         audit,
         displayTarget: displayAuditTarget,
-        onGo: (scr) => goto(scr),
+        onGo: (scr, nextCtx) => goto(scr, nextCtx),
         onOpenEmployee: (id) => goto("employee", { employeeId: id }),
+        onNewEval: (id) => goto("newEval", { employeeId: id }),
         onOpenNotifications: () => setNotificationsOpen(true)
       }
     ), screen === "adminEmployees" && /* @__PURE__ */ React.createElement(
@@ -1058,11 +1149,12 @@ var __startElmCafeApp__ = (() => {
           showToast("\u062A\u0645 \u062D\u0630\u0641 \u0627\u0644\u0645\u0648\u0638\u0641 \u0648\u0643\u0644 \u062A\u0642\u064A\u064A\u0645\u0627\u062A\u0647 \u0646\u0647\u0627\u0626\u064A\u064B\u0627");
         }
       }
-    ), screen === "adminUsers" && /* @__PURE__ */ React.createElement(
+    ), screen === "adminUsers" && (isOwner ? /* @__PURE__ */ React.createElement(
       AdminUsers,
       {
         profiles,
         userLookup,
+        ownId:session.id,
         onAdd: async (u) => {
           var _a, _b, _c, _d, _e, _f;
           const username = u.username.trim().toLowerCase();
@@ -1121,7 +1213,8 @@ var __startElmCafeApp__ = (() => {
           showToast("\u062A\u0645 \u062A\u062D\u062F\u064A\u062B \u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A");
         },
         onDelete: async (id, name) => {
-          const { error } = await supabase.from("profiles").delete().eq("id", id);
+          if (!isOwner || id === session.id) { showToast("لا يمكن حذف هذا الحساب", "error"); return false; }
+          const { error } = await supabase.rpc("owner_remove_app_account", { p_id:id });
           if (error) {
             if (error.message.includes("foreign key") || error.code === "23503") {
               showToast("\u0644\u0627 \u064A\u0645\u0643\u0646 \u062D\u0630\u0641 \u0647\u0630\u0627 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0646\u0647\u0627\u0626\u064A\u064B\u0627 \u0644\u0623\u0646\u0647 \u0642\u0627\u0645 \u0628\u062A\u0642\u064A\u064A\u0645\u0627\u062A \u0633\u0627\u0628\u0642\u0629 \u2014 \u0627\u0633\u062A\u062E\u062F\u0645 \u0627\u0644\u062A\u0639\u0637\u064A\u0644 \u0628\u062F\u0644\u064B\u0627 \u0645\u0646 \u0630\u0644\u0643", "error");
@@ -1131,24 +1224,26 @@ var __startElmCafeApp__ = (() => {
             return;
           }
           setProfiles((prev) => prev.filter((p) => p.id !== id));
+          setUserLookup(prev=>prev.filter(row=>row.user_id!==id));
           await addAudit("\u062D\u0630\u0641 \u0645\u0633\u062A\u062E\u062F\u0645 \u0646\u0647\u0627\u0626\u064A\u064B\u0627", name);
-          showToast("\u062A\u0645 \u062D\u0630\u0641 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0646\u0647\u0627\u0626\u064A\u064B\u0627");
+          showToast("تم حذف وصول المستخدم إلى التطبيق. حساب الدخول في Supabase Auth يُدار منفصلًا.");
         }
       }
-    ), screen === "adminCategories" && /* @__PURE__ */ React.createElement(
+    ) : React.createElement(EmptyState,{icon:React.createElement(Icon,{svg:ICONS.lock,size:28}),title:"إدارة الحسابات لصاحب التطبيق فقط",body:"لا يمكنك إدارة الحسابات من هذا الحساب."})), screen === "adminCategories" && /* @__PURE__ */ React.createElement(
       AdminCategories,
       {
-        categories,
-        ratingBands,
+        ratingBands: ratingBands.filter(b=>!b.deleted_at),
+        categories: categories.filter(c=>!c.deleted_at),
         onAddCategory: async (cat) => {
           const { data, error } = await supabase.from("categories").insert(cat).select().single();
           if (error) {
             showToast(`\u062A\u0639\u0630\u0651\u0631\u062A \u0627\u0644\u0625\u0636\u0627\u0641\u0629: ${error.message}`, "error");
-            return;
+            return false;
           }
           setCategories((prev) => [...prev, data]);
           await addAudit("\u0625\u0636\u0627\u0641\u0629 \u062A\u0635\u0646\u064A\u0641 \u062A\u0642\u064A\u064A\u0645", cat.name);
           showToast("\u062A\u0645\u062A \u0625\u0636\u0627\u0641\u0629 \u0627\u0644\u062A\u0635\u0646\u064A\u0641");
+          return true;
         },
         onUpdateCategory: async (id, patch) => {
           const { error } = await supabase.from("categories").update(patch).eq("id", id);
@@ -1160,31 +1255,32 @@ var __startElmCafeApp__ = (() => {
           await addAudit("\u062A\u0639\u062F\u064A\u0644 \u062A\u0635\u0646\u064A\u0641 \u062A\u0642\u064A\u064A\u0645", id, JSON.stringify(patch));
           showToast("\u062A\u0645 \u0627\u0644\u062A\u062D\u062F\u064A\u062B \u2014 \u0644\u0646 \u064A\u0624\u062B\u0631 \u0639\u0644\u0649 \u0627\u0644\u062A\u0642\u064A\u064A\u0645\u0627\u062A \u0627\u0644\u0633\u0627\u0628\u0642\u0629");
         },
-        onUpdateBands: async (bands) => {
-          const ordered = [...bands].sort((a,b) => a.min - b.min);
-          let next = 0;
-          for (const band of ordered) {
-            if (!Number.isInteger(band.min) || !Number.isInteger(band.max) || band.min !== next || band.max > 100 || !String(band.label || "").trim()) {
-              showToast("نطاقات التقييم يجب أن تغطي 0 إلى 100 دون فجوات أو تداخل", "error"); return false;
-            }
-            next = band.max + 1;
-          }
-          if (next !== 101) { showToast("نطاقات التقييم يجب أن تصل إلى 100", "error"); return false; }
-          const oldIds = ratingBands.filter(b => b.id).map(b => b.id);
-          const sortBase = Math.max(0, ...ratingBands.map(b => Number(b.sort_order) || 0)) + 1;
-          const { data, error } = await supabase.from("rating_bands").insert(bands.map((b,i) => ({min:b.min,max:b.max,label:b.label.trim(),sort_order:sortBase+i}))).select();
-          if (error || !data) { showToast(`تعذّر تحديث النطاقات: ${error?.message || "خطأ في الحفظ"}`, "error"); return false; }
-          if (oldIds.length) {
-            const { error: deleteError } = await supabase.from("rating_bands").delete().in("id",oldIds);
-            if (deleteError) {
-              await supabase.from("rating_bands").delete().in("id",data.map(b=>b.id));
-              showToast(`تعذّر إكمال التحديث: ${deleteError.message}`, "error"); return false;
-            }
-          }
-          setRatingBands(data.sort((a,b)=>a.sort_order-b.sort_order));
-          try { await addAudit("تعديل نطاقات التقييم", "-"); } catch (_) {}
-          showToast("تم تحديث نطاقات التقييم");
+        onArchiveCategory: async (id) => {
+          const { data, error } = await supabase.from("categories").update({deleted_at:nowISO()}).eq("id",id).is("deleted_at",null).select("id,deleted_at").single();
+          if (error || !data) { showToast("تعذّر نقل التصنيف للسلة: "+(error?.message||"راجع الصلاحيات"),"error"); return false; }
+          setCategories(prev=>prev.map(c=>c.id===id?{...c,deleted_at:data.deleted_at}:c));
+          await addAudit("نقل تصنيف للسلة",id);
           return true;
+        },
+        onArchiveBand: async (id) => {
+          const {error}=await supabase.rpc("archive_rating_band",{p_id:id});
+          if(error){showToast("تعذّر نقل النطاق: "+error.message,"error");return false;}
+          await refetch();
+          await addAudit("نقل نطاق تقييم للسلة",id);
+          return true;
+        },
+        onUpdateBands: async (bands) => {
+          const ordered=[...bands].sort((a,b)=>a.min-b.min);
+          let next=0;
+          for(const b of ordered){if(!Number.isInteger(b.min)||!Number.isInteger(b.max)||b.min!==next||b.max>100||!String(b.label||"").trim()){
+            showToast("النطاقات يجب أن تغطي 0 إلى 100 دون فجوات","error");return false;
+          }next=b.max+1;}
+          if(next!==101){showToast("النطاقات يجب أن تصل إلى 100","error");return false;}
+          const {error}=await supabase.rpc("update_rating_bands",{p_bands:ordered.map(b=>({id:b.id,min:b.min,max:b.max,label:b.label}))});
+          if(error){showToast("تعذّر تحديث النطاقات: "+error.message,"error");return false;}
+          await refetch();
+          await addAudit("تعديل نطاقات التقييم","-");
+          showToast("تم تحديث نطاقات التقييم");return true;
         }
       }
     ), screen === "adminCycles" && /* @__PURE__ */ React.createElement(
@@ -1324,6 +1420,18 @@ var __startElmCafeApp__ = (() => {
       {
         cycles: cycles.filter((c) => c.deleted_at),
         audit: audit.filter((a) => a.deleted_at),
+        archivedCategories:categories.filter(c=>c.deleted_at),
+        archivedBands:ratingBands.filter(b=>b.deleted_at),
+        onRestoreCategory:async id=>{
+          const {data,error}=await supabase.from("categories").update({deleted_at:null}).eq("id",id).not("deleted_at","is",null).select("id");
+          if(error||!data?.length){showToast("تعذّر استرجاع التصنيف: "+(error?.message||"راجع الصلاحيات"),"error");return;}
+          setCategories(prev=>prev.map(c=>c.id===id?{...c,deleted_at:null}:c));
+        },
+        onRestoreBand:async id=>{
+          const {error}=await supabase.rpc("restore_rating_band",{p_id:id});
+          if(error){showToast("تعذّر استرجاع النطاق: "+error.message,"error");return;}
+          await refetch();
+        },
         onRestoreCycle: async (id) => {
           const { error } = await supabase.from("cycles").update({ deleted_at: null }).eq("id", id);
           if (error) {
@@ -1386,7 +1494,7 @@ var __startElmCafeApp__ = (() => {
           showToast("تم إفراغ سلة المهملات نهائيًا");
         }
       }
-    ), screen === "moreMenu" && /* @__PURE__ */ React.createElement(MoreMenuScreen, { onGo: (scr) => goto(scr) })), session?.role === "super_admin" && /* @__PURE__ */ React.createElement(BottomNav, { activeScreen: screen, onSelect: gotoTab }), /* @__PURE__ */ React.createElement(Toast, { toast }), pendingNav && /* @__PURE__ */ React.createElement(Modal, { title: "\u0644\u062F\u064A\u0643 \u062A\u063A\u064A\u064A\u0631\u0627\u062A \u063A\u064A\u0631 \u0645\u062D\u0641\u0648\u0638\u0629", onClose: () => setPendingNav(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => {
+    ), screen === "moreMenu" && /* @__PURE__ */ React.createElement(MoreMenuScreen, { onGo: (scr) => goto(scr), isOwner })), session?.role === "super_admin" && /* @__PURE__ */ React.createElement(BottomNav, { activeScreen: screen, onSelect: gotoTab }), /* @__PURE__ */ React.createElement(Toast, { toast }), (pullState || refreshing) && React.createElement("div", { className:"pull-status", role:"status" }, refreshing ? "جارٍ تحديث البيانات…" : pullState === "ready" ? "اترك الشاشة للتحديث" : "اسحب للتحديث"), confirmLogout && React.createElement(Modal, { title:"تسجيل الخروج", onClose:()=>setConfirmLogout(false), footer:React.createElement(React.Fragment,null,React.createElement(Btn,{variant:"primary",onClick:()=>{setConfirmLogout(false);logout();}},"تأكيد الخروج"),React.createElement(Btn,{variant:"ghost",onClick:()=>setConfirmLogout(false)},"البقاء")) }, "سيتم إغلاق جلسة حسابك على هذا الجهاز."), pendingNav && /* @__PURE__ */ React.createElement(Modal, { title: "\u0644\u062F\u064A\u0643 \u062A\u063A\u064A\u064A\u0631\u0627\u062A \u063A\u064A\u0631 \u0645\u062D\u0641\u0648\u0638\u0629", onClose: () => setPendingNav(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => {
       const f = pendingNav;
       setPendingNav(null);
       f();
@@ -1492,26 +1600,51 @@ var __startElmCafeApp__ = (() => {
     }
     return /* @__PURE__ */ React.createElement("div", { style: { minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 20px", background: "radial-gradient(ellipse 70% 50% at 50% 0%, var(--forest-10), transparent)" } }, /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginBottom: 24 } }, /* @__PURE__ */ React.createElement(Logo, { size: 54 }), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 18, fontWeight: 800, marginTop: 14 } }, "\u062A\u0639\u064A\u064A\u0646 \u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631 \u062C\u062F\u064A\u062F\u0629"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--ink-3)", marginTop: 4 } }, "\u0627\u062E\u062A\u0631 \u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631 \u062C\u062F\u064A\u062F\u0629 \u0644\u062D\u0633\u0627\u0628\u0643")), /* @__PURE__ */ React.createElement("form", { onSubmit: submit, style: { ...s.card, maxWidth: 340 } }, /* @__PURE__ */ React.createElement(Field, { label: "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0627\u0644\u062C\u062F\u064A\u062F\u0629" }, /* @__PURE__ */ React.createElement("input", { type: "password", style: s.input, value: pw, onChange: (e) => setPw(e.target.value), autoFocus: true })), /* @__PURE__ */ React.createElement(Field, { label: "\u062A\u0623\u0643\u064A\u062F \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631" }, /* @__PURE__ */ React.createElement("input", { type: "password", style: s.input, value: pw2, onChange: (e) => setPw2(e.target.value) })), err && /* @__PURE__ */ React.createElement("div", { style: s.errText }, err), /* @__PURE__ */ React.createElement(Btn, { variant: "primary", type: "submit", disabled: busy, style: { width: "100%", marginTop: 8 } }, busy ? "\u062C\u0627\u0631\u0650 \u0627\u0644\u062D\u0641\u0638\u2026" : "\u062D\u0641\u0638 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631")));
   }
-  function EvaluatorHome({ employees, activeCycle, onOpen, session, evaluations, onGo }) {
+  function EvaluatorHome({ employees, activeCycle, session, evaluations, onOpen, onProfile, initialEvaluationId }) {
     const h = React.createElement;
-    const [q, setQ] = useState("");
-    const [filter, setFilter] = useState("all");
-    const mine = activeCycle ? evaluations.filter(e => e.evaluator_id === session.id && e.cycle_id === activeCycle.id && e.status === "active") : [];
-    const counts = new Map();
-    mine.forEach(e => counts.set(e.employee_id, (counts.get(e.employee_id) || 0) + 1));
-    const filtered = employees.filter(e => (e.name || "").includes(q) || String(e.employee_code || "").includes(q) || (e.profession || "").includes(q)).filter(e => filter === "all" || (filter === "done" ? counts.has(e.id) : !counts.has(e.id)));
-    const tools = [session.canManageEmployees && ["adminEmployees", "إدارة الموظفين"], session.canCreateCycle && ["adminCycles", "دورات التقييم"], session.canEditCategories && ["adminCategories", "تصنيفات التقييم"]].filter(Boolean);
-    return h("div", { className: "work-screen" },
-      h("section", { className: "work-hero" }, h("span", { className: "eyebrow" }, "مساحة التقييم"), h("h1", null, "أهلًا، ", session.name.split(" ")[0]), h("p", null, activeCycle ? activeCycle.name : "لا توجد دورة نشطة حاليًا"),
-        h("div", { className: "work-hero-stats" }, h("span", null, h("strong", null, mine.length), "تقييماتك"), h("span", null, h("strong", null, counts.size), "موظفون قيّمتهم"), h("span", null, h("strong", null, Math.max(0, employees.length-counts.size)), "لم تقيّمهم"))),
-      tools.length > 0 && h("div", { className: "quick-links" }, tools.map(([key,label]) => h("button", { key, type: "button", onClick: () => onGo(key) }, label, h(Icon,{svg:ICONS.back,size:15})))),
-      h("section", { className: "work-section" }, h("div", { className: "section-heading" }, h("div", null, h("span", { className: "eyebrow" }, "الفريق"), h("h2", null, "الموظفون")), h("small", null, employees.length, " موظف")),
-        h("input", { className: "modern-search", value: q, onChange: e => setQ(e.target.value), placeholder: "ابحث بالاسم أو الرقم الوظيفي", "aria-label": "بحث الموظفين" }),
-        h("div", { className: "segmented" }, [["all","الكل"],["pending","لم أقيّمهم"],["done","قيّمتهم"]].map(([key,label]) => h("button", { key, type: "button", className: filter === key ? "selected" : "", onClick: () => setFilter(key) }, label))),
-        filtered.length ? h("div", { className: "people-grid" }, filtered.map(e => h("button", { key:e.id, type:"button", className:"person-tile", onClick:()=>onOpen(e) },
-          h("span", { className:"person-avatar", style:{background:avatarColor(e.name).bg,color:avatarColor(e.name).fg} }, e.name.trim().slice(0,1)),
-          h("strong", null, e.name), h("small", null, e.profession || "موظف", " · ", e.employee_code),
-          activeCycle && h("span", { className: counts.has(e.id) ? "status-chip done" : "status-chip" }, counts.has(e.id) ? `قيّمته ${counts.get(e.id)} مرة في هذه الدورة` : "لم تقيّمه في هذه الدورة")))) : h("div", { className:"dash-empty" }, q ? "لا توجد نتائج للبحث." : "لا يوجد موظفون في هذا القسم.")));
+    const [query, setQuery] = useState("");
+    const [selected, setSelected] = useState(null);
+    const [visibleCount, setVisibleCount] = useState(8);
+    const current = activeCycle ? evaluations.filter(e => e.cycle_id === activeCycle.id && e.status === "active") : [];
+    const recent = current.slice().sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    const filtered = employees.filter(e => (e.name || "").includes(query) || String(e.employee_code || "").includes(query));
+    useEffect(() => {
+      if (initialEvaluationId) setSelected(evaluations.find(e => e.id === initialEvaluationId) || null);
+    }, [initialEvaluationId, evaluations]);
+    return h("div", { className:"work-screen evaluation-hub" },
+      h("header", { className:"evaluation-hub-head" },
+        h("span", { className:"eyebrow" }, "تقييمات الفريق"),
+        h("h1", null, "سجّل تقييمًا"),
+        h("p", null, "اضغط على الموظف مباشرة. البحث اختياري."),
+        h("small", null, activeCycle ? activeCycle.name : "لا توجد دورة نشطة")),
+      activeCycle ? h(React.Fragment, null,
+        h("section", { className:"dashboard-panel" },
+          h("div", { className:"section-heading" }, h("h2", null, "اختر الموظف"), h("small", null, employees.length, " موظف")),
+          h("input", { className:"modern-search", value:query, onChange:e=>setQuery(e.target.value), placeholder:"بحث اختياري بالاسم أو الرقم", "aria-label":"بحث اختياري عن موظف" }),
+          filtered.length ? h("div", { className:"quick-evaluation-grid" }, filtered.map(e => h("div", { key:e.id, className:"quick-evaluation-item" },
+            h("button", { type:"button", className:"quick-evaluation-pick", onClick:()=>onOpen(e) },
+              h("span", { className:"person-avatar", style:{background:avatarColor(e.name).bg,color:avatarColor(e.name).fg} }, e.name.trim().slice(0,1)),
+              h("span", null, h("strong", null, e.name), h("small", null, e.profession || "موظف")),
+              h(Icon, { svg:ICONS.plus, size:17 })),
+            h("button", { type:"button", className:"quick-evaluation-profile", onClick:()=>onProfile(e), "aria-label":`ملف ${e.name}` }, "الملف")))) : h("p", null, "لا يوجد موظف بهذا الاسم.")),
+        h("section", { className:"dashboard-panel" },
+          h("div", { className:"section-heading" }, h("div", null, h("span", { className:"eyebrow" }, "الدورة الحالية"), h("h2", null, "سجل التقييمات")),
+            recent.length > visibleCount && h("button", { type:"button", className:"text-action", onClick:()=>setVisibleCount(n=>n+10) }, "عرض المزيد")),
+          recent.slice(0,visibleCount).length ? h("div", { className:"evaluation-activity-list" }, recent.slice(0,visibleCount).map(e => {
+            const emp = employees.find(row => row.id === e.employee_id);
+            return h("button", { type:"button", key:e.id, className:"evaluation-activity-item", onClick:()=>setSelected(e) },
+              h("span", { className:e.type === "positive" ? "evaluation-sign positive" : "evaluation-sign negative" }, e.type === "positive" ? `+${e.category_points}` : `−${e.category_points}`),
+              h("span", { className:"evaluation-activity-main" }, h("strong", null, e.category_name || "تقييم"), h("small", null, emp?.name || "موظف", " · ", e.evaluator_name || "مقيم")),
+              h("span", { className:"evaluation-activity-date" }, relTime(e.created_at)));
+          })) : h("div", { className:"dash-empty" }, "لم تُسجّل تقييمات في الدورة بعد."))) : h(EmptyState, { icon:h(Icon,{svg:ICONS.clock,size:28}), title:"لا توجد دورة نشطة", body:"افتح دورة تقييم من مركز التحكم." }),
+      selected && h(Modal, { title:"تفاصيل التقييم", onClose:()=>setSelected(null), footer:h(Btn,{onClick:()=>setSelected(null)},"إغلاق") },
+        h("div", { className:"evaluation-detail" },
+          h("strong", null, employees.find(e=>e.id===selected.employee_id)?.name || "موظف"),
+          h("p", null, selected.type === "positive" ? "إيجابي" : "سلبي", " · ", selected.category_name, " · ", selected.type === "positive" ? "+" : "−", selected.category_points, " نقاط"),
+          h("p", null, "المقيم: ", selected.evaluator_name || "—"),
+          h("p", null, "التاريخ: ", fmtDateTime(selected.created_at)),
+          selected.is_violation && h("p", null, "تنبيه مخالفة", selected.violation_reviewed ? " · تمت المراجعة" : " · يحتاج مراجعة"),
+          h("div", { className:"evaluation-detail-note" }, h("small", null, "سبب التقييم"), h("p", null, selected.note || "لم يُسجل وصف إضافي.")))));
   }
   function EmployeeDetail({ employee, activeCycle, cycles = [], evaluations, computeScore, ratingFor, onNewEval, onHistory, onOpenRewards=()=>{}, canManageRewards=false, rewardsReady=false, rewardEarnings=[], rewardRedemptions=[], managerName="إدارة الكافيه" }) {
     const h = React.createElement;
@@ -1554,13 +1687,14 @@ var __startElmCafeApp__ = (() => {
         h("p", null, employee.profession || "موظف", " · رقم ", employee.employee_code),
         h("div", { className:"profile-score" }, h("strong", null, score === null ? "—" : Math.round(score)), h("span", null, score === null ? "لم يُقيّم في الدورة الحالية" : `${ratingFor(score)} · من 100`)),
         h("small", { className:"profile-cycle-label" }, activeCycle ? activeCycle.name : "لا توجد دورة نشطة")),
+      h("button", { type:"button", className:"profile-primary-action", onClick:onNewEval, disabled:!activeCycle }, h(Icon,{svg:ICONS.plus,size:19}), "تقييم جديد لهذا الموظف"),
       h("div", { className:"report-stats profile-stats" }, [["تقييمات",evs.length],["مقيمون",evaluatorCount],["إيجابي",positive],["سلبي",negative]].map(([label,value]) => h("div", { key:label }, h("strong", null,value), h("small",null,label)))),
       canManageRewards && rewardsReady && h("section",{className:"employee-reward-balance"},h("div",null,h("span",{className:"eyebrow"},"رصيد المكافآت"),h("strong",null,rewardBalance," نقطة"),h("small",null,rewardDebt?"مطلوب استعادة "+rewardDebt+" نقطة بعد تعديل تقييم مُلغى":employeeEarned+" إيجابي مكتسب · "+employeeSpent+" نقطة مصروفة")),h("button",{type:"button",onClick:onOpenRewards},"إدارة المكافآت")),
       canManageRewards && h("section",{className:"certificate-launch"},h("div",null,h("span",{className:"eyebrow"},"تقدير الأداء"),h("strong",null,"شهادة شهرية"),h("small",null,certificateCycles.length?"جاهزة للدورات المغلقة التي تحتوي نقاطًا إيجابية.":"تظهر بعد إغلاق دورة بها نقاط إيجابية.")),h("button",{type:"button",disabled:!certificateCycles.length,onClick:()=>{setCertificateCycleId(certificateCycles[0]?.id||"");setCertificateOpen(true);}},"إنشاء شهادة PDF")),
       activeCycle && h("section",{className:"score-breakdown"},h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"شفافية النقاط"),h("h2",null,"طريقة حساب النتيجة"))),
         h("div",{className:"score-formula"},h("span",null,"الرصيد الأساسي"),h("strong",null,"100"),h("span",{className:"positive-text"},"+ ",positivePoints," إيجابي"),h("span",{className:"negative-text"},"− ",negativePoints," سلبي"),h("b",null,"= ",score===null?"—":Math.round(score)," من 100")),
         h("small",{className:"score-cap-note"},rawScore>100?"تم إيقاف النتيجة عند الحد الأعلى 100.":rawScore<0?"تم إيقاف النتيجة عند الحد الأدنى 0.":"كل تقييم نشط يضيف أو يخصم نقاطه المحفوظة وقت التسجيل.")),
-      h("div", { className:"profile-actions" }, h("button", { type:"button", onClick:onNewEval, disabled:!activeCycle }, h(Icon,{svg:ICONS.plus,size:17}), "تقييم جديد"), h("button",{type:"button",onClick:onHistory},h(Icon,{svg:ICONS.clipboard,size:17}),"السجل الكامل")),
+      h("div", { className:"profile-actions" }, h("button",{type:"button",onClick:onHistory},h(Icon,{svg:ICONS.clipboard,size:17}),"السجل الكامل")),
       h("section", { className:"dashboard-panel" }, h("div", { className:"section-heading" }, h("div",null,h("span",{className:"eyebrow"},"الدورة الحالية"),h("h2",null,"أكثر البنود تسجيلًا"))),
         byCategory.length ? h("div",{className:"profile-category-grid"},byCategory.map(row => h("div",{key:`${row.type}:${row.name}`,className:"profile-category"},h("span",{className:row.type === "positive" ? "category-dot positive" : "category-dot"}),h("strong",null,row.name),h("span",null,row.count," مرة")))) : h("div",{className:"dash-empty"},"ستظهر هنا البنود بعد تسجيل تقييمات هذه الدورة.")),
       h("section", { className:"dashboard-panel" }, h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"المقارنة"),h("h2",null,"الأداء عبر الدورات"))),
@@ -1615,8 +1749,8 @@ var __startElmCafeApp__ = (() => {
     }, [category, note, isViolation]);
     if (!employee) return /* @__PURE__ */ React.createElement(EmptyState, { icon: /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.users, size: 28 }), title: "\u0627\u0644\u0645\u0648\u0638\u0641 \u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F", body: "" });
     if (!activeCycle) return /* @__PURE__ */ React.createElement(EmptyState, { icon: /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.warn, size: 28 }), title: "\u0644\u0627 \u062A\u0648\u062C\u062F \u062F\u0648\u0631\u0629 \u0646\u0634\u0637\u0629", body: "\u0644\u0627 \u064A\u0645\u0643\u0646 \u0625\u0636\u0627\u0641\u0629 \u062A\u0642\u064A\u064A\u0645 \u0628\u062F\u0648\u0646 \u062F\u0648\u0631\u0629 \u062A\u0642\u064A\u064A\u0645 \u0646\u0634\u0637\u0629." });
-    const negatives = categories.filter((c) => c.type === "negative");
-    const positives = categories.filter((c) => c.type === "positive");
+    const negatives = categories.filter((c) => c.type === "negative" && !c.deleted_at && c.active);
+    const positives = categories.filter((c) => c.type === "positive" && !c.deleted_at && c.active);
     async function suggestNote() {
       if (!category || aiBusy) return;
       const requestId = ++aiRequestId.current;
@@ -1629,10 +1763,15 @@ var __startElmCafeApp__ = (() => {
           body: { area: aiArea, type: category.type }
         });
         if (requestId !== aiRequestId.current) return;
-        if (error || !data?.note) throw new Error("AI unavailable");
+        if (error) {
+          let message="خدمة الصياغة غير متاحة الآن";
+          try { const detail=await error.context?.json(); if(detail?.error) message=detail.error; } catch (_) {}
+          throw new Error(message);
+        }
+        if (!data?.note) throw new Error(data?.error || "لم تصل صياغة مناسبة");
         setAiSuggestion(String(data.note));
-      } catch (_) {
-        if (requestId === aiRequestId.current) setAiError("الاقتراح غير متاح الآن. اكتب ملاحظتك واحفظ التقييم كالمعتاد.");
+      } catch (err) {
+        if (requestId === aiRequestId.current) setAiError(`${err?.message || "الاقتراح غير متاح الآن"}. يمكنك كتابة ملاحظتك وحفظ التقييم.`);
       } finally {
         if (requestId === aiRequestId.current) setAiBusy(false);
       }
@@ -1747,7 +1886,7 @@ var __startElmCafeApp__ = (() => {
       redeemEmployee&&h(Modal,{title:"تأكيد صرف المكافأة",onClose:()=>!busy&&setRedeemEmployee(null),footer:h(React.Fragment,null,h(Btn,{variant:"danger",disabled:busy||!selectedReward,onClick:redeem},busy?"جارِ التسجيل…":"تأكيد تسجيل الصرف"),h(Btn,{variant:"ghost",onClick:()=>setRedeemEmployee(null)},"رجوع"))},h("p",null,"الموظف: ",h("strong",null,redeemEmployee.emp.name)," · رصيده المتاح ",redeemEmployee.balance," نقطة."),h(Field,{label:"اختر المكافأة"},h("select",{style:s.input,value:selectedReward,onChange:e=>setSelectedReward(e.target.value)},h("option",{value:""},"اختر مكافأة"),activeRewards.map(r=>h("option",{key:r.id,value:r.id,disabled:redeemEmployee.balance<r.points_cost},r.name," — ",r.points_cost," نقطة")))),h("small",{className:"reward-confirm-note"},"سجّل الصرف بعد اعتماد وتسليم المكافأة فعليًا. سيُخصم الرصيد مرة واحدة ولا يمكن حذف سجل الصرف.")));
   }
 
-  function AdminDashboard({ employees, evaluations, activeCycle, computeScore, audit, displayTarget, onGo, onOpenEmployee, onOpenNotifications }) {
+  function AdminDashboard({ employees, evaluations, activeCycle, computeScore, audit, displayTarget, onGo, onOpenEmployee, onNewEval, onOpenNotifications }) {
     const h = React.createElement;
     const activeEmployees = employees.filter(e => !e.archived);
     const cycleEvals = activeCycle ? evaluations.filter(e => e.cycle_id === activeCycle.id && e.status === "active") : [];
@@ -1756,7 +1895,7 @@ var __startElmCafeApp__ = (() => {
     const rated = activeEmployees.filter(e=>evaluated.has(e.id)).map(e=>({emp:e,score:computeScore(e.id,activeCycle.id)})).sort((a,b)=>b.score-a.score);
     const best = rated[0];
     const pending = evaluations.filter(e=>e.is_violation && !e.violation_reviewed && e.status === "active").length;
-    const auditItems = audit.filter(a=>!a.deleted_at).slice(0,3);
+    const recentEvaluations = cycleEvals.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,3);
     const notRated = activeEmployees.filter(e=>!evaluated.has(e.id));
     return h("div",{className:"executive-dashboard"},
       h("section",{className:"executive-hero"},h("span",{className:"eyebrow"},"ELM CAFE · CONTROL CENTER"),h("h1",null,"لوحة التحكم"),h("p",null,activeCycle?activeCycle.name:"لا توجد دورة تقييم نشطة"),
@@ -1771,12 +1910,12 @@ var __startElmCafeApp__ = (() => {
       h("section",{className:"dashboard-panel"},h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"أعلى أداء"),h("h2",null,"MVP الدورة")),h("button",{className:"text-action",onClick:()=>onGo("reportsOverall")},"التقرير")),
         best?h("button",{type:"button",className:"mvp-card",onClick:()=>onOpenEmployee(best.emp.id)},h("span",{className:"mvp-medal"},"★"),h("span",{className:"mvp-copy"},h("small",null,"أفضل موظف حاليًا"),h("strong",null,best.emp.name),h("small",null,best.emp.profession||"موظف")),h("span",{className:"mvp-score"},Math.round(best.score),h("small",null,"من 100"))):h("div",{className:"dash-empty"},"سيظهر أفضل موظف بعد تسجيل أول تقييم.")),
       notRated.length>0 && activeCycle && h("section",{className:"dashboard-panel"},h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"الخطوة التالية"),h("h2",null,"لم يُقيّموا بعد")),h("button",{className:"text-action",onClick:()=>onGo("home")},"عرض الجميع")),
-        h("div",{className:"pending-list"},notRated.slice(0,3).map(e=>h("button",{key:e.id,type:"button",onClick:()=>onOpenEmployee(e.id)},h("span",{className:"person-avatar",style:{background:avatarColor(e.name).bg,color:avatarColor(e.name).fg}},e.name.trim().slice(0,1)),h("span",null,h("strong",null,e.name),h("small",null,e.profession||"موظف")),h(Icon,{svg:ICONS.back,size:16}))))),
-      h("section",{className:"dashboard-panel"},h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"المتابعة"),h("h2",null,"آخر النشاطات")),h("button",{className:"text-action",onClick:()=>onGo("auditLog")},"السجل")),
-        auditItems.length?h("div",{className:"activity-feed"},auditItems.map(a=>h("div",{key:a.id},h("span",{className:"activity-dot"}),h("span",null,h("strong",null,a.action),h("small",null,displayTarget(a.target)||a.actor," · ",relTime(a.created_at)))))):h("div",{className:"dash-empty"},"لا يوجد نشاط بعد.")));
+        h("div",{className:"pending-list"},notRated.slice(0,3).map(e=>h("button",{key:e.id,type:"button",onClick:()=>onNewEval(e.id)},h("span",{className:"person-avatar",style:{background:avatarColor(e.name).bg,color:avatarColor(e.name).fg}},e.name.trim().slice(0,1)),h("span",null,h("strong",null,e.name),h("small",null,e.profession||"موظف")),h(Icon,{svg:ICONS.back,size:16}))))),
+      h("section",{className:"dashboard-panel"},h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"المتابعة"),h("h2",null,"آخر التقييمات")),h("button",{className:"text-action",onClick:()=>onGo("home")},"عرض الكل")),
+        recentEvaluations.length?h("div",{className:"activity-feed"},recentEvaluations.map(e=>h("button",{key:e.id,type:"button",className:"evaluation-activity-item",onClick:()=>onGo("home",{evaluationId:e.id})},h("span",{className:e.type==="positive"?"evaluation-sign positive":"evaluation-sign negative"},e.type==="positive"?`+${e.category_points}`:`−${e.category_points}`),h("span",{className:"evaluation-activity-main"},h("strong",null,e.category_name),h("small",null,employees.find(emp=>emp.id===e.employee_id)?.name||"موظف"," · ",relTime(e.created_at)))))):h("div",{className:"dash-empty"},"لا توجد تقييمات بعد.")));
   }
-  function MoreMenuScreen({ onGo }) {
-    return /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.settings, label: "\u0625\u062F\u0627\u0631\u0629 \u0627\u0644\u0645\u0648\u0638\u0641\u064A\u0646 (\u0625\u0636\u0627\u0641\u0629/\u0623\u0631\u0634\u0641\u0629/\u062D\u0630\u0641)", onClick: () => onGo("adminEmployees") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.shield, label: "\u0625\u062F\u0627\u0631\u0629 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645\u064A\u0646", onClick: () => onGo("adminUsers") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.settings, label: "\u062A\u0635\u0646\u064A\u0641\u0627\u062A \u0648\u0646\u0637\u0627\u0642\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645", onClick: () => onGo("adminCategories") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.clock, label: "\u062F\u0648\u0631\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645", onClick: () => onGo("adminCycles") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.grid, label: "المكافآت والجوائز", onClick: () => onGo("rewardsHub") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.chart, label: "\u0646\u0634\u0627\u0637 \u0627\u0644\u0645\u0642\u064A\u0651\u0645\u064A\u0646", onClick: () => onGo("evaluatorActivity") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.clipboard, label: "\u0633\u062C\u0644 \u0627\u0644\u062A\u062F\u0642\u064A\u0642", onClick: () => onGo("auditLog") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.trash, label: "\u0633\u0644\u0629 \u0627\u0644\u0645\u0647\u0645\u0644\u0627\u062A", onClick: () => onGo("trash") }));
+  function MoreMenuScreen({ onGo, isOwner }) {
+    return /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, isOwner && /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.shield, label: "\u0625\u062F\u0627\u0631\u0629 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645\u064A\u0646", onClick: () => onGo("adminUsers") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.settings, label: "\u062A\u0635\u0646\u064A\u0641\u0627\u062A \u0648\u0646\u0637\u0627\u0642\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645", onClick: () => onGo("adminCategories") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.clock, label: "\u062F\u0648\u0631\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645", onClick: () => onGo("adminCycles") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.grid, label: "المكافآت والجوائز", onClick: () => onGo("rewardsHub") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.chart, label: "\u0646\u0634\u0627\u0637 \u0627\u0644\u0645\u0642\u064A\u0651\u0645\u064A\u0646", onClick: () => onGo("evaluatorActivity") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.clipboard, label: "\u0633\u062C\u0644 \u0627\u0644\u062A\u062F\u0642\u064A\u0642", onClick: () => onGo("auditLog") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.trash, label: "\u0633\u0644\u0629 \u0627\u0644\u0645\u0647\u0645\u0644\u0627\u062A", onClick: () => onGo("trash") }));
   }
   function NavRow({ icon, label, onClick }) {
     return /* @__PURE__ */ React.createElement("button", { onClick, style: s.rowCard }, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--forest)" } }, /* @__PURE__ */ React.createElement(Icon, { svg: icon, size: 18 })), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, textAlign: "right", fontWeight: 600, fontSize: 14 } }, label), /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.back, size: 18, color: "var(--ink-3)" }));
@@ -1829,7 +1968,7 @@ var __startElmCafeApp__ = (() => {
   function emptyPerms() {
     return { canManageEmployees: false, canCreateCycle: false, canEditCategories: false, canManageAllEvaluations: false };
   }
-  function AdminUsers({ profiles, userLookup, onAdd, onToggle, onDelete, onUpdatePermissions }) {
+  function AdminUsers({ profiles, userLookup, ownId, onAdd, onToggle, onDelete, onUpdatePermissions }) {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
     const [username, setUsername] = useState("");
@@ -1869,22 +2008,22 @@ var __startElmCafeApp__ = (() => {
       setPermTarget(u);
       setEditPerms({ canManageEmployees: !!u.can_manage_employees, canCreateCycle: !!u.can_create_cycle, canEditCategories: !!u.can_edit_categories, canManageAllEvaluations: !!u.can_manage_all_evaluations });
     }
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", style: { width: "100%", marginBottom: 14 }, onClick: () => setOpen(true) }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.plus, size: 16 }), " \u0625\u0636\u0627\u0641\u0629 \u0645\u0633\u062A\u062E\u062F\u0645"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)", marginBottom: 12 } }, '\u062F\u0648\u0633 \u0639\u0644\u0649 \u0627\u0633\u0645 \u0623\u064A \u0645\u0633\u062A\u062E\u062F\u0645 \u0644\u0639\u0631\u0636 \u0628\u064A\u0627\u0646\u0627\u062A \u062D\u0633\u0627\u0628\u0647. \u0644\u0625\u0639\u0627\u062F\u0629 \u062A\u0639\u064A\u064A\u0646 \u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631: "\u0646\u0633\u064A\u062A \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631" \u0641\u064A \u0634\u0627\u0634\u0629 \u0627\u0644\u062F\u062E\u0648\u0644.'), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } }, profiles.filter(Boolean).map((u) => /* @__PURE__ */ React.createElement("div", { key: u.id, style: { ...s.rowCard, cursor: "default" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => setInfoTarget(u), style: { display: "flex", alignItems: "center", gap: 12, flex: 1, background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "right" } }, /* @__PURE__ */ React.createElement("div", { style: { ...s.avatarCircle, background: avatarColor(u.name).bg, color: avatarColor(u.name).fg } }, u.name.slice(0, 1)), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 14 } }, u.name, " ", !u.active && /* @__PURE__ */ React.createElement("span", { style: { color: "var(--red)", fontWeight: 400, fontSize: 12 } }, "(\u0645\u0639\u0637\u0651\u0644)")), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)" } }, u?.role === "super_admin" ? "\u0645\u062F\u064A\u0631 \u0623\u0639\u0644\u0649" : "\u0645\u0642\u064A\u0651\u0645"))), u?.role !== "super_admin" && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { onClick: () => openPerms(u), style: s.iconBtn, "aria-label": "\u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A" }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.shield, size: 15, color: "var(--ink-3)" })), /* @__PURE__ */ React.createElement("button", { onClick: () => onToggle(u.id, !u.active), style: s.iconBtn, "aria-label": "\u062A\u0641\u0639\u064A\u0644/\u062A\u0639\u0637\u064A\u0644" }, /* @__PURE__ */ React.createElement(Icon, { svg: u.active ? ICONS.unlock : ICONS.lock, size: 15, color: u.active ? "var(--green)" : "var(--red)" })), !u.active && /* @__PURE__ */ React.createElement("button", { onClick: () => {
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", style: { width: "100%", marginBottom: 14 }, onClick: () => setOpen(true) }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.plus, size: 16 }), " \u0625\u0636\u0627\u0641\u0629 \u0645\u0633\u062A\u062E\u062F\u0645"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)", marginBottom: 12 } }, '\u062F\u0648\u0633 \u0639\u0644\u0649 \u0627\u0633\u0645 \u0623\u064A \u0645\u0633\u062A\u062E\u062F\u0645 \u0644\u0639\u0631\u0636 \u0628\u064A\u0627\u0646\u0627\u062A \u062D\u0633\u0627\u0628\u0647. \u0644\u0625\u0639\u0627\u062F\u0629 \u062A\u0639\u064A\u064A\u0646 \u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631: "\u0646\u0633\u064A\u062A \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631" \u0641\u064A \u0634\u0627\u0634\u0629 \u0627\u0644\u062F\u062E\u0648\u0644.'), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } }, profiles.filter(Boolean).map((u) => /* @__PURE__ */ React.createElement("div", { key: u.id, style: { ...s.rowCard, cursor: "default" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => setInfoTarget(u), style: { display: "flex", alignItems: "center", gap: 12, flex: 1, background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "right" } }, /* @__PURE__ */ React.createElement("div", { style: { ...s.avatarCircle, background: avatarColor(u.name).bg, color: avatarColor(u.name).fg } }, u.name.slice(0, 1)), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 14 } }, u.name, " ", !u.active && /* @__PURE__ */ React.createElement("span", { style: { color: "var(--red)", fontWeight: 400, fontSize: 12 } }, "(\u0645\u0639\u0637\u0651\u0644)")), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)" } }, u?.role === "super_admin" ? "\u0645\u062F\u064A\u0631 \u0623\u0639\u0644\u0649" : "\u0645\u0642\u064A\u0651\u0645"))), u.id !== ownId && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { onClick: () => openPerms(u), style: s.iconBtn, "aria-label": "\u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A" }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.shield, size: 15, color: "var(--ink-3)" })), /* @__PURE__ */ React.createElement("button", { onClick: () => onToggle(u.id, !u.active), style: s.iconBtn, "aria-label": "\u062A\u0641\u0639\u064A\u0644/\u062A\u0639\u0637\u064A\u0644" }, /* @__PURE__ */ React.createElement(Icon, { svg: u.active ? ICONS.unlock : ICONS.lock, size: 15, color: u.active ? "var(--green)" : "var(--red)" })), !u.active && /* @__PURE__ */ React.createElement("button", { onClick: () => {
       setDeleteTarget(u);
       setConfirmText("");
-    }, style: s.iconBtn, "aria-label": "\u062D\u0630\u0641 \u0646\u0647\u0627\u0626\u064A" }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.trash, size: 15, color: "var(--red)" })))))), infoTarget && (() => {
+    }, style: s.iconBtn, "aria-label": "حذف الوصول للتطبيق" }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.trash, size: 15, color: "var(--red)" })))))), infoTarget && (() => {
       const lookup = userLookup.find((l) => l.user_id === infoTarget.id);
       const perms = PERMISSION_DEFS.filter((p) => infoTarget[p.key.replace(/([A-Z])/g, (m) => "_" + m.toLowerCase())]);
       return /* @__PURE__ */ React.createElement(Modal, { title: "\u0628\u064A\u0627\u0646\u0627\u062A \u0627\u0644\u062D\u0633\u0627\u0628", onClose: () => setInfoTarget(null), footer: /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setInfoTarget(null) }, "\u0625\u063A\u0644\u0627\u0642") }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10, fontSize: 13 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u0627\u0644\u0627\u0633\u0645"), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700 } }, infoTarget.name)), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0644\u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644"), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700 } }, (lookup == null ? void 0 : lookup.username) || "\u2014")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A"), /* @__PURE__ */ React.createElement("div", null, (lookup == null ? void 0 : lookup.email) || "\u2014")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u0627\u0644\u062F\u0648\u0631"), /* @__PURE__ */ React.createElement("div", null, infoTarget?.role === "super_admin" ? "\u0645\u062F\u064A\u0631 \u0623\u0639\u0644\u0649" : "\u0645\u0642\u064A\u0651\u0645")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u0627\u0644\u062D\u0627\u0644\u0629"), /* @__PURE__ */ React.createElement("div", { style: { color: infoTarget.active ? "var(--green)" : "var(--red)" } }, infoTarget.active ? "\u0645\u0641\u0639\u0651\u0644" : "\u0645\u0639\u0637\u0651\u0644")), infoTarget?.role !== "super_admin" && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11, marginBottom: 4 } }, "\u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A \u0627\u0644\u0625\u0636\u0627\u0641\u064A\u0629"), perms.length ? perms.map((p) => /* @__PURE__ */ React.createElement("div", { key: p.key }, "\u2022 ", p.label)) : /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)" } }, "\u0644\u0627 \u062A\u0648\u062C\u062F \u0635\u0644\u0627\u062D\u064A\u0627\u062A \u0625\u0636\u0627\u0641\u064A\u0629")), infoTarget.created_at && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u062A\u0627\u0631\u064A\u062E \u0627\u0644\u0625\u0646\u0634\u0627\u0621"), /* @__PURE__ */ React.createElement("div", null, fmtDate(infoTarget.created_at)))));
     })(), open && /* @__PURE__ */ React.createElement(Modal, { title: "\u0625\u0636\u0627\u0641\u0629 \u0645\u0633\u062A\u062E\u062F\u0645", onClose: () => setOpen(false), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", onClick: submit, disabled: saving }, saving ? "\u062C\u0627\u0631\u0650 \u0627\u0644\u062D\u0641\u0638\u2026" : "\u062D\u0641\u0638"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setOpen(false) }, "\u0625\u0644\u063A\u0627\u0621")) }, /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0644\u0627\u0633\u0645" }, /* @__PURE__ */ React.createElement("input", { style: s.input, value: name, onChange: (e) => setName(e.target.value) })), /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0644\u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 (\u0628\u062F\u0648\u0646 \u0645\u0633\u0627\u0641\u0627\u062A \u0623\u0648 \u0631\u0645\u0648\u0632)" }, /* @__PURE__ */ React.createElement("input", { style: s.input, value: username, onChange: (e) => setUsername(e.target.value.replace(/\s/g, "")) })), /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A \u0627\u0644\u062D\u0642\u064A\u0642\u064A (\u0644\u0627\u0633\u062A\u0631\u062C\u0627\u0639 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631)" }, /* @__PURE__ */ React.createElement("input", { type: "email", style: s.input, value: email, onChange: (e) => setEmail(e.target.value), placeholder: "example@gmail.com" })), /* @__PURE__ */ React.createElement(Field, { label: "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631" }, /* @__PURE__ */ React.createElement("input", { type: "password", style: s.input, value: password, onChange: (e) => setPassword(e.target.value) })), /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0644\u062F\u0648\u0631" }, /* @__PURE__ */ React.createElement("select", { style: s.input, value: role, onChange: (e) => setRole(e.target.value) }, /* @__PURE__ */ React.createElement("option", { value: "evaluator" }, "\u0645\u0642\u064A\u0651\u0645"), /* @__PURE__ */ React.createElement("option", { value: "super_admin" }, "\u0645\u062F\u064A\u0631 \u0623\u0639\u0644\u0649"))), role === "evaluator" && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 6, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 4 } }, "\u0635\u0644\u0627\u062D\u064A\u0627\u062A \u0625\u0636\u0627\u0641\u064A\u0629 (\u0627\u062E\u062A\u064A\u0627\u0631\u064A)"), PERMISSION_DEFS.map((p) => /* @__PURE__ */ React.createElement(Switch, { key: p.key, checked: newPerms[p.key], onChange: (v) => setNewPerms({ ...newPerms, [p.key]: v }), label: p.label, description: p.description }))), err && /* @__PURE__ */ React.createElement("div", { style: s.errText }, err)), permTarget && /* @__PURE__ */ React.createElement(Modal, { title: `\u0635\u0644\u0627\u062D\u064A\u0627\u062A ${permTarget.name}`, onClose: () => setPermTarget(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", onClick: () => {
       onUpdatePermissions(permTarget.id, editPerms);
       setPermTarget(null);
-    } }, "\u062D\u0641\u0638 \u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setPermTarget(null) }, "\u0625\u0644\u063A\u0627\u0621")) }, PERMISSION_DEFS.map((p) => /* @__PURE__ */ React.createElement(Switch, { key: p.key, checked: editPerms[p.key], onChange: (v) => setEditPerms({ ...editPerms, [p.key]: v }), label: p.label, description: p.description }))), deleteTarget && /* @__PURE__ */ React.createElement(Modal, { title: "\u062D\u0630\u0641 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0646\u0647\u0627\u0626\u064A\u064B\u0627", onClose: () => setDeleteTarget(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "danger", disabled: confirmText.trim() !== deleteTarget.name.trim(), onClick: () => {
+    } }, "\u062D\u0641\u0638 \u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setPermTarget(null) }, "\u0625\u0644\u063A\u0627\u0621")) }, PERMISSION_DEFS.map((p) => /* @__PURE__ */ React.createElement(Switch, { key: p.key, checked: editPerms[p.key], onChange: (v) => setEditPerms({ ...editPerms, [p.key]: v }), label: p.label, description: p.description }))), deleteTarget && /* @__PURE__ */ React.createElement(Modal, { title: "حذف وصول المستخدم للتطبيق", onClose: () => setDeleteTarget(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "danger", disabled: confirmText.trim() !== deleteTarget.name.trim(), onClick: () => {
       onDelete(deleteTarget.id, deleteTarget.name);
       setDeleteTarget(null);
-    } }, "\u062D\u0630\u0641 \u0646\u0647\u0627\u0626\u064A \u2014 \u0644\u0627 \u0631\u062C\u0648\u0639"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setDeleteTarget(null) }, "\u062A\u0631\u0627\u062C\u0639")) }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--red)", marginBottom: 12, fontWeight: 600 } }, "\u0644\u0648 \u0633\u0628\u0642 \u0644\u0647\u0630\u0627 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0625\u0646\u0647 \u0642\u064A\u0651\u0645 \u0623\u064A \u0645\u0648\u0638\u0641\u060C \u0644\u0646 \u064A\u0642\u0628\u0644 \u0627\u0644\u0646\u0638\u0627\u0645 \u0627\u0644\u062D\u0630\u0641 \u062D\u0641\u0627\u0638\u064B\u0627 \u0639\u0644\u0649 \u0633\u062C\u0644 \u0627\u0644\u062A\u0642\u064A\u064A\u0645\u0627\u062A \u2014 \u0627\u0633\u062A\u062E\u062F\u0645 \u0627\u0644\u062A\u0639\u0637\u064A\u0644 \u0628\u062F\u0644\u064B\u0627 \u0645\u0646 \u0630\u0644\u0643 \u0641\u064A \u0647\u0630\u0647 \u0627\u0644\u062D\u0627\u0644\u0629."), /* @__PURE__ */ React.createElement(Field, { label: `\u0627\u0643\u062A\u0628 \u0627\u0633\u0645 "${deleteTarget.name}" \u0628\u0627\u0644\u0643\u0627\u0645\u0644 \u0644\u0644\u062A\u0623\u0643\u064A\u062F` }, /* @__PURE__ */ React.createElement("input", { style: s.input, value: confirmText, onChange: (e) => setConfirmText(e.target.value) }))));
+    } }, "تأكيد حذف الوصول"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setDeleteTarget(null) }, "\u062A\u0631\u0627\u062C\u0639")) }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--red)", marginBottom: 12, fontWeight: 600 } }, "\u0644\u0648 \u0633\u0628\u0642 \u0644\u0647\u0630\u0627 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0625\u0646\u0647 \u0642\u064A\u0651\u0645 \u0623\u064A \u0645\u0648\u0638\u0641\u060C \u0644\u0646 \u064A\u0642\u0628\u0644 \u0627\u0644\u0646\u0638\u0627\u0645 \u0627\u0644\u062D\u0630\u0641 \u062D\u0641\u0627\u0638\u064B\u0627 \u0639\u0644\u0649 \u0633\u062C\u0644 \u0627\u0644\u062A\u0642\u064A\u064A\u0645\u0627\u062A \u2014 \u0627\u0633\u062A\u062E\u062F\u0645 \u0627\u0644\u062A\u0639\u0637\u064A\u0644 \u0628\u062F\u0644\u064B\u0627 \u0645\u0646 \u0630\u0644\u0643 \u0641\u064A \u0647\u0630\u0647 \u0627\u0644\u062D\u0627\u0644\u0629."), /* @__PURE__ */ React.createElement(Field, { label: `\u0627\u0643\u062A\u0628 \u0627\u0633\u0645 "${deleteTarget.name}" \u0628\u0627\u0644\u0643\u0627\u0645\u0644 \u0644\u0644\u062A\u0623\u0643\u064A\u062F` }, /* @__PURE__ */ React.createElement("input", { style: s.input, value: confirmText, onChange: (e) => setConfirmText(e.target.value) }))));
   }
-  function AdminCategories({ categories, ratingBands, onAddCategory, onUpdateCategory, onUpdateBands }) {
+  function AdminCategories({ categories, ratingBands, onAddCategory, onUpdateCategory, onUpdateBands, onArchiveCategory, onArchiveBand }) {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
     const [type, setType] = useState("negative");
@@ -1892,6 +2031,7 @@ var __startElmCafeApp__ = (() => {
     const [editPoints, setEditPoints] = useState({});
     const [bands, setBands] = useState(ratingBands);
     const [saving, setSaving] = useState(false);
+    const [pendingArchive,setPendingArchive]=useState(null);
     useEffect(() => {
       setBands(ratingBands);
     }, [ratingBands]);
@@ -1899,8 +2039,9 @@ var __startElmCafeApp__ = (() => {
       e.preventDefault();
       if (saving || !name.trim() || !points) return;
       setSaving(true);
-      await onAddCategory({ name: name.trim(), type, points: Number(points), active: true });
+      const ok = await onAddCategory({ name: name.trim(), type, points: Number(points), active: true });
       setSaving(false);
+      if (ok === false) return;
       setOpen(false);
       setName("");
       setType("negative");
@@ -1908,7 +2049,7 @@ var __startElmCafeApp__ = (() => {
     }
     return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 8 } }, "\u062A\u0635\u0646\u064A\u0641\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)", marginBottom: 10 } }, "\u062A\u063A\u064A\u064A\u0631 \u0627\u0644\u0646\u0642\u0627\u0637 \u064A\u0624\u062B\u0631 \u0639\u0644\u0649 \u0627\u0644\u062A\u0642\u064A\u064A\u0645\u0627\u062A \u0627\u0644\u062C\u062F\u064A\u062F\u0629 \u0641\u0642\u0637."), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 } }, categories.map((c) => {
       var _a;
-      return /* @__PURE__ */ React.createElement("div", { key: c.id, style: s.card }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 14 } }, c.name, " ", !c.active && /* @__PURE__ */ React.createElement("span", { style: { color: "var(--ink-3)", fontWeight: 400, fontSize: 12 } }, "(\u0645\u0639\u0637\u0651\u0644)")), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: c.type === "positive" ? "var(--green)" : "var(--red)" } }, c.type === "positive" ? "\u0625\u064A\u062C\u0627\u0628\u064A" : "\u0633\u0644\u0628\u064A")), /* @__PURE__ */ React.createElement("button", { onClick: () => onUpdateCategory(c.id, { active: !c.active }), style: s.iconBtn }, /* @__PURE__ */ React.createElement(Icon, { svg: c.active ? ICONS.lock : ICONS.unlock, size: 15, color: c.active ? "var(--ink-3)" : "var(--forest)" }))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 10, alignItems: "center" } }, /* @__PURE__ */ React.createElement("input", { type: "number", min: "1", style: { ...s.input, width: 80 }, value: (_a = editPoints[c.id]) != null ? _a : c.points, onChange: (e) => setEditPoints({ ...editPoints, [c.id]: e.target.value }) }), /* @__PURE__ */ React.createElement(Btn, { onClick: () => {
+      return /* @__PURE__ */ React.createElement("div", { key: c.id, style: s.card }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 14 } }, c.name, " ", !c.active && /* @__PURE__ */ React.createElement("span", { style: { color: "var(--ink-3)", fontWeight: 400, fontSize: 12 } }, "(\u0645\u0639\u0637\u0651\u0644)")), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: c.type === "positive" ? "var(--green)" : "var(--red)" } }, c.type === "positive" ? "\u0625\u064A\u062C\u0627\u0628\u064A" : "\u0633\u0644\u0628\u064A")), /* @__PURE__ */ React.createElement("button", { onClick: () => onUpdateCategory(c.id, { active: !c.active }), style: s.iconBtn }, /* @__PURE__ */ React.createElement(Icon, { svg: c.active ? ICONS.lock : ICONS.unlock, size: 15, color: c.active ? "var(--ink-3)" : "var(--forest)" })), /* @__PURE__ */ React.createElement("button", {onClick:()=>setPendingArchive({type:"category",id:c.id,label:c.name}),style:s.iconBtn,"aria-label":"نقل التصنيف للسلة"}, /* @__PURE__ */ React.createElement(Icon,{svg:ICONS.trash,size:15,color:"var(--red)"}))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 10, alignItems: "center" } }, /* @__PURE__ */ React.createElement("input", { type: "number", min: "1", style: { ...s.input, width: 80 }, value: (_a = editPoints[c.id]) != null ? _a : c.points, onChange: (e) => setEditPoints({ ...editPoints, [c.id]: e.target.value }) }), /* @__PURE__ */ React.createElement(Btn, { onClick: () => {
         var _a2;
         return onUpdateCategory(c.id, { points: Number((_a2 = editPoints[c.id]) != null ? _a2 : c.points) });
       } }, "\u062A\u062D\u062F\u064A\u062B \u0627\u0644\u0646\u0642\u0627\u0637")));
@@ -1924,7 +2065,7 @@ var __startElmCafeApp__ = (() => {
       const nb = [...bands];
       nb[i] = { ...b, label: e.target.value };
       setBands(nb);
-    } })))), /* @__PURE__ */ React.createElement(Btn, { onClick: () => onUpdateBands(bands), style: { width: "100%" } }, "\u062D\u0641\u0638 \u0627\u0644\u0646\u0637\u0627\u0642\u0627\u062A"), open && /* @__PURE__ */ React.createElement(Modal, { title: "\u0625\u0636\u0627\u0641\u0629 \u062A\u0635\u0646\u064A\u0641", onClose: () => setOpen(false), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", onClick: submit, disabled: saving }, saving ? "\u062C\u0627\u0631\u0650 \u0627\u0644\u062D\u0641\u0638\u2026" : "\u062D\u0641\u0638"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setOpen(false) }, "\u0625\u0644\u063A\u0627\u0621")) }, /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0644\u0627\u0633\u0645" }, /* @__PURE__ */ React.createElement("input", { style: s.input, value: name, onChange: (e) => setName(e.target.value) })), /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0644\u0646\u0648\u0639" }, /* @__PURE__ */ React.createElement("select", { style: s.input, value: type, onChange: (e) => setType(e.target.value) }, /* @__PURE__ */ React.createElement("option", { value: "negative" }, "\u0633\u0644\u0628\u064A"), /* @__PURE__ */ React.createElement("option", { value: "positive" }, "\u0625\u064A\u062C\u0627\u0628\u064A"))), /* @__PURE__ */ React.createElement(Field, { label: "\u0639\u062F\u062F \u0627\u0644\u0646\u0642\u0627\u0637" }, /* @__PURE__ */ React.createElement("input", { type: "number", min: "1", style: s.input, value: points, onChange: (e) => setPoints(e.target.value) }))));
+    } }), /* @__PURE__ */ React.createElement("button", {onClick:()=>{const midpoint=Math.floor((b.min+b.max)/2);if(midpoint>=b.max)return;const next=[...bands];next.splice(i,1,{...b,max:midpoint},{id:null,min:midpoint+1,max:b.max,label:"نطاق جديد"});setBands(next);},disabled:b.max-b.min<1,style:s.iconBtn,"aria-label":"تقسيم النطاق وإضافة نطاق جديد"}, /* @__PURE__ */ React.createElement(Icon,{svg:ICONS.plus,size:15,color:"var(--forest)"})), /* @__PURE__ */ React.createElement("button", {onClick:()=>setPendingArchive({type:"band",id:b.id,label:b.label}),disabled:bands.length<2 || !b.id,style:s.iconBtn,"aria-label":"نقل النطاق للسلة"}, /* @__PURE__ */ React.createElement(Icon,{svg:ICONS.trash,size:15,color:"var(--red)"}))))), /* @__PURE__ */ React.createElement(Btn, { onClick: () => onUpdateBands(bands), style: { width: "100%" } }, "\u062D\u0641\u0638 \u0627\u0644\u0646\u0637\u0627\u0642\u0627\u062A"), open && /* @__PURE__ */ React.createElement(Modal, { title: "\u0625\u0636\u0627\u0641\u0629 \u062A\u0635\u0646\u064A\u0641", onClose: () => setOpen(false), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", onClick: submit, disabled: saving }, saving ? "\u062C\u0627\u0631\u0650 \u0627\u0644\u062D\u0641\u0638\u2026" : "\u062D\u0641\u0638"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setOpen(false) }, "\u0625\u0644\u063A\u0627\u0621")) }, /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0644\u0627\u0633\u0645" }, /* @__PURE__ */ React.createElement("input", { style: s.input, value: name, onChange: (e) => setName(e.target.value) })), /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0644\u0646\u0648\u0639" }, /* @__PURE__ */ React.createElement("select", { style: s.input, value: type, onChange: (e) => setType(e.target.value) }, /* @__PURE__ */ React.createElement("option", { value: "negative" }, "\u0633\u0644\u0628\u064A"), /* @__PURE__ */ React.createElement("option", { value: "positive" }, "\u0625\u064A\u062C\u0627\u0628\u064A"))), /* @__PURE__ */ React.createElement(Field, { label: "\u0639\u062F\u062F \u0627\u0644\u0646\u0642\u0627\u0637" }, /* @__PURE__ */ React.createElement("input", { type: "number", min: "1", style: s.input, value: points, onChange: (e) => setPoints(e.target.value) }))), pendingArchive && /* @__PURE__ */ React.createElement(Modal,{title:"نقل إلى سلة المهملات",onClose:()=>setPendingArchive(null),footer: /* @__PURE__ */ React.createElement(React.Fragment,null, /* @__PURE__ */ React.createElement(Btn,{variant:"danger",disabled:saving,onClick:async()=>{if(saving)return;setSaving(true);const ok=await(pendingArchive.type==="band"?onArchiveBand:onArchiveCategory)(pendingArchive.id);setSaving(false);if(ok)setPendingArchive(null);}},saving?"جارِ النقل…":"نقل للسلة"), /* @__PURE__ */ React.createElement(Btn,{variant:"ghost",onClick:()=>setPendingArchive(null)},"تراجع"))},"سيختفي «",pendingArchive.label,"» من خيارات التقييم الجديدة. التقييمات السابقة محفوظة. حذف النطاق يضم درجاته للنطاق المجاور حتى لا تترك فجوة."));
   }
   function addOneMonth(dateStr) {
     const d = /* @__PURE__ */ new Date(dateStr + "T00:00:00");
@@ -2046,11 +2187,14 @@ var __startElmCafeApp__ = (() => {
       setConfirmClear(false);
     } }, "\u0646\u0642\u0644 \u0627\u0644\u0643\u0644 \u0644\u0633\u0644\u0629 \u0627\u0644\u0645\u0647\u0645\u0644\u0627\u062A"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setConfirmClear(false) }, "\u062A\u0631\u0627\u062C\u0639")) }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--ink-2)" } }, "\u0633\u064A\u062A\u0645 \u0646\u0642\u0644 \u0643\u0644 \u0627\u0644\u0623\u062D\u062F\u0627\u062B \u0627\u0644\u0638\u0627\u0647\u0631\u0629 \u062D\u0627\u0644\u064A\u064B\u0627 \u0625\u0644\u0649 \u0633\u0644\u0629 \u0627\u0644\u0645\u0647\u0645\u0644\u0627\u062A. \u062A\u0642\u062F\u0631 \u062A\u0633\u062A\u0631\u062C\u0639\u0647\u0627 \u0645\u0646 \u0647\u0646\u0627\u0643 \u0641\u064A \u0623\u064A \u0648\u0642\u062A.")));
   }
-  function TrashScreen({ cycles, audit, onRestoreCycle, onDeleteCycleForever, onRestoreAudit, onDeleteAuditForever, onEmptyTrash }) {
+  function TrashScreen({ cycles, audit, archivedCategories=[], archivedBands=[], onRestoreCategory, onRestoreBand, onRestoreCycle, onDeleteCycleForever, onRestoreAudit, onDeleteAuditForever, onEmptyTrash }) {
     const [confirmEmpty, setConfirmEmpty] = useState(false);
     const [confirmItem, setConfirmItem] = useState(null);
-    const isEmpty = !cycles.length && !audit.length;
-    return /* @__PURE__ */ React.createElement("div", null, !isEmpty && /* @__PURE__ */ React.createElement(Btn, { variant: "danger", style: { width: "100%", marginBottom: 16 }, onClick: () => setConfirmEmpty(true) }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.trash, size: 14 }), " \u0625\u0641\u0631\u0627\u063A \u0633\u0644\u0629 \u0627\u0644\u0645\u0647\u0645\u0644\u0627\u062A \u0646\u0647\u0627\u0626\u064A\u064B\u0627"), isEmpty ? /* @__PURE__ */ React.createElement(EmptyState, { icon: /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.trash, size: 28 }), title: "\u0633\u0644\u0629 \u0627\u0644\u0645\u0647\u0645\u0644\u0627\u062A \u0641\u0627\u0631\u063A\u0629", body: "\u0623\u064A \u062F\u0648\u0631\u0629 \u0623\u0648 \u062D\u062F\u062B \u062A\u062D\u0630\u0641\u0647 \u0647\u064A\u0638\u0647\u0631 \u0647\u0646\u0627." }) : /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 20 } }, cycles.length > 0 && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 8 } }, "\u062F\u0648\u0631\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645 \u0627\u0644\u0645\u062D\u0630\u0648\u0641\u0629"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } }, cycles.map((c) => /* @__PURE__ */ React.createElement("div", { key: c.id, style: s.card }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 14 } }, c.name), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)", margin: "4px 0 10px" } }, fmtDate(c.start_date), " \u2014 ", fmtDate(c.end_date)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Btn, { onClick: () => onRestoreCycle(c.id) }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.rotate, size: 14 }), " \u0627\u0633\u062A\u0631\u062C\u0627\u0639"), /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => setConfirmItem({ type: "cycle", id: c.id, label: c.name }) }, "\u062D\u0630\u0641 \u0646\u0647\u0627\u0626\u064A")))))), audit.length > 0 && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 8 } }, "\u0623\u062D\u062F\u0627\u062B \u0633\u062C\u0644 \u0627\u0644\u062A\u062F\u0642\u064A\u0642 \u0627\u0644\u0645\u062D\u0630\u0648\u0641\u0629"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } }, audit.map((a) => /* @__PURE__ */ React.createElement("div", { key: a.id, style: s.card }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13 } }, /* @__PURE__ */ React.createElement("b", null, a.actor), " \u2014 ", a.action), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "var(--ink-3)", margin: "4px 0 10px" } }, fmtDateTime(a.created_at)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Btn, { onClick: () => onRestoreAudit(a.id) }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.rotate, size: 14 }), " \u0627\u0633\u062A\u0631\u062C\u0627\u0639"), /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => setConfirmItem({ type: "audit", id: a.id, label: `${a.actor} \u2014 ${a.action}` }) }, "\u062D\u0630\u0641 \u0646\u0647\u0627\u0626\u064A"))))))), confirmItem && /* @__PURE__ */ React.createElement(Modal, { title: "\u062D\u0630\u0641 \u0646\u0647\u0627\u0626\u064A", onClose: () => setConfirmItem(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => {
+    const isEmpty = !cycles.length && !audit.length && !archivedCategories.length && !archivedBands.length;
+    const h=React.createElement;
+    const configTrash=(archivedCategories.length||archivedBands.length)?h("section",{style:{marginBottom:20}},h("h3",null,"تصنيفات ونطاقات محفوظة في السلة"),h("p",{style:{fontSize:12,color:"var(--ink-3)"}},"يمكن استرجاعها هنا. لا يشمل زر إفراغ الدورات وسجل التدقيق هذه العناصر."),
+      [...archivedCategories.map(c=>({type:"category",id:c.id,label:c.name})),...archivedBands.map(b=>({type:"band",id:b.id,label:`${b.label} (${b.min}–${b.max})`}))].map(item=>h("div",{key:item.id,style:{...s.rowCard,marginBottom:8}},h("span",{style:{flex:1}},item.label),h(Btn,{onClick:()=>item.type==="category"?onRestoreCategory(item.id):onRestoreBand(item.id)},"استرجاع")))):null;
+    return /* @__PURE__ */ React.createElement("div", null, configTrash, (cycles.length>0||audit.length>0) && /* @__PURE__ */ React.createElement(Btn, { variant: "danger", style: { width: "100%", marginBottom: 16 }, onClick: () => setConfirmEmpty(true) }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.trash, size: 14 }), " إفراغ الدورات وسجل التدقيق نهائيًا"), isEmpty ? /* @__PURE__ */ React.createElement(EmptyState, { icon: /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.trash, size: 28 }), title: "\u0633\u0644\u0629 \u0627\u0644\u0645\u0647\u0645\u0644\u0627\u062A \u0641\u0627\u0631\u063A\u0629", body: "\u0623\u064A \u062F\u0648\u0631\u0629 \u0623\u0648 \u062D\u062F\u062B \u062A\u062D\u0630\u0641\u0647 \u0647\u064A\u0638\u0647\u0631 \u0647\u0646\u0627." }) : /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 20 } }, cycles.length > 0 && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 8 } }, "\u062F\u0648\u0631\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645 \u0627\u0644\u0645\u062D\u0630\u0648\u0641\u0629"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } }, cycles.map((c) => /* @__PURE__ */ React.createElement("div", { key: c.id, style: s.card }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 14 } }, c.name), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)", margin: "4px 0 10px" } }, fmtDate(c.start_date), " \u2014 ", fmtDate(c.end_date)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Btn, { onClick: () => onRestoreCycle(c.id) }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.rotate, size: 14 }), " \u0627\u0633\u062A\u0631\u062C\u0627\u0639"), /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => setConfirmItem({ type: "cycle", id: c.id, label: c.name }) }, "\u062D\u0630\u0641 \u0646\u0647\u0627\u0626\u064A")))))), audit.length > 0 && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 8 } }, "\u0623\u062D\u062F\u0627\u062B \u0633\u062C\u0644 \u0627\u0644\u062A\u062F\u0642\u064A\u0642 \u0627\u0644\u0645\u062D\u0630\u0648\u0641\u0629"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } }, audit.map((a) => /* @__PURE__ */ React.createElement("div", { key: a.id, style: s.card }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13 } }, /* @__PURE__ */ React.createElement("b", null, a.actor), " \u2014 ", a.action), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "var(--ink-3)", margin: "4px 0 10px" } }, fmtDateTime(a.created_at)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Btn, { onClick: () => onRestoreAudit(a.id) }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.rotate, size: 14 }), " \u0627\u0633\u062A\u0631\u062C\u0627\u0639"), /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => setConfirmItem({ type: "audit", id: a.id, label: `${a.actor} \u2014 ${a.action}` }) }, "\u062D\u0630\u0641 \u0646\u0647\u0627\u0626\u064A"))))))), confirmItem && /* @__PURE__ */ React.createElement(Modal, { title: "\u062D\u0630\u0641 \u0646\u0647\u0627\u0626\u064A", onClose: () => setConfirmItem(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => {
       (confirmItem.type === "cycle" ? onDeleteCycleForever : onDeleteAuditForever)(confirmItem.id);
       setConfirmItem(null);
     } }, "\u062D\u0630\u0641 \u0646\u0647\u0627\u0626\u064A \u2014 \u0644\u0627 \u0631\u062C\u0648\u0639"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setConfirmItem(null) }, "\u062A\u0631\u0627\u062C\u0639")) }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--red)", fontWeight: 600 } }, '\u0633\u064A\u062A\u0645 \u062D\u0630\u0641 "', confirmItem.label, '" \u0646\u0647\u0627\u0626\u064A\u064B\u0627 \u0645\u0646 \u0642\u0627\u0639\u062F\u0629 \u0627\u0644\u0628\u064A\u0627\u0646\u0627\u062A \u0648\u0644\u0627 \u064A\u0645\u0643\u0646 \u0627\u0644\u062A\u0631\u0627\u062C\u0639 \u0639\u0646 \u0647\u0630\u0627 \u0627\u0644\u0625\u062C\u0631\u0627\u0621 \u0623\u0628\u062F\u064B\u0627.')), confirmEmpty && /* @__PURE__ */ React.createElement(Modal, { title: "\u0625\u0641\u0631\u0627\u063A \u0633\u0644\u0629 \u0627\u0644\u0645\u0647\u0645\u0644\u0627\u062A", onClose: () => setConfirmEmpty(false), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => {
