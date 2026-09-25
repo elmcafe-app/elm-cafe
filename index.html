@@ -1573,11 +1573,22 @@ var __startElmCafeApp__ = (() => {
     const isPos = e.type === "positive";
     return /* @__PURE__ */ React.createElement("div", { style: { ...s.rowCard, cursor: "default", alignItems: "flex-start" } }, /* @__PURE__ */ React.createElement("div", { style: { width: 8, height: 8, borderRadius: "50%", background: e.status === "cancelled" ? "var(--ink-4)" : isPos ? "var(--green)" : "var(--red)", flexShrink: 0, marginTop: 6 } }), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, textAlign: "right", minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, fontWeight: 600, color: e.status === "cancelled" ? "var(--ink-3)" : "var(--ink)", textDecoration: e.status === "cancelled" ? "line-through" : "none" } }, e.category_name), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "var(--ink-3)" } }, e.evaluator_name, " \xB7 ", fmtDateTime(e.created_at)), e.note && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-2)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, e.note)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: isPos ? "var(--green)" : "var(--red)", flexShrink: 0 } }, isPos ? "+" : "-", e.category_points));
   }
+  const AI_NOTE_AREAS = [
+    ["service", "خدمة العملاء"], ["cleanliness", "النظافة والترتيب"],
+    ["punctuality", "الالتزام بالمواعيد"], ["teamwork", "التعاون"],
+    ["orders", "دقة الطلبات"], ["safety", "السلامة"],
+    ["stock", "تنظيم المخزون"], ["initiative", "المبادرة"]
+  ];
   function NewEvaluationScreen({ employee, categories, activeCycle, session, hasUnsavedRef, onDone }) {
     const draftKey = `elm_draft_${session.id}_${employee == null ? void 0 : employee.id}`;
     const [category, setCategory] = useState(null);
     const [note, setNote] = useState("");
     const [isViolation, setIsViolation] = useState(false);
+    const [aiArea, setAiArea] = useState("service");
+    const [aiSuggestion, setAiSuggestion] = useState("");
+    const [aiError, setAiError] = useState("");
+    const [aiBusy, setAiBusy] = useState(false);
+    const aiRequestId = useRef(0);
     const [saving, setSaving] = useState(false);
     const savingLock = useRef(false);
     const [restored, setRestored] = useState(false);
@@ -1606,8 +1617,39 @@ var __startElmCafeApp__ = (() => {
     if (!activeCycle) return /* @__PURE__ */ React.createElement(EmptyState, { icon: /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.warn, size: 28 }), title: "\u0644\u0627 \u062A\u0648\u062C\u062F \u062F\u0648\u0631\u0629 \u0646\u0634\u0637\u0629", body: "\u0644\u0627 \u064A\u0645\u0643\u0646 \u0625\u0636\u0627\u0641\u0629 \u062A\u0642\u064A\u064A\u0645 \u0628\u062F\u0648\u0646 \u062F\u0648\u0631\u0629 \u062A\u0642\u064A\u064A\u0645 \u0646\u0634\u0637\u0629." });
     const negatives = categories.filter((c) => c.type === "negative");
     const positives = categories.filter((c) => c.type === "positive");
+    async function suggestNote() {
+      if (!category || aiBusy) return;
+      const requestId = ++aiRequestId.current;
+      setAiBusy(true);
+      setAiError("");
+      setAiSuggestion("");
+      try {
+        // Deliberately send neither employee, category name, nor the typed note.
+        const { data, error } = await supabase.functions.invoke("elm-cafe-ai-note", {
+          body: { area: aiArea, type: category.type }
+        });
+        if (requestId !== aiRequestId.current) return;
+        if (error || !data?.note) throw new Error("AI unavailable");
+        setAiSuggestion(String(data.note));
+      } catch (_) {
+        if (requestId === aiRequestId.current) setAiError("الاقتراح غير متاح الآن. اكتب ملاحظتك واحفظ التقييم كالمعتاد.");
+      } finally {
+        if (requestId === aiRequestId.current) setAiBusy(false);
+      }
+    }
+    function selectCategory(next) {
+      aiRequestId.current++;
+      setAiBusy(false);
+      setAiSuggestion("");
+      setAiError("");
+      setCategory(next);
+    }
     async function commit() {
       if (savingLock.current || !category) return;
+      if (note.includes("[وصف الواقعة]")) {
+        setAiError("استبدل [وصف الواقعة] بالتفاصيل الصحيحة قبل الحفظ.");
+        return;
+      }
       savingLock.current = true;
       setSaving(true);
       const rec = {
@@ -1632,7 +1674,16 @@ var __startElmCafeApp__ = (() => {
       } catch (_) { /* The draft remains available for retry. */ }
       finally { setSaving(false); savingLock.current = false; }
     }
-    return /* @__PURE__ */ React.createElement("div", { className: "evaluation-screen" }, restored && /* @__PURE__ */ React.createElement("div", { style: s.infoBanner }, "\u062A\u0645 \u0627\u0633\u062A\u0631\u062C\u0627\u0639 \u0645\u0633\u0648\u062F\u0629 \u062A\u0642\u064A\u064A\u0645 \u063A\u064A\u0631 \u0645\u0643\u062A\u0645\u0644\u0629 \u0644\u0647\u0630\u0627 \u0627\u0644\u0645\u0648\u0638\u0641."), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--ink-3)", marginBottom: 12 } }, "\u0627\u0644\u0645\u0648\u0638\u0641: ", /* @__PURE__ */ React.createElement("b", { style: { color: "var(--ink)" } }, employee.name)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 8 } }, "\u062A\u0642\u064A\u064A\u0645 \u0633\u0644\u0628\u064A"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8, marginBottom: 16 } }, negatives.map((c) => /* @__PURE__ */ React.createElement("button", { key: c.id, onClick: () => setCategory(c), style: { ...s.catCard, ...(category == null ? void 0 : category.id) === c.id ? s.catCardActiveNeg : {} } }, /* @__PURE__ */ React.createElement("span", null, c.name), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--red)", fontWeight: 700 } }, "-", c.points)))), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 8 } }, "\u062A\u0642\u064A\u064A\u0645 \u0625\u064A\u062C\u0627\u0628\u064A"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8, marginBottom: 16 } }, positives.map((c) => /* @__PURE__ */ React.createElement("button", { key: c.id, onClick: () => setCategory(c), style: { ...s.catCard, ...(category == null ? void 0 : category.id) === c.id ? s.catCardActivePos : {} } }, /* @__PURE__ */ React.createElement("span", null, c.name), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--green)", fontWeight: 700 } }, "+", c.points)))), category && /* @__PURE__ */ React.createElement(Field, { label: category.type === "negative" ? "\u0633\u0628\u0628 \u0627\u0644\u062A\u0642\u064A\u064A\u0645 (\u064A\u064F\u0641\u0636\u0651\u0644 \u062A\u0648\u0636\u064A\u062D\u0647)" : "\u0645\u0644\u0627\u062D\u0638\u0629 (\u0627\u062E\u062A\u064A\u0627\u0631\u064A)" }, /* @__PURE__ */ React.createElement("textarea", { style: { ...s.input, minHeight: 90, resize: "vertical" }, value: note, onChange: (e) => setNote(e.target.value), placeholder: "\u0627\u0643\u062A\u0628 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644 \u0647\u0646\u0627\u2026" })), category && category.type === "negative" && /* @__PURE__ */ React.createElement("div", { style: { ...s.card, maxWidth: "100%", marginBottom: 16, padding: "6px 16px" } }, /* @__PURE__ */ React.createElement(Switch, { checked: isViolation, onChange: setIsViolation, label: "\u0625\u0634\u0639\u0627\u0631 \u0628\u0627\u0644\u0645\u062E\u0627\u0644\u0641\u0629", description: "\u064A\u0633\u062A\u0648\u062C\u0628 \u0645\u0631\u0627\u062C\u0639\u0629 \u0627\u0644\u0645\u062F\u064A\u0631 \u0627\u0644\u0623\u0639\u0644\u0649 (\u0645\u062B\u0644\u064B\u0627: \u062E\u0635\u0645 \u0645\u0646 \u0627\u0644\u0631\u0627\u062A\u0628)" })), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 6 } }, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", style: { flex: 1 }, disabled: !category || saving, onClick: commit }, saving ? "\u062C\u0627\u0631\u0650 \u0627\u0644\u062D\u0641\u0638\u2026" : "\u062D\u0641\u0638 \u0627\u0644\u062A\u0642\u064A\u064A\u0645")));
+    return /* @__PURE__ */ React.createElement("div", { className: "evaluation-screen" }, restored && /* @__PURE__ */ React.createElement("div", { style: s.infoBanner }, "\u062A\u0645 \u0627\u0633\u062A\u0631\u062C\u0627\u0639 \u0645\u0633\u0648\u062F\u0629 \u062A\u0642\u064A\u064A\u0645 \u063A\u064A\u0631 \u0645\u0643\u062A\u0645\u0644\u0629 \u0644\u0647\u0630\u0627 \u0627\u0644\u0645\u0648\u0638\u0641."), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--ink-3)", marginBottom: 12 } }, "\u0627\u0644\u0645\u0648\u0638\u0641: ", /* @__PURE__ */ React.createElement("b", { style: { color: "var(--ink)" } }, employee.name)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 8 } }, "\u062A\u0642\u064A\u064A\u0645 \u0633\u0644\u0628\u064A"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8, marginBottom: 16 } }, negatives.map((c) => /* @__PURE__ */ React.createElement("button", { key: c.id, onClick: () => selectCategory(c), style: { ...s.catCard, ...(category == null ? void 0 : category.id) === c.id ? s.catCardActiveNeg : {} } }, /* @__PURE__ */ React.createElement("span", null, c.name), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--red)", fontWeight: 700 } }, "-", c.points)))), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 8 } }, "\u062A\u0642\u064A\u064A\u0645 \u0625\u064A\u062C\u0627\u0628\u064A"), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8, marginBottom: 16 } }, positives.map((c) => /* @__PURE__ */ React.createElement("button", { key: c.id, onClick: () => selectCategory(c), style: { ...s.catCard, ...(category == null ? void 0 : category.id) === c.id ? s.catCardActivePos : {} } }, /* @__PURE__ */ React.createElement("span", null, c.name), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--green)", fontWeight: 700 } }, "+", c.points)))), category && /* @__PURE__ */ React.createElement(Field, { label: category.type === "negative" ? "\u0633\u0628\u0628 \u0627\u0644\u062A\u0642\u064A\u064A\u0645 (\u064A\u064F\u0641\u0636\u0651\u0644 \u062A\u0648\u0636\u064A\u062D\u0647)" : "\u0645\u0644\u0627\u062D\u0638\u0629 (\u0627\u062E\u062A\u064A\u0627\u0631\u064A)" }, /* @__PURE__ */ React.createElement("textarea", { style: { ...s.input, minHeight: 90, resize: "vertical" }, value: note, onChange: (e) => setNote(e.target.value), placeholder: "\u0627\u0643\u062A\u0628 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644 \u0647\u0646\u0627\u2026" })), category && /* @__PURE__ */ React.createElement("div", { style: { ...s.card, maxWidth: "100%", padding: 14, marginBottom: 14, border: "1px solid var(--border)", background: "var(--surface)" } },
+      /* @__PURE__ */ React.createElement("strong", { style: { fontSize: 13 } }, "مساعد الصياغة"),
+      /* @__PURE__ */ React.createElement("p", { style: { fontSize: 12, color: "var(--ink-3)", margin: "6px 0 10px" } }, "اختر موضوعًا عامًا. لن يُرسل اسم الموظف أو ملاحظتك المكتوبة. راجع الاقتراح قبل استخدامه."),
+      /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
+        /* @__PURE__ */ React.createElement("select", { value: aiArea, onChange: (e) => { aiRequestId.current++; setAiBusy(false); setAiArea(e.target.value); setAiSuggestion(""); setAiError(""); }, "aria-label": "موضوع الصياغة", style: { ...s.input, flex: "1 1 160px", fontSize: 16 } }, AI_NOTE_AREAS.map(([value, label]) => /* @__PURE__ */ React.createElement("option", { key: value, value }, label))),
+        /* @__PURE__ */ React.createElement(Btn, { onClick: suggestNote, disabled: aiBusy || saving, style: { minHeight: 44 } }, aiBusy ? "جاري اقتراح الصياغة…" : "اقترح صياغة")),
+      aiError && /* @__PURE__ */ React.createElement("p", { role: "status", style: { fontSize: 12, color: "var(--red)", margin: "10px 0 0" } }, aiError),
+      aiSuggestion && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 12 } },
+        /* @__PURE__ */ React.createElement("p", { style: { fontSize: 13, lineHeight: 1.8, margin: "0 0 8px" } }, aiSuggestion),
+        /* @__PURE__ */ React.createElement(Btn, { onClick: () => { setNote(aiSuggestion); setAiSuggestion(""); }, disabled: saving }, "استخدم النص في الملاحظة"))), category && category.type === "negative" && /* @__PURE__ */ React.createElement("div", { style: { ...s.card, maxWidth: "100%", marginBottom: 16, padding: "6px 16px" } }, /* @__PURE__ */ React.createElement(Switch, { checked: isViolation, onChange: setIsViolation, label: "\u0625\u0634\u0639\u0627\u0631 \u0628\u0627\u0644\u0645\u062E\u0627\u0644\u0641\u0629", description: "\u064A\u0633\u062A\u0648\u062C\u0628 \u0645\u0631\u0627\u062C\u0639\u0629 \u0627\u0644\u0645\u062F\u064A\u0631 \u0627\u0644\u0623\u0639\u0644\u0649 (\u0645\u062B\u0644\u064B\u0627: \u062E\u0635\u0645 \u0645\u0646 \u0627\u0644\u0631\u0627\u062A\u0628)" })), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 6 } }, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", style: { flex: 1 }, disabled: !category || saving, onClick: commit }, saving ? "\u062C\u0627\u0631\u0650 \u0627\u0644\u062D\u0641\u0638\u2026" : "\u062D\u0641\u0638 \u0627\u0644\u062A\u0642\u064A\u064A\u0645")));
   }
   function HistoryScreen({ employee, evaluations, cycles = [], activeCycle, session, onCancel }) {
     const h = React.createElement;
