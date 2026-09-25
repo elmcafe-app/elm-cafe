@@ -504,7 +504,7 @@ var __startElmCafeApp__ = (() => {
     )), /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 34, fontWeight: 800, lineHeight: 1 } }, Math.round(pct)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)", marginTop: 2 } }, "\u0645\u0646 100")));
   }
   function Modal({ title, children, onClose, footer }) {
-    return /* @__PURE__ */ React.createElement("div", { style: s.modalOverlay, onClick: onClose }, /* @__PURE__ */ React.createElement("div", { style: s.modalCard, onClick: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 17, fontWeight: 700 } }, title), /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: s.iconBtn }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.x, size: 17 }))), /* @__PURE__ */ React.createElement("div", null, children), footer && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 18, display: "flex", gap: 8 } }, footer)));
+    return /* @__PURE__ */ React.createElement("div", { style: s.modalOverlay, role: "dialog", "aria-modal": true, onClick: onClose }, /* @__PURE__ */ React.createElement("div", { style: s.modalCard, onClick: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 17, fontWeight: 700 } }, title), /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: s.iconBtn }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.x, size: 17 }))), /* @__PURE__ */ React.createElement("div", null, children), footer && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 18, display: "flex", gap: 8 } }, footer)));
   }
   function Toast({ toast }) {
     const [expanded, setExpanded] = useState(false);
@@ -812,6 +812,44 @@ var __startElmCafeApp__ = (() => {
       if (screen === "newEval" && hasUnsavedRef.current) setPendingNav(() => doNav);
       else doNav();
     }
+    useEffect(() => {
+      if (!session || !stack.length || pendingNav || notificationsOpen) return;
+      let start = null;
+      const overlays = '[role="dialog"], .certificate-overlay, .quick-search-scrim';
+      const onTouchStart = (event) => {
+        if (event.touches.length !== 1 || document.querySelector(overlays)) return;
+        if (event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+        const touch = event.touches[0], width = window.innerWidth;
+        const edge = touch.clientX <= 28 ? "left" : touch.clientX >= width - 28 ? "right" : null;
+        start = edge ? { x: touch.clientX, y: touch.clientY, edge } : null;
+      };
+      const onTouchMove = (event) => {
+        if (!start || event.touches.length !== 1) return;
+        const dx = event.touches[0].clientX - start.x;
+        const dy = event.touches[0].clientY - start.y;
+        const inward = start.edge === "left" ? dx : -dx;
+        if (inward > 12 && Math.abs(dy) < inward * 0.6) event.preventDefault();
+      };
+      const onTouchEnd = (event) => {
+        if (!start || event.changedTouches.length !== 1) { start = null; return; }
+        const dx = event.changedTouches[0].clientX - start.x;
+        const dy = event.changedTouches[0].clientY - start.y;
+        const inward = start.edge === "left" ? dx : -dx;
+        start = null;
+        if (inward >= 72 && Math.abs(dy) < Math.min(60, inward * 0.6) && !document.querySelector(overlays)) goBack();
+      };
+      const onTouchCancel = () => { start = null; };
+      window.addEventListener("touchstart", onTouchStart, { passive: true });
+      window.addEventListener("touchmove", onTouchMove, { passive: false });
+      window.addEventListener("touchend", onTouchEnd, { passive: true });
+      window.addEventListener("touchcancel", onTouchCancel, { passive: true });
+      return () => {
+        window.removeEventListener("touchstart", onTouchStart);
+        window.removeEventListener("touchmove", onTouchMove);
+        window.removeEventListener("touchend", onTouchEnd);
+        window.removeEventListener("touchcancel", onTouchCancel);
+      };
+    }, [session, stack.length, screen, ctx, pendingNav, notificationsOpen]);
     async function logout() {
       await supabase.auth.signOut();
       setSession(null);
