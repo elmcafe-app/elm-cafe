@@ -364,6 +364,33 @@
   .app-main-content { padding-bottom:calc(128px + env(safe-area-inset-bottom,0px)) !important; }
   @media(min-width:900px){ .app-main-content { padding-bottom:50px !important; } }
   @media(prefers-reduced-motion:reduce){ .app-modal-overlay,.app-modal-card { animation:none !important; } }
+
+  /* Dialogs are rendered above the app shell; only the small panel is filtered. */
+  .app-modal-overlay.compact { background:rgba(22,24,24,.32) !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; z-index:100 !important; padding:20px !important; animation:dialogVeil .16s ease-out both; }
+  .app-modal-card.compact { width:min(100%,350px) !important; max-width:350px !important; max-height:min(76vh,650px) !important; padding:19px 20px !important; border-radius:20px !important; background:linear-gradient(145deg,rgba(255,255,255,.61),rgba(242,241,233,.43)) !important; backdrop-filter:blur(16px) saturate(160%) !important; -webkit-backdrop-filter:blur(16px) saturate(160%) !important; border:1px solid rgba(255,255,255,.7); box-shadow:0 17px 42px rgba(24,30,25,.18),inset 0 1px rgba(255,255,255,.75) !important; animation:dialogPanel .19s cubic-bezier(.22,.75,.25,1) both; }
+  html[data-theme="dark"] .app-modal-card.compact { background:linear-gradient(145deg,rgba(38,41,46,.70),rgba(24,27,31,.57)) !important; border-color:rgba(255,255,255,.18); }
+  .app-modal-heading { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px; }
+  .app-modal-heading strong { font-size:17px;line-height:1.4; }
+  .app-modal-close { display:grid;place-items:center;min-width:44px;min-height:44px;border:1px solid var(--glass-border);border-radius:13px;background:var(--glass);color:var(--ink);cursor:pointer; }
+  .app-modal-content { min-width:0; }
+  .app-modal-footer { display:flex;justify-content:center;gap:8px;margin-top:15px; }
+  .app-modal-footer button { min-width:110px; }
+  .app-modal-card.compact .evaluation-detail { text-align:center;gap:8px;font-size:13px; }
+  .app-modal-card.compact .evaluation-detail>strong { font-size:16px; }
+  .app-modal-card.compact .evaluation-detail-note { text-align:right;line-height:1.7;margin-top:5px;background:rgba(255,255,255,.28);border:1px solid var(--glass-border); }
+  html[data-theme="dark"] .app-modal-card.compact .evaluation-detail-note { background:rgba(255,255,255,.07); }
+  @keyframes dialogVeil { from { opacity:0; } to { opacity:1; } }
+  @keyframes dialogPanel { from { opacity:0; transform:translate3d(0,6px,0) scale(.99); } to { opacity:1;transform:translate3d(0,0,0) scale(1); } }
+  /* Thin translucent surfaces for toolbars and navigation; primary actions keep their contrast. */
+  :root { --glass:rgba(255,255,255,.29);--glass-strong:rgba(255,255,255,.47);--glass-border:rgba(255,255,255,.55); }
+  html[data-theme="dark"] { --glass:rgba(33,36,40,.38);--glass-strong:rgba(39,42,47,.58);--glass-border:rgba(255,255,255,.18); }
+  #root { background:radial-gradient(circle at 3% 17%,rgba(196,169,118,.22),transparent 40%),radial-gradient(circle at 99% 66%,rgba(99,135,117,.18),transparent 42%),var(--bg); }
+  .app-topbar,.app-bottomnav,.notification-popover { background:rgba(248,247,242,.36) !important;backdrop-filter:blur(18px) saturate(165%) !important;-webkit-backdrop-filter:blur(18px) saturate(165%) !important; }
+  html[data-theme="dark"] .app-topbar,html[data-theme="dark"] .app-bottomnav,html[data-theme="dark"] .notification-popover { background:rgba(24,26,29,.43) !important; }
+  .app-topbar button,.app-modal-close { background:var(--glass) !important;border-color:var(--glass-border) !important; }
+  .app-bottomnav button[aria-current="page"]>div { background:rgba(108,139,116,.19) !important;box-shadow:inset 0 1px rgba(255,255,255,.28); }
+  .evaluation-activity-item { backdrop-filter:none !important;-webkit-backdrop-filter:none !important;background:var(--glass) !important;box-shadow:0 4px 12px var(--glass-shadow),inset 0 1px rgba(255,255,255,.36) !important; }
+  @media(prefers-reduced-motion:reduce){ .app-modal-overlay.compact,.app-modal-card.compact { animation:none !important; } }
 </style>
 </head>
 <body>
@@ -567,7 +594,15 @@ var __startElmCafeApp__ = (() => {
     )), /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 34, fontWeight: 800, lineHeight: 1 } }, Math.round(pct)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)", marginTop: 2 } }, "\u0645\u0646 100")));
   }
   function Modal({ title, children, onClose, footer, compact = false }) {
-    return /* @__PURE__ */ React.createElement("div", { className: "app-modal-overlay", style: s.modalOverlay, role: "dialog", "aria-modal": true, onClick: onClose }, /* @__PURE__ */ React.createElement("div", { className: "app-modal-card" + (compact ? " compact" : ""), style: s.modalCard, onClick: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 17, fontWeight: 700 } }, title), /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: s.iconBtn }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.x, size: 17 }))), /* @__PURE__ */ React.createElement("div", null, children), footer && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 18, display: "flex", gap: 8 } }, footer)));
+    const panel = React.createElement("div", { className: "app-modal-overlay" + (compact ? " compact" : ""), style: s.modalOverlay, role: "dialog", "aria-modal": true, "aria-label": title, onClick: onClose },
+      React.createElement("div", { className: "app-modal-card" + (compact ? " compact" : ""), style: s.modalCard, onClick: (e) => e.stopPropagation() },
+        React.createElement("div", { className: "app-modal-heading" },
+          React.createElement("strong", null, title),
+          React.createElement("button", { type:"button", onClick:onClose, className:"app-modal-close", "aria-label":"إغلاق النافذة" }, React.createElement(Icon, { svg: ICONS.x, size: 19 }))),
+        React.createElement("div", { className: "app-modal-content" }, children),
+        footer && React.createElement("div", { className: "app-modal-footer" }, footer)));
+    // A portal keeps the dialog outside animated and filtered page layers on iOS.
+    return compact && typeof document !== "undefined" ? ReactDOM.createPortal(panel, document.body) : panel;
   }
   function Toast({ toast }) {
     const [expanded, setExpanded] = useState(false);
@@ -2289,18 +2324,18 @@ var __startElmCafeApp__ = (() => {
     bottomNavBtn: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "6px 4px 5px", minHeight: 48, background: "none", border: "none", cursor: "pointer" },
     iconBtn: { background: "transparent", border: "none", cursor: "pointer", padding: 10, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ink-2)", minWidth: 44, minHeight: 44 },
     centerScreen: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 16px", minHeight: "100vh" },
-    card: { background: "var(--bg-2)", border: "0.5px solid var(--border)", borderRadius: 16, padding: "18px 18px", width: "100%", maxWidth: 340, boxSizing: "border-box", boxShadow: "0 1px 2px rgba(33,30,24,0.03), 0 4px 14px rgba(33,30,24,0.035)" },
+    card: { background: "var(--glass-strong)", border: "0.5px solid var(--border)", borderRadius: 16, padding: "18px 18px", width: "100%", maxWidth: 340, boxSizing: "border-box", boxShadow: "0 1px 2px rgba(33,30,24,0.03), 0 4px 14px rgba(33,30,24,0.035)" },
     input: { width: "100%", boxSizing: "border-box", padding: "11px 14px", borderRadius: 10, border: "0.5px solid var(--border-strong)", fontSize: 16, background: "var(--glass-strong)", color: "var(--ink)" },
     errText: { color: "var(--red)", fontSize: 13, marginBottom: 10 },
     btn: { padding: "11px 18px", borderRadius: 10, border: "0.5px solid var(--border-strong)", background: "var(--glass-strong)", fontSize: 14, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, color: "var(--ink)", minHeight: 44 },
     btnPrimary: { background: "var(--forest)", color: "#fff", border: "0.5px solid var(--forest)", boxShadow: "0 2px 8px rgba(46,70,53,0.25)" },
     btnDanger: { background: "var(--red)", color: "#fff", border: "0.5px solid var(--red)", boxShadow: "0 2px 8px rgba(166,56,44,0.22)" },
     btnGhost: { background: "transparent" },
-    rowCard: { display: "flex", alignItems: "center", gap: 12, width: "100%", boxSizing: "border-box", padding: "12px 14px", borderRadius: 14, border: "0.5px solid var(--border)", background: "var(--bg-2)", cursor: "pointer", boxShadow: "0 1px 2px rgba(33,30,24,0.025)", minHeight: 44 },
+    rowCard: { display: "flex", alignItems: "center", gap: 12, width: "100%", boxSizing: "border-box", padding: "12px 14px", borderRadius: 14, border: "1px solid var(--glass-border)", background: "var(--glass)", cursor: "pointer", boxShadow: "0 1px 2px rgba(33,30,24,0.025)", minHeight: 44 },
     avatarCircle: { width: 38, height: 38, borderRadius: "50%", background: "var(--forest-10)", color: "var(--forest)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, flexShrink: 0 },
     rankBadge: { width: 28, height: 28, borderRadius: "50%", background: "var(--gold-10)", color: "var(--gold-dark)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12, flexShrink: 0 },
-    metricCard: { background: "var(--bg-2)", border: "0.5px solid var(--border)", borderRadius: 16, padding: "14px 16px", boxShadow: "0 1px 2px rgba(33,30,24,0.03), 0 4px 14px rgba(33,30,24,0.035)" },
-    catCard: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", borderRadius: 14, border: "0.5px solid var(--border)", background: "var(--bg-2)", cursor: "pointer", fontSize: 14, color: "var(--ink)", minHeight: 44, boxShadow: "0 1px 2px rgba(33,30,24,0.025)" },
+    metricCard: { background: "var(--glass)", border: "0.5px solid var(--border)", borderRadius: 16, padding: "14px 16px", boxShadow: "0 1px 2px rgba(33,30,24,0.03), 0 4px 14px rgba(33,30,24,0.035)" },
+    catCard: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", borderRadius: 14, border: "1px solid var(--glass-border)", background: "var(--glass)", cursor: "pointer", fontSize: 14, color: "var(--ink)", minHeight: 44, boxShadow: "0 1px 2px rgba(33,30,24,0.025)" },
     catCardActiveNeg: { border: "1.5px solid var(--red)", background: "var(--red-10)", boxShadow: "0 2px 8px rgba(166,56,44,0.1)" },
     catCardActivePos: { border: "1.5px solid var(--green)", background: "var(--green-10)", boxShadow: "0 2px 8px rgba(59,109,36,0.1)" },
     chip: { padding: "8px 14px", borderRadius: 999, border: "0.5px solid var(--border-strong)", background: "var(--glass-strong)", fontSize: 13, cursor: "pointer", color: "var(--ink-2)", minHeight: 36 },
