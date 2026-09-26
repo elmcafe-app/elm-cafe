@@ -341,6 +341,29 @@
   .profile-primary-action:disabled { opacity:.5;cursor:not-allowed; }
   .pull-status { position:fixed;z-index:40;top:calc(env(safe-area-inset-top,0px) + 4px);left:50%;transform:translateX(-50%);padding:6px 12px;border-radius:20px;background:var(--glass-strong);backdrop-filter:blur(18px);color:var(--ink);font-size:12px;box-shadow:0 4px 16px var(--glass-shadow);pointer-events:none; }
   @media (hover:hover) { .quick-evaluation-pick:hover,.quick-evaluation-profile:hover,.evaluation-activity-item:hover { border-color:var(--border-strong); } }
+  /* The page surface remains legible while the glass reveals its ambient background. */
+  #root { background: radial-gradient(circle at 12% 18%,rgba(201,162,39,.10),transparent 38%),radial-gradient(circle at 90% 65%,rgba(77,121,93,.13),transparent 45%),var(--bg); }
+  .dashboard-panel,.quick-evaluation-pick,.quick-evaluation-profile,.evaluation-activity-item,.report-tile,.profile-hero { background:var(--glass) !important; border:1px solid var(--glass-border) !important; backdrop-filter:blur(18px) saturate(165%); -webkit-backdrop-filter:blur(18px) saturate(165%); box-shadow:0 8px 25px var(--glass-shadow),inset 0 1px rgba(255,255,255,.35); }
+  :root { --glass:rgba(255,255,255,.39); --glass-strong:rgba(255,255,255,.58); --glass-border:rgba(255,255,255,.56); }
+  html[data-theme="dark"] { --glass:rgba(31,33,37,.46); --glass-strong:rgba(31,33,37,.69); --glass-border:rgba(255,255,255,.14); }
+  .app-modal-overlay { animation:glassBackdropIn .22s ease-out both; }
+  .app-modal-card { background:var(--glass-strong) !important; border:1px solid var(--glass-border); backdrop-filter:blur(26px) saturate(180%); -webkit-backdrop-filter:blur(26px) saturate(180%); box-shadow:0 20px 60px var(--glass-shadow),inset 0 1px rgba(255,255,255,.5) !important; animation:glassCardIn .26s cubic-bezier(.2,.75,.25,1) both; }
+  .app-modal-card.compact { max-width:344px !important; padding:17px 18px !important; }
+  @keyframes glassBackdropIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes glassCardIn { from { opacity:0; transform:translateY(13px) scale(.975); } to { opacity:1; transform:translateY(0) scale(1); } }
+  .quick-evaluation-profile { min-width:44px;width:44px;display:grid;place-items:center;font-size:0; }
+  .quick-evaluation-profile svg { width:19px;height:19px; }
+  .quick-evaluation-pick { min-height:62px; }
+  .quick-evaluation-pick small { font-size:12px; }
+  .evaluation-log-heading { margin:6px 3px 15px; }.evaluation-log-heading h1 { font-size:22px;margin:4px 0; }.evaluation-log-heading p { font-size:13px;color:var(--ink-2);margin:0; }
+  .report-toolbar { display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:10px 0; }
+  .report-toolbar h2 { margin:0;font-size:16px; }.report-actions { display:flex;flex-wrap:wrap;gap:7px; }
+  .report-actions button { border:1px solid var(--glass-border);background:var(--glass);backdrop-filter:blur(16px);color:var(--ink);border-radius:12px;padding:9px 12px;min-height:44px;font-weight:700;font-size:12px; }
+  .ai-options { display:grid;gap:8px;margin-top:10px; }.ai-option { width:100%;text-align:right;line-height:1.75;padding:11px 13px;border-radius:13px;border:1px solid var(--glass-border);background:var(--glass);color:var(--ink);font:inherit;font-size:13px;cursor:pointer; }.ai-option:focus-visible { outline:2px solid var(--forest); }
+  .pull-status { transition:opacity .17s ease,top .17s ease; }
+  .app-main-content { padding-bottom:calc(128px + env(safe-area-inset-bottom,0px)) !important; }
+  @media(min-width:900px){ .app-main-content { padding-bottom:50px !important; } }
+  @media(prefers-reduced-motion:reduce){ .app-modal-overlay,.app-modal-card { animation:none !important; } }
 </style>
 </head>
 <body>
@@ -543,8 +566,8 @@ var __startElmCafeApp__ = (() => {
       }
     )), /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 34, fontWeight: 800, lineHeight: 1 } }, Math.round(pct)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)", marginTop: 2 } }, "\u0645\u0646 100")));
   }
-  function Modal({ title, children, onClose, footer }) {
-    return /* @__PURE__ */ React.createElement("div", { style: s.modalOverlay, role: "dialog", "aria-modal": true, onClick: onClose }, /* @__PURE__ */ React.createElement("div", { style: s.modalCard, onClick: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 17, fontWeight: 700 } }, title), /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: s.iconBtn }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.x, size: 17 }))), /* @__PURE__ */ React.createElement("div", null, children), footer && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 18, display: "flex", gap: 8 } }, footer)));
+  function Modal({ title, children, onClose, footer, compact = false }) {
+    return /* @__PURE__ */ React.createElement("div", { className: "app-modal-overlay", style: s.modalOverlay, role: "dialog", "aria-modal": true, onClick: onClose }, /* @__PURE__ */ React.createElement("div", { className: "app-modal-card" + (compact ? " compact" : ""), style: s.modalCard, onClick: (e) => e.stopPropagation() }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 17, fontWeight: 700 } }, title), /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: s.iconBtn }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.x, size: 17 }))), /* @__PURE__ */ React.createElement("div", null, children), footer && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 18, display: "flex", gap: 8 } }, footer)));
   }
   function Toast({ toast }) {
     const [expanded, setExpanded] = useState(false);
@@ -823,6 +846,9 @@ var __startElmCafeApp__ = (() => {
     useEffect(() => {
       if (!session) return;
       let start = null;
+      const surface=()=>document.querySelector('.app-main-content');
+      const moveSurface=distance=>{const el=surface();if(el){el.style.transition='none';el.style.transform=`translate3d(0,${distance}px,0)`;}};
+      const releaseSurface=()=>{const el=surface();if(el){el.style.transition='transform .26s cubic-bezier(.2,.75,.25,1)';el.style.transform='translate3d(0,0,0)';setTimeout(()=>{if(el.isConnected){el.style.transition='';el.style.transform='';}},300);}};
       const onStart = event => {
         if (event.touches.length !== 1 || refreshing || document.querySelector('[role="dialog"], .certificate-overlay')) return;
         if (event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
@@ -836,15 +862,17 @@ var __startElmCafeApp__ = (() => {
         if (dy <= 6 || Math.abs(dx) > dy * .5 || (document.scrollingElement?.scrollTop || window.scrollY) > 1) return;
         start.distance = dy;
         if (event.cancelable) event.preventDefault();
-        setPullState(dy >= 75 ? "ready" : "pulling");
+        moveSurface(Math.min(86,Math.pow(dy,.82)*1.25));
+        setPullState(previous=>{const next=dy>=75?'ready':'pulling';return previous===next?previous:next;});
       };
       const onEnd = () => {
         const shouldRefresh = start?.distance >= 75;
         start = null;
         setPullState("");
+        releaseSurface();
         if (shouldRefresh) manualRefresh();
       };
-      const onCancel = () => { start = null; setPullState(""); };
+      const onCancel = () => { start = null; setPullState(""); releaseSurface(); };
       window.addEventListener("touchstart", onStart, { passive:true });
       window.addEventListener("touchmove", onMove, { passive:false });
       window.addEventListener("touchend", onEnd, { passive:true });
@@ -901,9 +929,12 @@ var __startElmCafeApp__ = (() => {
     useEffect(() => {
       if (!session || pendingNav || notificationsOpen) return;
       let start = null;
+      let navigating=false;
+      const surface=()=>document.querySelector('.app-main-content');
+      const resetSwipe=()=>{const el=surface();if(el){el.style.transition='transform .24s cubic-bezier(.2,.75,.25,1)';el.style.transform='translate3d(0,0,0)';setTimeout(()=>{if(el.isConnected){el.style.transition='';el.style.transform='';}},280);}};
       const overlays = '[role="dialog"], .certificate-overlay, .quick-search-scrim';
       const onTouchStart = (event) => {
-        if (event.touches.length !== 1 || document.querySelector(overlays)) return;
+        if (event.touches.length !== 1 || document.querySelector(overlays) || !stack.length) return;
         if (event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
         const touch = event.touches[0], width = window.innerWidth;
         const edge = touch.clientX <= 28 ? "left" : touch.clientX >= width - 28 ? "right" : null;
@@ -914,17 +945,21 @@ var __startElmCafeApp__ = (() => {
         const dx = event.touches[0].clientX - start.x;
         const dy = event.touches[0].clientY - start.y;
         const inward = start.edge === "left" ? dx : -dx;
-        if (inward > 12 && Math.abs(dy) < inward * 0.6) event.preventDefault();
+        if (inward > 12 && Math.abs(dy) < inward * .6) {
+          if(event.cancelable)event.preventDefault();
+          const el=surface();if(el){el.style.transition='none';el.style.transform=`translate3d(${(start.edge==='left'?1:-1)*Math.min(64,(inward-12)*.27)}px,0,0)`;}
+        }
       };
       const onTouchEnd = (event) => {
-        if (!start || event.changedTouches.length !== 1) { start = null; return; }
+        if (!start || event.changedTouches.length !== 1) { start = null; resetSwipe(); return; }
         const dx = event.changedTouches[0].clientX - start.x;
         const dy = event.changedTouches[0].clientY - start.y;
         const inward = start.edge === "left" ? dx : -dx;
         start = null;
-        if (stack.length && inward >= 72 && Math.abs(dy) < Math.min(60, inward * 0.6) && !document.querySelector(overlays)) goBack();
+        resetSwipe();
+        if (stack.length && inward >= 82 && Math.abs(dy) < Math.min(60, inward * 0.6) && !document.querySelector(overlays) && !navigating) { navigating=true; setTimeout(()=>goBack(),100); }
       };
-      const onTouchCancel = () => { start = null; };
+      const onTouchCancel = () => { start = null; resetSwipe(); };
       window.addEventListener("touchstart", onTouchStart, { passive: true });
       window.addEventListener("touchmove", onTouchMove, { passive: false });
       window.addEventListener("touchend", onTouchEnd, { passive: true });
@@ -1017,7 +1052,7 @@ var __startElmCafeApp__ = (() => {
         connectionState,
         lastSyncAt,
       }
-    ), /* @__PURE__ */ React.createElement("main", { className: "app-main-content", key: screen + "-" + (ctx.employeeId || ""), style: { ...session?.role === "super_admin" ? { ...s.body, paddingBottom: "calc(78px + env(safe-area-inset-bottom, 0px))" } : s.body, animation: "fadeIn .22s ease" } }, screen === "home" && /* @__PURE__ */ React.createElement(
+    ), /* @__PURE__ */ React.createElement("main", { className: "app-main-content", key: screen + "-" + (ctx.employeeId || ""), style: { ...session?.role === "super_admin" ? { ...s.body, paddingBottom: "calc(128px + env(safe-area-inset-bottom, 0px))" } : s.body, animation: "fadeIn .28s cubic-bezier(.2,.75,.25,1)" } }, screen === "home" && /* @__PURE__ */ React.createElement(
       EvaluatorHome,
       {
         employees: employees.filter((e) => !e.archived),
@@ -1028,9 +1063,9 @@ var __startElmCafeApp__ = (() => {
         onGo: (scr) => goto(scr),
         onOpen: (emp) => goto("newEval", { employeeId: emp.id }),
         onProfile: (emp) => goto("employee", { employeeId: emp.id }),
-        initialEvaluationId: ctx.evaluationId
+        initialEvaluationId: null
       }
-    ), screen === "employee" && /* @__PURE__ */ React.createElement(
+    ), screen === "evaluationsLog" && React.createElement(EvaluationsLog, { employees, evaluations, activeCycle, initialEvaluationId:ctx.evaluationId }), screen === "employee" && /* @__PURE__ */ React.createElement(
       EmployeeDetail,
       {
         employee: employees.find((e) => e.id === ctx.employeeId),
@@ -1494,7 +1529,7 @@ var __startElmCafeApp__ = (() => {
           showToast("تم إفراغ سلة المهملات نهائيًا");
         }
       }
-    ), screen === "moreMenu" && /* @__PURE__ */ React.createElement(MoreMenuScreen, { onGo: (scr) => goto(scr), isOwner })), session?.role === "super_admin" && /* @__PURE__ */ React.createElement(BottomNav, { activeScreen: screen, onSelect: gotoTab }), /* @__PURE__ */ React.createElement(Toast, { toast }), (pullState || refreshing) && React.createElement("div", { className:"pull-status", role:"status" }, refreshing ? "جارٍ تحديث البيانات…" : pullState === "ready" ? "اترك الشاشة للتحديث" : "اسحب للتحديث"), confirmLogout && React.createElement(Modal, { title:"تسجيل الخروج", onClose:()=>setConfirmLogout(false), footer:React.createElement(React.Fragment,null,React.createElement(Btn,{variant:"primary",onClick:()=>{setConfirmLogout(false);logout();}},"تأكيد الخروج"),React.createElement(Btn,{variant:"ghost",onClick:()=>setConfirmLogout(false)},"البقاء")) }, "سيتم إغلاق جلسة حسابك على هذا الجهاز."), pendingNav && /* @__PURE__ */ React.createElement(Modal, { title: "\u0644\u062F\u064A\u0643 \u062A\u063A\u064A\u064A\u0631\u0627\u062A \u063A\u064A\u0631 \u0645\u062D\u0641\u0648\u0638\u0629", onClose: () => setPendingNav(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => {
+    ), screen === "moreMenu" && /* @__PURE__ */ React.createElement(MoreMenuScreen, { onGo: (scr) => goto(scr), isOwner })), session?.role === "super_admin" && /* @__PURE__ */ React.createElement(BottomNav, { activeScreen: screen, onSelect: gotoTab }), /* @__PURE__ */ React.createElement(Toast, { toast }), (pullState || refreshing) && React.createElement("div", { className:"pull-status", role:"status" }, refreshing ? "جارٍ تحديث البيانات…" : pullState === "ready" ? "اترك الشاشة للتحديث" : "اسحب للتحديث"), confirmLogout && React.createElement(Modal, { title:"تسجيل الخروج", onClose:()=>setConfirmLogout(false), footer:React.createElement(React.Fragment,null,React.createElement(Btn,{variant:"primary",onClick:()=>{setConfirmLogout(false);logout();}},"تأكيد الخروج"),React.createElement(Btn,{variant:"ghost",onClick:()=>setConfirmLogout(false)},"البقاء")) }, "سيتم إغلاق جلسة حسابك على هذا الجهاز."), pendingNav && /* @__PURE__ */ React.createElement(Modal, { compact:true, title: "\u0644\u062F\u064A\u0643 \u062A\u063A\u064A\u064A\u0631\u0627\u062A \u063A\u064A\u0631 \u0645\u062D\u0641\u0648\u0638\u0629", onClose: () => setPendingNav(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "danger", onClick: () => {
       const f = pendingNav;
       setPendingNav(null);
       f();
@@ -1524,6 +1559,8 @@ var __startElmCafeApp__ = (() => {
         return emp ? emp.name : "\u0627\u0644\u0645\u0648\u0638\u0641";
       case "newEval":
         return "\u062A\u0642\u064A\u064A\u0645 \u062C\u062F\u064A\u062F";
+      case "evaluationsLog":
+        return "سجل تقييمات الدورة";
       case "history":
         return "\u0633\u062C\u0644 \u0627\u0644\u062A\u0642\u064A\u064A\u0645\u0627\u062A";
       case "adminHome":
@@ -1603,14 +1640,8 @@ var __startElmCafeApp__ = (() => {
   function EvaluatorHome({ employees, activeCycle, session, evaluations, onOpen, onProfile, initialEvaluationId }) {
     const h = React.createElement;
     const [query, setQuery] = useState("");
-    const [selected, setSelected] = useState(null);
-    const [visibleCount, setVisibleCount] = useState(8);
     const current = activeCycle ? evaluations.filter(e => e.cycle_id === activeCycle.id && e.status === "active") : [];
-    const recent = current.slice().sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
     const filtered = employees.filter(e => (e.name || "").includes(query) || String(e.employee_code || "").includes(query));
-    useEffect(() => {
-      if (initialEvaluationId) setSelected(evaluations.find(e => e.id === initialEvaluationId) || null);
-    }, [initialEvaluationId, evaluations]);
     return h("div", { className:"work-screen evaluation-hub" },
       h("header", { className:"evaluation-hub-head" },
         h("span", { className:"eyebrow" }, "تقييمات الفريق"),
@@ -1626,25 +1657,32 @@ var __startElmCafeApp__ = (() => {
               h("span", { className:"person-avatar", style:{background:avatarColor(e.name).bg,color:avatarColor(e.name).fg} }, e.name.trim().slice(0,1)),
               h("span", null, h("strong", null, e.name), h("small", null, e.profession || "موظف")),
               h(Icon, { svg:ICONS.plus, size:17 })),
-            h("button", { type:"button", className:"quick-evaluation-profile", onClick:()=>onProfile(e), "aria-label":`ملف ${e.name}` }, "الملف")))) : h("p", null, "لا يوجد موظف بهذا الاسم.")),
-        h("section", { className:"dashboard-panel" },
-          h("div", { className:"section-heading" }, h("div", null, h("span", { className:"eyebrow" }, "الدورة الحالية"), h("h2", null, "سجل التقييمات")),
-            recent.length > visibleCount && h("button", { type:"button", className:"text-action", onClick:()=>setVisibleCount(n=>n+10) }, "عرض المزيد")),
-          recent.slice(0,visibleCount).length ? h("div", { className:"evaluation-activity-list" }, recent.slice(0,visibleCount).map(e => {
-            const emp = employees.find(row => row.id === e.employee_id);
-            return h("button", { type:"button", key:e.id, className:"evaluation-activity-item", onClick:()=>setSelected(e) },
-              h("span", { className:e.type === "positive" ? "evaluation-sign positive" : "evaluation-sign negative" }, e.type === "positive" ? `+${e.category_points}` : `−${e.category_points}`),
-              h("span", { className:"evaluation-activity-main" }, h("strong", null, e.category_name || "تقييم"), h("small", null, emp?.name || "موظف", " · ", e.evaluator_name || "مقيم")),
-              h("span", { className:"evaluation-activity-date" }, relTime(e.created_at)));
-          })) : h("div", { className:"dash-empty" }, "لم تُسجّل تقييمات في الدورة بعد."))) : h(EmptyState, { icon:h(Icon,{svg:ICONS.clock,size:28}), title:"لا توجد دورة نشطة", body:"افتح دورة تقييم من مركز التحكم." }),
-      selected && h(Modal, { title:"تفاصيل التقييم", onClose:()=>setSelected(null), footer:h(Btn,{onClick:()=>setSelected(null)},"إغلاق") },
-        h("div", { className:"evaluation-detail" },
-          h("strong", null, employees.find(e=>e.id===selected.employee_id)?.name || "موظف"),
-          h("p", null, selected.type === "positive" ? "إيجابي" : "سلبي", " · ", selected.category_name, " · ", selected.type === "positive" ? "+" : "−", selected.category_points, " نقاط"),
-          h("p", null, "المقيم: ", selected.evaluator_name || "—"),
-          h("p", null, "التاريخ: ", fmtDateTime(selected.created_at)),
-          selected.is_violation && h("p", null, "تنبيه مخالفة", selected.violation_reviewed ? " · تمت المراجعة" : " · يحتاج مراجعة"),
-          h("div", { className:"evaluation-detail-note" }, h("small", null, "سبب التقييم"), h("p", null, selected.note || "لم يُسجل وصف إضافي.")))));
+            h("button", { type:"button", className:"quick-evaluation-profile", onClick:()=>onProfile(e), "aria-label":`ملف ${e.name}` }, h(Icon, { svg:ICONS.file, size:19 }))))) : h("p", null, "لا يوجد موظف بهذا الاسم.")),
+        h("button", { type:"button", className:"profile-primary-action", onClick:()=>onGo("evaluationsLog") }, "عرض سجل تقييمات الدورة")) : h(EmptyState, { icon:h(Icon,{svg:ICONS.clock,size:28}), title:"لا توجد دورة نشطة", body:"افتح دورة تقييم من مركز التحكم." }));
+  }
+  function EvaluationsLog({ employees, evaluations, activeCycle, initialEvaluationId }) {
+    const h=React.createElement;
+    const [selectedId,setSelectedId]=useState(initialEvaluationId || null);
+    const [visibleCount,setVisibleCount]=useState(20);
+    const [query,setQuery]=useState("");
+    useEffect(()=>setSelectedId(initialEvaluationId || null),[initialEvaluationId]);
+    const all=activeCycle?evaluations.filter(e=>e.cycle_id===activeCycle.id&&e.status==="active").slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)):[];
+    const filtered=all.filter(e=>!query || (e.category_name||"").includes(query) || (employees.find(emp=>emp.id===e.employee_id)?.name||"").includes(query));
+    const selected=all.find(e=>e.id===selectedId);
+    return h("div",{className:"evaluation-log-screen"},
+      h("header",{className:"evaluation-log-heading"},h("span",{className:"eyebrow"},activeCycle?.name||"الدورة الحالية"),h("h1",null,"سجل التقييمات"),h("p",null,"كل التقييمات المسجلة في الدورة، الأحدث أولًا.")),
+      h("input",{className:"modern-search",value:query,onChange:e=>{setQuery(e.target.value);setVisibleCount(20);},placeholder:"بحث باسم الموظف أو بند التقييم","aria-label":"بحث في سجل التقييمات"}),
+      filtered.length?h("div",{className:"evaluation-activity-list"},filtered.slice(0,visibleCount).map(e=>h("button",{key:e.id,type:"button",className:"evaluation-activity-item",onClick:()=>setSelectedId(e.id)},
+        h("span",{className:e.type==="positive"?"evaluation-sign positive":"evaluation-sign negative"},e.type==="positive"?`+${e.category_points}`:`−${e.category_points}`),
+        h("span",{className:"evaluation-activity-main"},h("strong",null,employees.find(emp=>emp.id===e.employee_id)?.name||"موظف"),h("small",null,e.category_name||"تقييم"," · ",e.evaluator_name||"مقيم")),
+        h("span",{className:"evaluation-activity-date"},relTime(e.created_at)))),filtered.length>visibleCount&&h("button",{type:"button",className:"profile-primary-action",onClick:()=>setVisibleCount(n=>n+20)},"عرض المزيد")):
+        h("div",{className:"dash-empty"},"لا توجد تقييمات مطابقة."),
+      selected&&h(Modal,{title:"تفاصيل التقييم",compact:true,onClose:()=>setSelectedId(null),footer:h(Btn,{onClick:()=>setSelectedId(null)},"إغلاق")},
+        h("div",{className:"evaluation-detail"},h("strong",null,employees.find(emp=>emp.id===selected.employee_id)?.name||"موظف"),
+        h("p",null,selected.type==="positive"?"إيجابي":"سلبي"," · ",selected.category_name," · ",selected.type==="positive"?"+":"−",selected.category_points," نقاط"),
+        h("p",null,"المقيم: ",selected.evaluator_name||"—"),h("p",null,"التاريخ: ",fmtDateTime(selected.created_at)),
+        selected.is_violation&&h("p",null,"تنبيه مخالفة",selected.violation_reviewed?" · تمت المراجعة":" · يحتاج مراجعة"),
+        h("div",{className:"evaluation-detail-note"},h("small",null,"سبب التقييم"),h("p",null,selected.note||"لم يُسجل وصف إضافي.")))));
   }
   function EmployeeDetail({ employee, activeCycle, cycles = [], evaluations, computeScore, ratingFor, onNewEval, onHistory, onOpenRewards=()=>{}, canManageRewards=false, rewardsReady=false, rewardEarnings=[], rewardRedemptions=[], managerName="إدارة الكافيه" }) {
     const h = React.createElement;
@@ -1660,7 +1698,7 @@ var __startElmCafeApp__ = (() => {
     const negativePoints = evs.filter(e=>e.type==="negative").reduce((sum,e)=>sum+(Number(e.category_points)||0),0);
     const rawScore = 100 + positivePoints - negativePoints;
     const evaluatorCount = new Set(evs.map(e => e.evaluator_id || e.evaluator_name)).size;
-    const recent = all.slice().sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+    const recent = all.slice().sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 2);
     const cycleRows = cycles.map(c => {
       const records = all.filter(e => e.cycle_id === c.id && e.status === "active");
       return { cycle:c, count:records.length, score:records.length ? computeScore(employee.id,c.id) : null };
@@ -1719,7 +1757,7 @@ var __startElmCafeApp__ = (() => {
     const [note, setNote] = useState("");
     const [isViolation, setIsViolation] = useState(false);
     const [aiArea, setAiArea] = useState("service");
-    const [aiSuggestion, setAiSuggestion] = useState("");
+    const [aiSuggestions, setAiSuggestions] = useState([]);
     const [aiError, setAiError] = useState("");
     const [aiBusy, setAiBusy] = useState(false);
     const aiRequestId = useRef(0);
@@ -1751,12 +1789,24 @@ var __startElmCafeApp__ = (() => {
     if (!activeCycle) return /* @__PURE__ */ React.createElement(EmptyState, { icon: /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.warn, size: 28 }), title: "\u0644\u0627 \u062A\u0648\u062C\u062F \u062F\u0648\u0631\u0629 \u0646\u0634\u0637\u0629", body: "\u0644\u0627 \u064A\u0645\u0643\u0646 \u0625\u0636\u0627\u0641\u0629 \u062A\u0642\u064A\u064A\u0645 \u0628\u062F\u0648\u0646 \u062F\u0648\u0631\u0629 \u062A\u0642\u064A\u064A\u0645 \u0646\u0634\u0637\u0629." });
     const negatives = categories.filter((c) => c.type === "negative" && !c.deleted_at && c.active);
     const positives = categories.filter((c) => c.type === "positive" && !c.deleted_at && c.active);
+    function noteTemplates() {
+      const subject=AI_NOTE_AREAS.find(([value])=>value===aiArea)?.[1]||"الأداء";
+      return category.type==="positive" ? [
+        `تم رصد أداء إيجابي في ${subject}؛ [وصف الواقعة]. يُقدَّر هذا الالتزام ودوره في تحسين سير العمل.`,
+        `أظهر الموظف تميزًا في ${subject}؛ [وصف الواقعة]. نثمن هذا الأداء ونتطلع إلى استمراره.`,
+        `سُجلت مساهمة إيجابية تتعلق بـ${subject}؛ [وصف الواقعة]. شكرًا على الاهتمام بجودة العمل.`
+      ] : [
+        `لوحظت نقطة تحتاج إلى تحسين في ${subject}؛ [وصف الواقعة]. يُرجى معالجة السبب والالتزام بالإجراء المطلوب.`,
+        `سُجلت ملاحظة بشأن ${subject}؛ [وصف الواقعة]. نوصي بمراجعة الخطوات المعتمدة لتجنب تكرارها.`,
+        `تحتاج الممارسة المتعلقة بـ${subject} إلى متابعة؛ [وصف الواقعة]. يُرجى تصحيحها في العمل القادم.`
+      ];
+    }
     async function suggestNote() {
       if (!category || aiBusy) return;
+      setAiSuggestions(noteTemplates());
       const requestId = ++aiRequestId.current;
       setAiBusy(true);
       setAiError("");
-      setAiSuggestion("");
       try {
         // Deliberately send neither employee, category name, nor the typed note.
         const { data, error } = await supabase.functions.invoke("elm-cafe-ai-note", {
@@ -1769,9 +1819,9 @@ var __startElmCafeApp__ = (() => {
           throw new Error(message);
         }
         if (!data?.note) throw new Error(data?.error || "لم تصل صياغة مناسبة");
-        setAiSuggestion(String(data.note));
+        setAiSuggestions(previous=>[String(data.note), ...previous.filter(item=>item!==String(data.note))].slice(0,4));
       } catch (err) {
-        if (requestId === aiRequestId.current) setAiError(`${err?.message || "الاقتراح غير متاح الآن"}. يمكنك كتابة ملاحظتك وحفظ التقييم.`);
+        if (requestId === aiRequestId.current) setAiError(`الاقتراح الذكي غير متاح الآن: ${err?.message || "خطأ اتصال"}. الاختيارات الجاهزة ظاهرة ويمكن استخدامها.`);
       } finally {
         if (requestId === aiRequestId.current) setAiBusy(false);
       }
@@ -1779,7 +1829,7 @@ var __startElmCafeApp__ = (() => {
     function selectCategory(next) {
       aiRequestId.current++;
       setAiBusy(false);
-      setAiSuggestion("");
+      setAiSuggestions([]);
       setAiError("");
       setCategory(next);
     }
@@ -1817,12 +1867,11 @@ var __startElmCafeApp__ = (() => {
       /* @__PURE__ */ React.createElement("strong", { style: { fontSize: 13 } }, "مساعد الصياغة"),
       /* @__PURE__ */ React.createElement("p", { style: { fontSize: 12, color: "var(--ink-3)", margin: "6px 0 10px" } }, "اختر موضوعًا عامًا. لن يُرسل اسم الموظف أو ملاحظتك المكتوبة. راجع الاقتراح قبل استخدامه."),
       /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } },
-        /* @__PURE__ */ React.createElement("select", { value: aiArea, onChange: (e) => { aiRequestId.current++; setAiBusy(false); setAiArea(e.target.value); setAiSuggestion(""); setAiError(""); }, "aria-label": "موضوع الصياغة", style: { ...s.input, flex: "1 1 160px", fontSize: 16 } }, AI_NOTE_AREAS.map(([value, label]) => /* @__PURE__ */ React.createElement("option", { key: value, value }, label))),
+        /* @__PURE__ */ React.createElement("select", { value: aiArea, onChange: (e) => { aiRequestId.current++; setAiBusy(false); setAiArea(e.target.value); setAiSuggestions([]); setAiError(""); }, "aria-label": "موضوع الصياغة", style: { ...s.input, flex: "1 1 160px", fontSize: 16 } }, AI_NOTE_AREAS.map(([value, label]) => /* @__PURE__ */ React.createElement("option", { key: value, value }, label))),
         /* @__PURE__ */ React.createElement(Btn, { onClick: suggestNote, disabled: aiBusy || saving, style: { minHeight: 44 } }, aiBusy ? "جاري اقتراح الصياغة…" : "اقترح صياغة")),
       aiError && /* @__PURE__ */ React.createElement("p", { role: "status", style: { fontSize: 12, color: "var(--red)", margin: "10px 0 0" } }, aiError),
-      aiSuggestion && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 12 } },
-        /* @__PURE__ */ React.createElement("p", { style: { fontSize: 13, lineHeight: 1.8, margin: "0 0 8px" } }, aiSuggestion),
-        /* @__PURE__ */ React.createElement(Btn, { onClick: () => { setNote(aiSuggestion); setAiSuggestion(""); }, disabled: saving }, "استخدم النص في الملاحظة"))), category && category.type === "negative" && /* @__PURE__ */ React.createElement("div", { style: { ...s.card, maxWidth: "100%", marginBottom: 16, padding: "6px 16px" } }, /* @__PURE__ */ React.createElement(Switch, { checked: isViolation, onChange: setIsViolation, label: "\u0625\u0634\u0639\u0627\u0631 \u0628\u0627\u0644\u0645\u062E\u0627\u0644\u0641\u0629", description: "\u064A\u0633\u062A\u0648\u062C\u0628 \u0645\u0631\u0627\u062C\u0639\u0629 \u0627\u0644\u0645\u062F\u064A\u0631 \u0627\u0644\u0623\u0639\u0644\u0649 (\u0645\u062B\u0644\u064B\u0627: \u062E\u0635\u0645 \u0645\u0646 \u0627\u0644\u0631\u0627\u062A\u0628)" })), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 6 } }, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", style: { flex: 1 }, disabled: !category || saving, onClick: commit }, saving ? "\u062C\u0627\u0631\u0650 \u0627\u0644\u062D\u0641\u0638\u2026" : "\u062D\u0641\u0638 \u0627\u0644\u062A\u0642\u064A\u064A\u0645")));
+      aiSuggestions.length>0 && /* @__PURE__ */ React.createElement("div", { className:"ai-options", "aria-label":"اقتراحات الصياغة" },
+        aiSuggestions.map((candidate,index)=>React.createElement("button",{key:index,type:"button",className:"ai-option",disabled:saving,onClick:()=>{setNote(candidate);setAiError("");}},candidate)))), category && category.type === "negative" && /* @__PURE__ */ React.createElement("div", { style: { ...s.card, maxWidth: "100%", marginBottom: 16, padding: "6px 16px" } }, /* @__PURE__ */ React.createElement(Switch, { checked: isViolation, onChange: setIsViolation, label: "\u0625\u0634\u0639\u0627\u0631 \u0628\u0627\u0644\u0645\u062E\u0627\u0644\u0641\u0629", description: "\u064A\u0633\u062A\u0648\u062C\u0628 \u0645\u0631\u0627\u062C\u0639\u0629 \u0627\u0644\u0645\u062F\u064A\u0631 \u0627\u0644\u0623\u0639\u0644\u0649 (\u0645\u062B\u0644\u064B\u0627: \u062E\u0635\u0645 \u0645\u0646 \u0627\u0644\u0631\u0627\u062A\u0628)" })), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 6 } }, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", style: { flex: 1 }, disabled: !category || saving, onClick: commit }, saving ? "\u062C\u0627\u0631\u0650 \u0627\u0644\u062D\u0641\u0638\u2026" : "\u062D\u0641\u0638 \u0627\u0644\u062A\u0642\u064A\u064A\u0645")));
   }
   function HistoryScreen({ employee, evaluations, cycles = [], activeCycle, session, onCancel }) {
     const h = React.createElement;
@@ -1911,8 +1960,8 @@ var __startElmCafeApp__ = (() => {
         best?h("button",{type:"button",className:"mvp-card",onClick:()=>onOpenEmployee(best.emp.id)},h("span",{className:"mvp-medal"},"★"),h("span",{className:"mvp-copy"},h("small",null,"أفضل موظف حاليًا"),h("strong",null,best.emp.name),h("small",null,best.emp.profession||"موظف")),h("span",{className:"mvp-score"},Math.round(best.score),h("small",null,"من 100"))):h("div",{className:"dash-empty"},"سيظهر أفضل موظف بعد تسجيل أول تقييم.")),
       notRated.length>0 && activeCycle && h("section",{className:"dashboard-panel"},h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"الخطوة التالية"),h("h2",null,"لم يُقيّموا بعد")),h("button",{className:"text-action",onClick:()=>onGo("home")},"عرض الجميع")),
         h("div",{className:"pending-list"},notRated.slice(0,3).map(e=>h("button",{key:e.id,type:"button",onClick:()=>onNewEval(e.id)},h("span",{className:"person-avatar",style:{background:avatarColor(e.name).bg,color:avatarColor(e.name).fg}},e.name.trim().slice(0,1)),h("span",null,h("strong",null,e.name),h("small",null,e.profession||"موظف")),h(Icon,{svg:ICONS.back,size:16}))))),
-      h("section",{className:"dashboard-panel"},h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"المتابعة"),h("h2",null,"آخر التقييمات")),h("button",{className:"text-action",onClick:()=>onGo("home")},"عرض الكل")),
-        recentEvaluations.length?h("div",{className:"activity-feed"},recentEvaluations.map(e=>h("button",{key:e.id,type:"button",className:"evaluation-activity-item",onClick:()=>onGo("home",{evaluationId:e.id})},h("span",{className:e.type==="positive"?"evaluation-sign positive":"evaluation-sign negative"},e.type==="positive"?`+${e.category_points}`:`−${e.category_points}`),h("span",{className:"evaluation-activity-main"},h("strong",null,e.category_name),h("small",null,employees.find(emp=>emp.id===e.employee_id)?.name||"موظف"," · ",relTime(e.created_at)))))):h("div",{className:"dash-empty"},"لا توجد تقييمات بعد.")));
+      h("section",{className:"dashboard-panel"},h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"المتابعة"),h("h2",null,"آخر التقييمات")),h("button",{className:"text-action",onClick:()=>onGo("evaluationsLog")},"عرض الكل")),
+        recentEvaluations.length?h("div",{className:"activity-feed"},recentEvaluations.map(e=>h("button",{key:e.id,type:"button",className:"evaluation-activity-item",onClick:()=>onGo("evaluationsLog",{evaluationId:e.id})},h("span",{className:e.type==="positive"?"evaluation-sign positive":"evaluation-sign negative"},e.type==="positive"?`+${e.category_points}`:`−${e.category_points}`),h("span",{className:"evaluation-activity-main"},h("strong",null,e.category_name),h("small",null,employees.find(emp=>emp.id===e.employee_id)?.name||"موظف"," · ",relTime(e.created_at)))))):h("div",{className:"dash-empty"},"لا توجد تقييمات بعد.")));
   }
   function MoreMenuScreen({ onGo, isOwner }) {
     return /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, isOwner && /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.shield, label: "\u0625\u062F\u0627\u0631\u0629 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645\u064A\u0646", onClick: () => onGo("adminUsers") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.settings, label: "\u062A\u0635\u0646\u064A\u0641\u0627\u062A \u0648\u0646\u0637\u0627\u0642\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645", onClick: () => onGo("adminCategories") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.clock, label: "\u062F\u0648\u0631\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645", onClick: () => onGo("adminCycles") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.grid, label: "المكافآت والجوائز", onClick: () => onGo("rewardsHub") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.chart, label: "\u0646\u0634\u0627\u0637 \u0627\u0644\u0645\u0642\u064A\u0651\u0645\u064A\u0646", onClick: () => onGo("evaluatorActivity") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.clipboard, label: "\u0633\u062C\u0644 \u0627\u0644\u062A\u062F\u0642\u064A\u0642", onClick: () => onGo("auditLog") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.trash, label: "\u0633\u0644\u0629 \u0627\u0644\u0645\u0647\u0645\u0644\u0627\u062A", onClick: () => onGo("trash") }));
@@ -2117,7 +2166,11 @@ var __startElmCafeApp__ = (() => {
       const quote=value=>'"'+String(value??"").replace(/"/g,'""')+'"';
       const headers=["الترتيب","اسم الموظف","المسمى الوظيفي","الرقم الوظيفي","النتيجة من 100","عدد التقييمات","إيجابي","سلبي","التقدير"];
       const data=rows.map((r,i)=>{const evs=evaluations.filter(e=>e.employee_id===r.emp.id&&e.cycle_id===cycle.id&&e.status==="active");return[i+1,r.emp.name,r.emp.profession||"",r.emp.employee_code||"",r.score===null?"":Math.round(r.score),r.total,evs.filter(e=>e.type==="positive").length,evs.filter(e=>e.type==="negative").length,r.rating];});
-      const blob=new Blob(["\uFEFF"+[headers,...data].map(row=>row.map(quote).join(",")).join("\r\n")],{type:"text/csv;charset=utf-8"});
+      const delim=";";
+      const csvRow=row=>row.map(value=>quote(value).replace(/^"([=+@-])/,'"\t$1')).join(delim);
+      const summary=["تقرير نتائج الموظفين - ELM CAFE"];
+      const reportRows=[summary,["الدورة",cycle.name],["من",fmtDate(cycle.start_date),"إلى",fmtDate(cycle.end_date)],["تاريخ التصدير",new Date().toLocaleDateString("ar-EG")],["عدد الموظفين",rows.length,"تم تقييمهم",rated.length,"متوسط النقاط",average??"—"],[],headers,...data];
+      const blob=new Blob(["\uFEFFsep=;\r\n"+reportRows.map(csvRow).join("\r\n")],{type:"text/csv;charset=utf-8"});
       const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="elm-cafe-"+String(cycle.name).replace(/[^\w\u0600-\u06FF-]+/g,"-")+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
     }
     async function confirmWinner(){
@@ -2138,7 +2191,7 @@ var __startElmCafeApp__ = (() => {
         !savedAward&&cycle.status==="closed"&&h("button",{type:"button",className:"award-approve-button",disabled:!awardsReady||!leaders.length,onClick:()=>{setSelectedWinner(leaders.length===1?leaders[0].emp.id:"");setAwardOpen(true);}},leaders.length>1?"اختيار الفائز من المتعادلين":"اعتماد الفائز وحفظ النتيجة"),
         !savedAward&&cycle.status!=="closed"&&h("div",{className:"award-setup-note"},"اعتماد الفائز يظهر بعد إغلاق الدورة. لا يوجد حد أدنى للتقييمات."),
         !awardsReady&&h("div",{className:"award-setup-note"},"لتفعيل سجل الفائز المحفوظ، شغّل ملف إعداد سجل الفائز في Supabase."),
-        h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"تفاصيل الدورة"),h("h2",null,"الموظفون")),h("div",{className:"report-actions"},h("button",{className:"text-action",type:"button",onClick:exportCsv},"تنزيل Excel (CSV)"),h("button",{className:"text-action",type:"button",onClick:()=>window.print()},"طباعة تقرير الدورة"))),
+        h("div",{className:"report-toolbar"},h("div",null,h("span",{className:"eyebrow"},"تفاصيل الدورة"),h("h2",null,"الموظفون")),h("div",{className:"report-actions"},h("button",{className:"text-action",type:"button",onClick:exportCsv},"تنزيل بيانات التقرير (CSV)"),h("button",{className:"text-action",type:"button",onClick:()=>{const section=document.querySelector(".report-screen .print-report");if(!section)return;const win=window.open("","_blank");if(!win){window.print();return;}win.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقرير ${cycle.name.replace(/[<>&]/g,"")}</title><style>body{font:14px Arial,sans-serif;color:#17251c;margin:24px;direction:rtl}.print-report{display:block}.print-report-head{display:flex;justify-content:space-between;border-bottom:2px solid #2e4635;padding-bottom:18px}.print-report-summary{display:flex;gap:12px;margin:18px 0}.print-report-summary>div{border:1px solid #ccd5cc;padding:10px;flex:1}.print-report-summary small,.print-report-summary strong{display:block}.print-report-table{width:100%;border-collapse:collapse}.print-report-table th,.print-report-table td{padding:9px;border-bottom:1px solid #d5dcd6;text-align:right}.print-report-table th{background:#e8eee8}footer{border-top:1px solid #ccd5cc;margin-top:22px;padding-top:10px}@media print{@page{size:A4;margin:15mm}body{margin:0}tr{break-inside:avoid}}</style></head><body>${section.outerHTML}</body></html>`);win.document.close();setTimeout(()=>{win.focus();win.print();},350);}},"طباعة تقرير الدورة"))),
         h("input",{className:"modern-search",value:query,onChange:e=>setQuery(e.target.value),placeholder:"ابحث عن موظف","aria-label":"بحث التقارير"}),
         h("div",{className:"segmented"},[["all","الكل"],["rated","تم تقييمهم"],["pending","لم يُقيّموا"]].map(([key,label])=>h("button",{key,type:"button",className:filter===key?"selected":"",onClick:()=>setFilter(key)},label))),
         h("section",{className:"print-report","aria-label":"تقرير الدورة للطباعة"},
