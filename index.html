@@ -391,6 +391,69 @@
   .app-bottomnav button[aria-current="page"]>div { background:rgba(108,139,116,.19) !important;box-shadow:inset 0 1px rgba(255,255,255,.28); }
   .evaluation-activity-item { backdrop-filter:none !important;-webkit-backdrop-filter:none !important;background:var(--glass) !important;box-shadow:0 4px 12px var(--glass-shadow),inset 0 1px rgba(255,255,255,.36) !important; }
   @media(prefers-reduced-motion:reduce){ .app-modal-overlay.compact,.app-modal-card.compact { animation:none !important; } }
+
+  /* One composited transition for the floating detail panel. */
+  .app-modal-overlay.compact { animation:none !important; }
+  .app-modal-card.compact { background:linear-gradient(135deg,rgba(255,255,255,.39),rgba(241,240,231,.24)) !important; border:1px solid rgba(255,255,255,.72) !important; box-shadow:0 18px 48px rgba(25,34,29,.18),inset 0 1px rgba(255,255,255,.84),inset 0 -1px rgba(255,255,255,.15) !important; backdrop-filter:blur(18px) saturate(175%) !important;-webkit-backdrop-filter:blur(18px) saturate(175%) !important; animation:detailIn .16s ease-out both !important; }
+  html[data-theme="dark"] .app-modal-card.compact { background:linear-gradient(135deg,rgba(42,46,51,.47),rgba(23,25,29,.34)) !important;border-color:rgba(255,255,255,.23) !important; }
+  @keyframes detailIn { from { opacity:.45;transform:scale(.985); } to { opacity:1;transform:scale(1); } }
+  .app-modal-card.compact .evaluation-detail-note { background:rgba(255,255,255,.13) !important; }
+  html[data-theme="dark"] .app-modal-card.compact .evaluation-detail-note { background:rgba(255,255,255,.05) !important; }
+  /* Frost the shell once; repeated filters on every scrolling tile cost frames on phones. */
+  .executive-stat,.report-tile,.person-tile,.cycle-tile,.quick-evaluation-pick,.dashboard-panel { backdrop-filter:none !important;-webkit-backdrop-filter:none !important; }
+  .executive-hero,.work-hero { background:linear-gradient(125deg,rgba(34,58,44,.80),rgba(56,86,63,.77)) !important;backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%); }
+  .app-toast { background:rgba(255,255,255,.57) !important;backdrop-filter:blur(13px) saturate(150%) !important;-webkit-backdrop-filter:blur(13px) saturate(150%) !important;border:1px solid var(--glass-border) !important; }
+  html[data-theme="dark"] .app-toast { background:rgba(32,35,39,.65) !important; }
+  @media(prefers-reduced-motion:reduce){ .app-modal-card.compact { animation:none !important; } }
+
+  /* Readable compact violation inbox. The panel is glass; incident text has its own contrast layer. */
+  .notification-popover { width:min(330px,calc(100vw - 24px)) !important;max-height:min(58dvh,440px) !important;border-radius:19px !important;background:rgba(248,247,242,.60) !important;backdrop-filter:blur(19px) saturate(165%) !important;-webkit-backdrop-filter:blur(19px) saturate(165%) !important;box-shadow:0 15px 44px rgba(24,30,26,.20),inset 0 1px rgba(255,255,255,.78) !important;animation:none !important; }
+  html[data-theme="dark"] .notification-popover { background:rgba(30,33,38,.72) !important;border-color:rgba(255,255,255,.20) !important; }
+  .notification-heading { padding:10px 12px 9px !important;border-bottom:1px solid var(--glass-border) !important; }
+  .notification-heading strong { font-size:15px !important;color:var(--ink) !important; }
+  .notification-heading small { font-size:12px !important;color:var(--ink-2) !important; }
+  .notification-heading button { display:grid;place-items:center;width:44px !important;height:44px !important;border-radius:12px;border:1px solid var(--glass-border) !important;background:var(--glass) !important;color:var(--ink) !important;font-size:initial !important; }
+  .notification-list { padding:8px !important; }
+  .notification-item,.notification-item.reviewed,.notification-item:not(.reviewed) { padding:0 !important;margin:0 0 7px !important;background:rgba(255,255,255,.30) !important;border:1px solid var(--glass-border) !important;border-radius:14px !important;overflow:hidden; }
+  html[data-theme="dark"] .notification-item,html[data-theme="dark"] .notification-item.reviewed,html[data-theme="dark"] .notification-item:not(.reviewed) { background:rgba(255,255,255,.07) !important; }
+  .notification-item.unread { border-inline-start:3px solid var(--red) !important; }
+  .notification-summary { width:100%;display:grid;gap:5px;text-align:right;padding:10px 11px !important;margin:0 !important;min-height:67px;border:0 !important;border-radius:0 !important;background:transparent !important;color:var(--ink) !important;cursor:pointer; }
+  .notification-item-top { display:flex;justify-content:space-between;align-items:center;gap:9px; }
+  .notification-item-top strong { font-size:14px !important;line-height:1.4;color:var(--ink); }
+  .notification-item-top time { font-size:11px !important;color:var(--ink-2) !important;white-space:nowrap; }
+  .notification-category { display:flex;justify-content:space-between;align-items:center;gap:7px; }
+  .notification-category b { font-size:13px;color:var(--ink-2);font-weight:650; }
+  .notification-category small { font-size:10px !important;color:var(--red) !important;white-space:nowrap; }
+  .notification-item.reviewed .notification-category small { color:var(--ink-2) !important; }
+  .notification-detail { padding:10px 11px 12px;border-top:1px solid var(--glass-border); }
+  .notification-detail-label { display:block;color:var(--ink-2);font-size:12px;font-weight:800;margin-bottom:5px; }
+  .notification-detail p { margin:0 !important;padding:10px 11px;line-height:1.8 !important;font-size:14px !important;font-weight:500;color:var(--ink) !important;background:rgba(255,255,255,.42);border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere; }
+  html[data-theme="dark"] .notification-detail p { background:rgba(0,0,0,.19); }
+  .notification-meta { display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;margin-top:9px;color:var(--ink-2);font-size:11px; }
+  .notification-meta time { color:var(--ink-2);font-size:11px; }
+  .notification-review { min-height:44px;margin-top:10px !important;padding:7px 12px !important;border-radius:11px !important;background:var(--forest) !important;color:#fff !important;border:0 !important;font-size:12px !important; }
+  .notification-review:disabled { opacity:.55; }
+  .notification-empty { padding:17px 12px !important;font-size:13px !important;color:var(--ink-2) !important; }
+  /* Full width operation lists with clear secondary links. */
+  .evaluation-hub,.evaluation-hub .dashboard-panel,.more-screen { width:100%;box-sizing:border-box;min-width:0; }
+  .evaluation-hub-head { padding:8px 1px 9px; }.evaluation-hub-head h1 { font-size:22px; }.evaluation-hub-head p { font-size:12px;line-height:1.6; }
+  .evaluation-hub .dashboard-panel { padding:12px !important; }.evaluation-hub .section-heading { align-items:center; }.evaluation-hub .section-heading .text-action { min-height:44px;white-space:nowrap; }
+  .quick-evaluation-grid { display:grid;grid-template-columns:minmax(0,1fr);gap:9px; }.quick-evaluation-item { width:100%;gap:8px; }
+  .quick-evaluation-pick { min-height:66px;padding:10px 13px; }.quick-evaluation-pick strong { font-size:14px; }.quick-evaluation-profile { min-width:48px;width:48px;min-height:48px; }
+  .evaluation-hub-footnote { color:var(--ink-3);font-size:11px; }
+  .more-screen { display:grid;gap:9px;align-content:start; }.more-screen-heading { padding:4px 1px 6px; }.more-screen-heading h1 { font-size:22px;margin:0 0 4px; }.more-screen-heading p { font-size:12px;color:var(--ink-2);margin:0; }
+  .more-screen .more-row { width:100%;box-sizing:border-box;min-height:58px; }
+  @media(min-width:700px){.quick-evaluation-grid,.more-screen-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  /* Portaled dialogs keep the app shell fixed while the content alone scrolls. */
+  .app-modal-overlay { z-index:110 !important;box-sizing:border-box;padding:calc(15px + env(safe-area-inset-top,0px)) 13px calc(15px + env(safe-area-inset-bottom,0px)) !important;overscroll-behavior:contain; }
+  .app-modal-card { width:min(100%,440px) !important;max-width:440px !important;max-height:min(720px,calc(100dvh - 30px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))) !important;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden !important;padding:17px !important; }
+  .app-modal-heading,.app-modal-footer { flex:none; }.app-modal-heading strong { font-size:16px; }.app-modal-content { overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;min-height:0;flex:1;padding:2px 2px 7px; }.app-modal-footer { flex-wrap:wrap;justify-content:flex-start;margin-top:8px; }.app-modal-footer button { flex:1;min-width:95px;min-height:44px; }
+  .app-modal-overlay.account-modal .app-modal-card { max-width:420px !important;backdrop-filter:blur(12px) saturate(145%) !important;-webkit-backdrop-filter:blur(12px) saturate(145%) !important;animation:detailIn .16s ease-out both !important; }.account-modal .app-modal-close { color:var(--red) !important;background:var(--red-10) !important;border-color:rgba(170,52,42,.23) !important; }
+  .account-details { display:grid;gap:9px; }.account-details-hero { display:flex;align-items:center;gap:10px;padding:11px;border-radius:14px;background:var(--glass);border:1px solid var(--glass-border); }.account-details-hero strong { font-size:16px; }.account-details-hero small { display:block;color:var(--ink-2);font-size:12px; }.account-details-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px; }.account-details-grid>div { min-width:0;padding:9px;border:1px solid var(--glass-border);border-radius:11px;background:var(--glass);overflow-wrap:anywhere; }.account-details-grid small { display:block;color:var(--ink-3);font-size:11px; }.account-details-grid strong { font-size:13px; }.account-permissions { padding:9px;border:1px solid var(--glass-border);border-radius:11px;font-size:12px;line-height:1.7; }
+  .report-print-preview { position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);padding:calc(10px + env(safe-area-inset-top,0px)) 12px calc(10px + env(safe-area-inset-bottom,0px));box-sizing:border-box; }
+  .report-preview-toolbar { flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px max(4px,calc((100vw - 850px)/2)); }.report-preview-toolbar button { min-height:44px;padding:9px 15px;border:1px solid var(--glass-border);border-radius:12px;background:var(--glass-strong);color:var(--ink);font:inherit;font-weight:700; }.report-preview-toolbar button:first-child { background:var(--forest);color:#fff; }
+  .report-preview-page { direction:rtl;overflow:auto;overscroll-behavior:contain;flex:1;min-height:0;width:min(850px,100%);margin:0 auto;background:white;color:#17251c;padding:18px;box-sizing:border-box;border-radius:12px;box-shadow:0 8px 28px var(--glass-shadow); }.report-preview-page .print-report { display:block !important;direction:rtl; }.report-preview-page .print-report-head { display:flex;justify-content:space-between;border-bottom:2px solid #2e4635;padding-bottom:12px; }.report-preview-page .print-report-summary { display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:14px 0; }.report-preview-page .print-report-summary>div { padding:8px;border:1px solid #ccd5cc;display:grid; }.report-preview-page .print-report-table { width:100%;border-collapse:collapse;font-size:12px; }.report-preview-page .print-report-table th,.report-preview-page .print-report-table td { padding:7px 4px;text-align:right;border-bottom:1px solid #d5dcd6; }.report-preview-page .print-report-table th { background:#e8eee8; }.report-preview-page .print-report footer { margin-top:15px;font-size:11px; }
+  @media print { body:has(.report-print-preview) #root { display:none !important; } body:has(.report-print-preview) .report-print-preview,body:has(.report-print-preview) .report-print-preview * { visibility:visible !important; } .report-print-preview { position:static !important;display:block !important;padding:0 !important;background:#fff !important; }.report-preview-toolbar { display:none !important; }.report-preview-page { overflow:visible !important;width:100% !important;max-width:none !important;padding:0 !important;border:0 !important;box-shadow:none !important; }.report-preview-page .print-report-summary { grid-template-columns:repeat(4,1fr); } }
 </style>
 </head>
 <body>
@@ -593,8 +656,8 @@ var __startElmCafeApp__ = (() => {
       }
     )), /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 34, fontWeight: 800, lineHeight: 1 } }, Math.round(pct)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)", marginTop: 2 } }, "\u0645\u0646 100")));
   }
-  function Modal({ title, children, onClose, footer, compact = false }) {
-    const panel = React.createElement("div", { className: "app-modal-overlay" + (compact ? " compact" : ""), style: s.modalOverlay, role: "dialog", "aria-modal": true, "aria-label": title, onClick: onClose },
+  function Modal({ title, children, onClose, footer, compact = false, account = false }) {
+    const panel = React.createElement("div", { className: "app-modal-overlay" + (compact ? " compact" : "") + (account ? " account-modal" : ""), style: s.modalOverlay, role: "dialog", "aria-modal": true, "aria-label": title, onClick: onClose },
       React.createElement("div", { className: "app-modal-card" + (compact ? " compact" : ""), style: s.modalCard, onClick: (e) => e.stopPropagation() },
         React.createElement("div", { className: "app-modal-heading" },
           React.createElement("strong", null, title),
@@ -602,7 +665,7 @@ var __startElmCafeApp__ = (() => {
         React.createElement("div", { className: "app-modal-content" }, children),
         footer && React.createElement("div", { className: "app-modal-footer" }, footer)));
     // A portal keeps the dialog outside animated and filtered page layers on iOS.
-    return compact && typeof document !== "undefined" ? ReactDOM.createPortal(panel, document.body) : panel;
+    return typeof document !== "undefined" ? ReactDOM.createPortal(panel, document.body) : panel;
   }
   function Toast({ toast }) {
     const [expanded, setExpanded] = useState(false);
@@ -880,45 +943,74 @@ var __startElmCafeApp__ = (() => {
     }
     useEffect(() => {
       if (!session) return;
-      let start = null;
+      let gesture=null, frame=0, returnTimer=0, desired=0;
       const surface=()=>document.querySelector('.app-main-content');
-      const moveSurface=distance=>{const el=surface();if(el){el.style.transition='none';el.style.transform=`translate3d(0,${distance}px,0)`;}};
-      const releaseSurface=()=>{const el=surface();if(el){el.style.transition='transform .26s cubic-bezier(.2,.75,.25,1)';el.style.transform='translate3d(0,0,0)';setTimeout(()=>{if(el.isConnected){el.style.transition='';el.style.transform='';}},300);}};
-      const onStart = event => {
-        if (event.touches.length !== 1 || refreshing || document.querySelector('[role="dialog"], .certificate-overlay')) return;
-        if (event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
-        if ((document.scrollingElement?.scrollTop || window.scrollY) > 1) return;
-        start = { x:event.touches[0].clientX, y:event.touches[0].clientY, distance:0 };
+      const apply=()=>{
+        frame=0;
+        const el=surface();
+        if(el){el.style.transition='none';el.style.transform=`translate3d(0,${desired}px,0)`;}
       };
-      const onMove = event => {
-        if (!start || event.touches.length !== 1) return;
-        const dx = event.touches[0].clientX - start.x;
-        const dy = event.touches[0].clientY - start.y;
-        if (dy <= 6 || Math.abs(dx) > dy * .5 || (document.scrollingElement?.scrollTop || window.scrollY) > 1) return;
-        start.distance = dy;
-        if (event.cancelable) event.preventDefault();
-        moveSurface(Math.min(86,Math.pow(dy,.82)*1.25));
-        setPullState(previous=>{const next=dy>=75?'ready':'pulling';return previous===next?previous:next;});
+      const follow=distance=>{
+        desired=Math.max(0,(distance-6)*.92);
+        if(!frame)frame=requestAnimationFrame(apply);
       };
-      const onEnd = () => {
-        const shouldRefresh = start?.distance >= 75;
-        start = null;
-        setPullState("");
-        releaseSurface();
-        if (shouldRefresh) manualRefresh();
+      const release=()=>{
+        if(frame){cancelAnimationFrame(frame);frame=0;}
+        desired=0;
+        const el=surface();
+        if(!el)return;
+        el.style.transition='transform .44s cubic-bezier(.22,.72,.18,1)';
+        el.style.transform='translate3d(0,0,0)';
+        clearTimeout(returnTimer);
+        returnTimer=setTimeout(()=>{
+          if(el.isConnected){el.style.transition='';el.style.transform='';}
+        },470);
       };
-      const onCancel = () => { start = null; setPullState(""); releaseSurface(); };
-      window.addEventListener("touchstart", onStart, { passive:true });
-      window.addEventListener("touchmove", onMove, { passive:false });
-      window.addEventListener("touchend", onEnd, { passive:true });
-      window.addEventListener("touchcancel", onCancel, { passive:true });
-      return () => {
-        window.removeEventListener("touchstart", onStart);
-        window.removeEventListener("touchmove", onMove);
-        window.removeEventListener("touchend", onEnd);
-        window.removeEventListener("touchcancel", onCancel);
+      const onStart=event=>{
+        if(event.touches.length!==1||refreshing||document.querySelector('[role="dialog"], .certificate-overlay'))return;
+        if(event.target.closest('input, textarea, select, [contenteditable="true"]'))return;
+        if((document.scrollingElement?.scrollTop||window.scrollY)>1)return;
+        clearTimeout(returnTimer);
+        gesture={x:event.touches[0].clientX,y:event.touches[0].clientY,distance:0,active:false};
       };
-    }, [session, refreshing]);
+      const onMove=event=>{
+        if(!gesture||event.touches.length!==1)return;
+        const dx=event.touches[0].clientX-gesture.x;
+        const dy=event.touches[0].clientY-gesture.y;
+        if(!gesture.active){
+          if(Math.abs(dx)>Math.max(9,Math.abs(dy)*.7)){gesture=null;return;}
+          if(dy<=6)return;
+          gesture.active=true;
+        }
+        if(event.cancelable)event.preventDefault();
+        gesture.distance=Math.max(0,dy);
+        follow(gesture.distance);
+        setPullState(previous=>{
+          const next=gesture.distance>=75?'ready':gesture.distance>6?'pulling':'';
+          return previous===next?previous:next;
+        });
+      };
+      const onEnd=()=>{
+        const shouldRefresh=gesture?.active&&gesture.distance>=75;
+        gesture=null;
+        setPullState('');
+        release();
+        if(shouldRefresh)manualRefresh();
+      };
+      const onCancel=()=>{gesture=null;setPullState('');release();};
+      window.addEventListener('touchstart',onStart,{passive:true});
+      window.addEventListener('touchmove',onMove,{passive:false});
+      window.addEventListener('touchend',onEnd,{passive:true});
+      window.addEventListener('touchcancel',onCancel,{passive:true});
+      return ()=>{
+        window.removeEventListener('touchstart',onStart);
+        window.removeEventListener('touchmove',onMove);
+        window.removeEventListener('touchend',onEnd);
+        window.removeEventListener('touchcancel',onCancel);
+        if(frame)cancelAnimationFrame(frame);
+        clearTimeout(returnTimer);
+      };
+    },[session,refreshing]);
     async function addAudit(action, target, details = "") {
       const { data } = await supabase.from("audit_log").insert({ actor: session ? session.name : "\u0627\u0644\u0646\u0638\u0627\u0645", action, target, details }).select().single();
       if (data) setAudit((prev) => [data, ...prev]);
@@ -1262,25 +1354,29 @@ var __startElmCafeApp__ = (() => {
           return true;
         },
         onToggle: async (id, active) => {
+          if (!isOwner || id === session.id) return false;
           const { error } = await supabase.from("profiles").update({ active }).eq("id", id);
           if (error) {
             showToast(`\u062A\u0639\u0630\u0651\u0631\u062A \u0627\u0644\u0639\u0645\u0644\u064A\u0629: ${error.message}`, "error");
-            return;
+            return false;
           }
           setProfiles((prev) => prev.map((p) => p.id === id ? { ...p, active } : p));
           await addAudit(active ? "\u062A\u0641\u0639\u064A\u0644 \u0645\u0633\u062A\u062E\u062F\u0645" : "\u062A\u0639\u0637\u064A\u0644 \u0645\u0633\u062A\u062E\u062F\u0645", id);
           showToast(active ? "\u062A\u0645 \u0627\u0644\u062A\u0641\u0639\u064A\u0644" : "\u062A\u0645 \u0627\u0644\u062A\u0639\u0637\u064A\u0644");
+          return true;
         },
         onUpdatePermissions: async (id, perms) => {
+          if (!isOwner || id === session.id) return false;
           const patch = { can_manage_employees: perms.canManageEmployees, can_create_cycle: perms.canCreateCycle, can_edit_categories: perms.canEditCategories, can_manage_all_evaluations: perms.canManageAllEvaluations };
           const { error } = await supabase.from("profiles").update(patch).eq("id", id);
           if (error) {
             showToast(`\u062A\u0639\u0630\u0651\u0631 \u062A\u062D\u062F\u064A\u062B \u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A: ${error.message}`, "error");
-            return;
+            return false;
           }
           setProfiles((prev) => prev.map((p) => p.id === id ? { ...p, ...patch } : p));
           await addAudit("\u062A\u0639\u062F\u064A\u0644 \u0635\u0644\u0627\u062D\u064A\u0627\u062A \u0645\u0633\u062A\u062E\u062F\u0645", id);
           showToast("\u062A\u0645 \u062A\u062D\u062F\u064A\u062B \u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A");
+          return true;
         },
         onDelete: async (id, name) => {
           if (!isOwner || id === session.id) { showToast("لا يمكن حذف هذا الحساب", "error"); return false; }
@@ -1291,12 +1387,13 @@ var __startElmCafeApp__ = (() => {
             } else {
               showToast(`\u062A\u0639\u0630\u0651\u0631 \u0627\u0644\u062D\u0630\u0641: ${error.message}`, "error");
             }
-            return;
+            return false;
           }
           setProfiles((prev) => prev.filter((p) => p.id !== id));
           setUserLookup(prev=>prev.filter(row=>row.user_id!==id));
           await addAudit("\u062D\u0630\u0641 \u0645\u0633\u062A\u062E\u062F\u0645 \u0646\u0647\u0627\u0626\u064A\u064B\u0627", name);
           showToast("تم حذف وصول المستخدم إلى التطبيق. حساب الدخول في Supabase Auth يُدار منفصلًا.");
+          return true;
         }
       }
     ) : React.createElement(EmptyState,{icon:React.createElement(Icon,{svg:ICONS.lock,size:28}),title:"إدارة الحسابات لصاحب التطبيق فقط",body:"لا يمكنك إدارة الحسابات من هذا الحساب."})), screen === "adminCategories" && /* @__PURE__ */ React.createElement(
@@ -1672,7 +1769,7 @@ var __startElmCafeApp__ = (() => {
     }
     return /* @__PURE__ */ React.createElement("div", { style: { minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 20px", background: "radial-gradient(ellipse 70% 50% at 50% 0%, var(--forest-10), transparent)" } }, /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginBottom: 24 } }, /* @__PURE__ */ React.createElement(Logo, { size: 54 }), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 18, fontWeight: 800, marginTop: 14 } }, "\u062A\u0639\u064A\u064A\u0646 \u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631 \u062C\u062F\u064A\u062F\u0629"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--ink-3)", marginTop: 4 } }, "\u0627\u062E\u062A\u0631 \u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631 \u062C\u062F\u064A\u062F\u0629 \u0644\u062D\u0633\u0627\u0628\u0643")), /* @__PURE__ */ React.createElement("form", { onSubmit: submit, style: { ...s.card, maxWidth: 340 } }, /* @__PURE__ */ React.createElement(Field, { label: "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0627\u0644\u062C\u062F\u064A\u062F\u0629" }, /* @__PURE__ */ React.createElement("input", { type: "password", style: s.input, value: pw, onChange: (e) => setPw(e.target.value), autoFocus: true })), /* @__PURE__ */ React.createElement(Field, { label: "\u062A\u0623\u0643\u064A\u062F \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631" }, /* @__PURE__ */ React.createElement("input", { type: "password", style: s.input, value: pw2, onChange: (e) => setPw2(e.target.value) })), err && /* @__PURE__ */ React.createElement("div", { style: s.errText }, err), /* @__PURE__ */ React.createElement(Btn, { variant: "primary", type: "submit", disabled: busy, style: { width: "100%", marginTop: 8 } }, busy ? "\u062C\u0627\u0631\u0650 \u0627\u0644\u062D\u0641\u0638\u2026" : "\u062D\u0641\u0638 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631")));
   }
-  function EvaluatorHome({ employees, activeCycle, session, evaluations, onOpen, onProfile, initialEvaluationId }) {
+  function EvaluatorHome({ employees, activeCycle, session, evaluations, onOpen, onProfile, onGo, initialEvaluationId }) {
     const h = React.createElement;
     const [query, setQuery] = useState("");
     const current = activeCycle ? evaluations.filter(e => e.cycle_id === activeCycle.id && e.status === "active") : [];
@@ -1681,11 +1778,10 @@ var __startElmCafeApp__ = (() => {
       h("header", { className:"evaluation-hub-head" },
         h("span", { className:"eyebrow" }, "تقييمات الفريق"),
         h("h1", null, "سجّل تقييمًا"),
-        h("p", null, "اضغط على الموظف مباشرة. البحث اختياري."),
-        h("small", null, activeCycle ? activeCycle.name : "لا توجد دورة نشطة")),
+        h("p", null, activeCycle ? `الدورة: ${activeCycle.name} · ${current.length} تقييم مسجل. اختر موظفًا لإضافة تقييم.` : "افتح دورة تقييم أولًا لتسجيل الملاحظات.")),
       activeCycle ? h(React.Fragment, null,
         h("section", { className:"dashboard-panel" },
-          h("div", { className:"section-heading" }, h("h2", null, "اختر الموظف"), h("small", null, employees.length, " موظف")),
+          h("div", { className:"section-heading" }, h("h2", null, "اختر الموظف"), h("button", { type:"button", className:"text-action", onClick:()=>onGo("evaluationsLog") }, "سجل الدورة")),
           h("input", { className:"modern-search", value:query, onChange:e=>setQuery(e.target.value), placeholder:"بحث اختياري بالاسم أو الرقم", "aria-label":"بحث اختياري عن موظف" }),
           filtered.length ? h("div", { className:"quick-evaluation-grid" }, filtered.map(e => h("div", { key:e.id, className:"quick-evaluation-item" },
             h("button", { type:"button", className:"quick-evaluation-pick", onClick:()=>onOpen(e) },
@@ -1693,7 +1789,7 @@ var __startElmCafeApp__ = (() => {
               h("span", null, h("strong", null, e.name), h("small", null, e.profession || "موظف")),
               h(Icon, { svg:ICONS.plus, size:17 })),
             h("button", { type:"button", className:"quick-evaluation-profile", onClick:()=>onProfile(e), "aria-label":`ملف ${e.name}` }, h(Icon, { svg:ICONS.file, size:19 }))))) : h("p", null, "لا يوجد موظف بهذا الاسم.")),
-        h("button", { type:"button", className:"profile-primary-action", onClick:()=>onGo("evaluationsLog") }, "عرض سجل تقييمات الدورة")) : h(EmptyState, { icon:h(Icon,{svg:ICONS.clock,size:28}), title:"لا توجد دورة نشطة", body:"افتح دورة تقييم من مركز التحكم." }));
+        h("small", { className:"evaluation-hub-footnote" }, employees.length, " موظف متاح للتقييم")) : h(EmptyState, { icon:h(Icon,{svg:ICONS.clock,size:28}), title:"لا توجد دورة نشطة", body:"افتح دورة تقييم من مركز التحكم." }));
   }
   function EvaluationsLog({ employees, evaluations, activeCycle, initialEvaluationId }) {
     const h=React.createElement;
@@ -1712,12 +1808,19 @@ var __startElmCafeApp__ = (() => {
         h("span",{className:"evaluation-activity-main"},h("strong",null,employees.find(emp=>emp.id===e.employee_id)?.name||"موظف"),h("small",null,e.category_name||"تقييم"," · ",e.evaluator_name||"مقيم")),
         h("span",{className:"evaluation-activity-date"},relTime(e.created_at)))),filtered.length>visibleCount&&h("button",{type:"button",className:"profile-primary-action",onClick:()=>setVisibleCount(n=>n+20)},"عرض المزيد")):
         h("div",{className:"dash-empty"},"لا توجد تقييمات مطابقة."),
-      selected&&h(Modal,{title:"تفاصيل التقييم",compact:true,onClose:()=>setSelectedId(null),footer:h(Btn,{onClick:()=>setSelectedId(null)},"إغلاق")},
-        h("div",{className:"evaluation-detail"},h("strong",null,employees.find(emp=>emp.id===selected.employee_id)?.name||"موظف"),
-        h("p",null,selected.type==="positive"?"إيجابي":"سلبي"," · ",selected.category_name," · ",selected.type==="positive"?"+":"−",selected.category_points," نقاط"),
-        h("p",null,"المقيم: ",selected.evaluator_name||"—"),h("p",null,"التاريخ: ",fmtDateTime(selected.created_at)),
-        selected.is_violation&&h("p",null,"تنبيه مخالفة",selected.violation_reviewed?" · تمت المراجعة":" · يحتاج مراجعة"),
-        h("div",{className:"evaluation-detail-note"},h("small",null,"سبب التقييم"),h("p",null,selected.note||"لم يُسجل وصف إضافي.")))));
+      selected&&h(EvaluationDetailModal,{evaluation:selected,employees,onClose:()=>setSelectedId(null)}));
+  }
+  function EvaluationDetailModal({ evaluation, employees, onClose }) {
+    const h=React.createElement;
+    const employeeName=employees.find(emp=>emp.id===evaluation.employee_id)?.name||"موظف";
+    return h(Modal,{title:"تفاصيل التقييم",compact:true,onClose,footer:h(Btn,{onClick:onClose},"إغلاق")},
+      h("div",{className:"evaluation-detail"},
+        h("strong",null,employeeName),
+        h("p",null,evaluation.type==="positive"?"إيجابي":"سلبي"," · ",evaluation.category_name," · ",evaluation.type==="positive"?"+":"−",evaluation.category_points," نقاط"),
+        h("p",null,"المقيم: ",evaluation.evaluator_name||"—"),
+        h("p",null,"التاريخ: ",fmtDateTime(evaluation.created_at)),
+        evaluation.is_violation&&h("p",null,"تنبيه مخالفة",evaluation.violation_reviewed?" · تمت المراجعة":" · يحتاج مراجعة"),
+        h("div",{className:"evaluation-detail-note"},h("small",null,"سبب التقييم"),h("p",null,evaluation.note||"لم يُسجل وصف إضافي."))));
   }
   function EmployeeDetail({ employee, activeCycle, cycles = [], evaluations, computeScore, ratingFor, onNewEval, onHistory, onOpenRewards=()=>{}, canManageRewards=false, rewardsReady=false, rewardEarnings=[], rewardRedemptions=[], managerName="إدارة الكافيه" }) {
     const h = React.createElement;
@@ -1972,6 +2075,8 @@ var __startElmCafeApp__ = (() => {
 
   function AdminDashboard({ employees, evaluations, activeCycle, computeScore, audit, displayTarget, onGo, onOpenEmployee, onNewEval, onOpenNotifications }) {
     const h = React.createElement;
+    const [selectedRecentId,setSelectedRecentId]=useState(null);
+    const selectedRecent=evaluations.find(e=>e.id===selectedRecentId&&e.status==="active")||null;
     const activeEmployees = employees.filter(e => !e.archived);
     const cycleEvals = activeCycle ? evaluations.filter(e => e.cycle_id === activeCycle.id && e.status === "active") : [];
     const evaluated = new Set(cycleEvals.map(e=>e.employee_id));
@@ -1996,13 +2101,14 @@ var __startElmCafeApp__ = (() => {
       notRated.length>0 && activeCycle && h("section",{className:"dashboard-panel"},h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"الخطوة التالية"),h("h2",null,"لم يُقيّموا بعد")),h("button",{className:"text-action",onClick:()=>onGo("home")},"عرض الجميع")),
         h("div",{className:"pending-list"},notRated.slice(0,3).map(e=>h("button",{key:e.id,type:"button",onClick:()=>onNewEval(e.id)},h("span",{className:"person-avatar",style:{background:avatarColor(e.name).bg,color:avatarColor(e.name).fg}},e.name.trim().slice(0,1)),h("span",null,h("strong",null,e.name),h("small",null,e.profession||"موظف")),h(Icon,{svg:ICONS.back,size:16}))))),
       h("section",{className:"dashboard-panel"},h("div",{className:"section-heading"},h("div",null,h("span",{className:"eyebrow"},"المتابعة"),h("h2",null,"آخر التقييمات")),h("button",{className:"text-action",onClick:()=>onGo("evaluationsLog")},"عرض الكل")),
-        recentEvaluations.length?h("div",{className:"activity-feed"},recentEvaluations.map(e=>h("button",{key:e.id,type:"button",className:"evaluation-activity-item",onClick:()=>onGo("evaluationsLog",{evaluationId:e.id})},h("span",{className:e.type==="positive"?"evaluation-sign positive":"evaluation-sign negative"},e.type==="positive"?`+${e.category_points}`:`−${e.category_points}`),h("span",{className:"evaluation-activity-main"},h("strong",null,e.category_name),h("small",null,employees.find(emp=>emp.id===e.employee_id)?.name||"موظف"," · ",relTime(e.created_at)))))):h("div",{className:"dash-empty"},"لا توجد تقييمات بعد.")));
+        recentEvaluations.length?h("div",{className:"activity-feed"},recentEvaluations.map(e=>h("button",{key:e.id,type:"button",className:"evaluation-activity-item",onClick:()=>setSelectedRecentId(e.id)},h("span",{className:e.type==="positive"?"evaluation-sign positive":"evaluation-sign negative"},e.type==="positive"?`+${e.category_points}`:`−${e.category_points}`),h("span",{className:"evaluation-activity-main"},h("strong",null,e.category_name),h("small",null,employees.find(emp=>emp.id===e.employee_id)?.name||"موظف"," · ",relTime(e.created_at)))))):h("div",{className:"dash-empty"},"لا توجد تقييمات بعد.")),
+      selectedRecent&&h(EvaluationDetailModal,{evaluation:selectedRecent,employees,onClose:()=>setSelectedRecentId(null)}));
   }
   function MoreMenuScreen({ onGo, isOwner }) {
-    return /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, isOwner && /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.shield, label: "\u0625\u062F\u0627\u0631\u0629 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645\u064A\u0646", onClick: () => onGo("adminUsers") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.settings, label: "\u062A\u0635\u0646\u064A\u0641\u0627\u062A \u0648\u0646\u0637\u0627\u0642\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645", onClick: () => onGo("adminCategories") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.clock, label: "\u062F\u0648\u0631\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645", onClick: () => onGo("adminCycles") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.grid, label: "المكافآت والجوائز", onClick: () => onGo("rewardsHub") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.chart, label: "\u0646\u0634\u0627\u0637 \u0627\u0644\u0645\u0642\u064A\u0651\u0645\u064A\u0646", onClick: () => onGo("evaluatorActivity") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.clipboard, label: "\u0633\u062C\u0644 \u0627\u0644\u062A\u062F\u0642\u064A\u0642", onClick: () => onGo("auditLog") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.trash, label: "\u0633\u0644\u0629 \u0627\u0644\u0645\u0647\u0645\u0644\u0627\u062A", onClick: () => onGo("trash") }));
+    return /* @__PURE__ */ React.createElement("div", { className: "more-screen" }, React.createElement("header",{className:"more-screen-heading"},React.createElement("h1",null,"المزيد"),React.createElement("p",null,"إدارة الدورات والإعدادات والسجلات.")), React.createElement("div",{className:"more-screen-grid",style:{display:"grid",gap:9}}, isOwner && /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.shield, label: "\u0625\u062F\u0627\u0631\u0629 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645\u064A\u0646", onClick: () => onGo("adminUsers") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.settings, label: "\u062A\u0635\u0646\u064A\u0641\u0627\u062A \u0648\u0646\u0637\u0627\u0642\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645", onClick: () => onGo("adminCategories") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.clock, label: "\u062F\u0648\u0631\u0627\u062A \u0627\u0644\u062A\u0642\u064A\u064A\u0645", onClick: () => onGo("adminCycles") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.grid, label: "المكافآت والجوائز", onClick: () => onGo("rewardsHub") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.chart, label: "\u0646\u0634\u0627\u0637 \u0627\u0644\u0645\u0642\u064A\u0651\u0645\u064A\u0646", onClick: () => onGo("evaluatorActivity") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.clipboard, label: "\u0633\u062C\u0644 \u0627\u0644\u062A\u062F\u0642\u064A\u0642", onClick: () => onGo("auditLog") }), /* @__PURE__ */ React.createElement(NavRow, { icon: ICONS.trash, label: "\u0633\u0644\u0629 \u0627\u0644\u0645\u0647\u0645\u0644\u0627\u062A", onClick: () => onGo("trash") })));
   }
   function NavRow({ icon, label, onClick }) {
-    return /* @__PURE__ */ React.createElement("button", { onClick, style: s.rowCard }, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--forest)" } }, /* @__PURE__ */ React.createElement(Icon, { svg: icon, size: 18 })), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, textAlign: "right", fontWeight: 600, fontSize: 14 } }, label), /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.back, size: 18, color: "var(--ink-3)" }));
+    return /* @__PURE__ */ React.createElement("button", { onClick, className:"more-row", style: s.rowCard }, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--forest)" } }, /* @__PURE__ */ React.createElement(Icon, { svg: icon, size: 18 })), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, textAlign: "right", fontWeight: 600, fontSize: 14 } }, label), /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.back, size: 18, color: "var(--ink-3)" }));
   }
   function AdminEmployees({ employees, onAdd, onArchive, onDelete }) {
     const [open, setOpen] = useState(false);
@@ -2053,59 +2159,47 @@ var __startElmCafeApp__ = (() => {
     return { canManageEmployees: false, canCreateCycle: false, canEditCategories: false, canManageAllEvaluations: false };
   }
   function AdminUsers({ profiles, userLookup, ownId, onAdd, onToggle, onDelete, onUpdatePermissions }) {
-    const [open, setOpen] = useState(false);
-    const [name, setName] = useState("");
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [role, setRole] = useState("evaluator");
-    const [err, setErr] = useState("");
-    const [newPerms, setNewPerms] = useState(emptyPerms());
-    const [deleteTarget, setDeleteTarget] = useState(null);
-    const [confirmText, setConfirmText] = useState("");
-    const [permTarget, setPermTarget] = useState(null);
-    const [editPerms, setEditPerms] = useState(emptyPerms());
-    const [infoTarget, setInfoTarget] = useState(null);
-    const [saving, setSaving] = useState(false);
-    async function submit(e) {
-      e.preventDefault();
-      if (saving) return;
-      if (!name.trim() || !username.trim() || !email.trim().includes("@") || password.length < 6) {
-        setErr("\u062A\u0623\u0643\u062F \u0645\u0646 \u0645\u0644\u0621 \u0643\u0644 \u0627\u0644\u062D\u0642\u0648\u0644 \u0628\u0628\u0631\u064A\u062F \u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A \u0635\u062D\u064A\u062D \u0648\u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631 6 \u0623\u062D\u0631\u0641 \u0639\u0644\u0649 \u0627\u0644\u0623\u0642\u0644");
-        return;
-      }
+    const h=React.createElement;
+    const [open,setOpen]=useState(false),[name,setName]=useState(""),[username,setUsername]=useState(""),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[role,setRole]=useState("evaluator"),[err,setErr]=useState("");
+    const [newPerms,setNewPerms]=useState(emptyPerms()),[permTarget,setPermTarget]=useState(null),[editPerms,setEditPerms]=useState(emptyPerms());
+    const [infoId,setInfoId]=useState(null),[deleteTarget,setDeleteTarget]=useState(null),[confirmText,setConfirmText]=useState(""),[saving,setSaving]=useState(false),[busyId,setBusyId]=useState(null);
+    const infoUser=profiles.find(u=>u?.id===infoId);
+    async function submit(e){
+      e?.preventDefault?.();if(saving)return;
+      if(!name.trim()||!username.trim()||!email.trim().includes("@")||password.length<6){setErr("أكمل البيانات ببريد صحيح وكلمة مرور من 6 أحرف على الأقل.");return;}
       setSaving(true);
-      const ok = await onAdd({ name: name.trim(), username: username.trim(), email: email.trim(), password, role, permissions: newPerms });
-      setSaving(false);
-      if (ok !== false) {
-        setOpen(false);
-        setName("");
-        setUsername("");
-        setEmail("");
-        setPassword("");
-        setRole("evaluator");
-        setNewPerms(emptyPerms());
-        setErr("");
-      }
+      try{const ok=await onAdd({name:name.trim(),username:username.trim(),email:email.trim(),password,role,permissions:newPerms});if(ok!==false){setOpen(false);setName("");setUsername("");setEmail("");setPassword("");setRole("evaluator");setNewPerms(emptyPerms());setErr("");}}
+      catch(error){setErr(error?.message||"تعذرت إضافة المستخدم. حاول مرة أخرى.");}
+      finally{setSaving(false);}
     }
-    function openPerms(u) {
-      setPermTarget(u);
-      setEditPerms({ canManageEmployees: !!u.can_manage_employees, canCreateCycle: !!u.can_create_cycle, canEditCategories: !!u.can_edit_categories, canManageAllEvaluations: !!u.can_manage_all_evaluations });
-    }
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", style: { width: "100%", marginBottom: 14 }, onClick: () => setOpen(true) }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.plus, size: 16 }), " \u0625\u0636\u0627\u0641\u0629 \u0645\u0633\u062A\u062E\u062F\u0645"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)", marginBottom: 12 } }, '\u062F\u0648\u0633 \u0639\u0644\u0649 \u0627\u0633\u0645 \u0623\u064A \u0645\u0633\u062A\u062E\u062F\u0645 \u0644\u0639\u0631\u0636 \u0628\u064A\u0627\u0646\u0627\u062A \u062D\u0633\u0627\u0628\u0647. \u0644\u0625\u0639\u0627\u062F\u0629 \u062A\u0639\u064A\u064A\u0646 \u0643\u0644\u0645\u0629 \u0645\u0631\u0648\u0631: "\u0646\u0633\u064A\u062A \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631" \u0641\u064A \u0634\u0627\u0634\u0629 \u0627\u0644\u062F\u062E\u0648\u0644.'), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 8 } }, profiles.filter(Boolean).map((u) => /* @__PURE__ */ React.createElement("div", { key: u.id, style: { ...s.rowCard, cursor: "default" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => setInfoTarget(u), style: { display: "flex", alignItems: "center", gap: 12, flex: 1, background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "right" } }, /* @__PURE__ */ React.createElement("div", { style: { ...s.avatarCircle, background: avatarColor(u.name).bg, color: avatarColor(u.name).fg } }, u.name.slice(0, 1)), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 14 } }, u.name, " ", !u.active && /* @__PURE__ */ React.createElement("span", { style: { color: "var(--red)", fontWeight: 400, fontSize: 12 } }, "(\u0645\u0639\u0637\u0651\u0644)")), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "var(--ink-3)" } }, u?.role === "super_admin" ? "\u0645\u062F\u064A\u0631 \u0623\u0639\u0644\u0649" : "\u0645\u0642\u064A\u0651\u0645"))), u.id !== ownId && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { onClick: () => openPerms(u), style: s.iconBtn, "aria-label": "\u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A" }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.shield, size: 15, color: "var(--ink-3)" })), /* @__PURE__ */ React.createElement("button", { onClick: () => onToggle(u.id, !u.active), style: s.iconBtn, "aria-label": "\u062A\u0641\u0639\u064A\u0644/\u062A\u0639\u0637\u064A\u0644" }, /* @__PURE__ */ React.createElement(Icon, { svg: u.active ? ICONS.unlock : ICONS.lock, size: 15, color: u.active ? "var(--green)" : "var(--red)" })), !u.active && /* @__PURE__ */ React.createElement("button", { onClick: () => {
-      setDeleteTarget(u);
-      setConfirmText("");
-    }, style: s.iconBtn, "aria-label": "حذف الوصول للتطبيق" }, /* @__PURE__ */ React.createElement(Icon, { svg: ICONS.trash, size: 15, color: "var(--red)" })))))), infoTarget && (() => {
-      const lookup = userLookup.find((l) => l.user_id === infoTarget.id);
-      const perms = PERMISSION_DEFS.filter((p) => infoTarget[p.key.replace(/([A-Z])/g, (m) => "_" + m.toLowerCase())]);
-      return /* @__PURE__ */ React.createElement(Modal, { title: "\u0628\u064A\u0627\u0646\u0627\u062A \u0627\u0644\u062D\u0633\u0627\u0628", onClose: () => setInfoTarget(null), footer: /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setInfoTarget(null) }, "\u0625\u063A\u0644\u0627\u0642") }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10, fontSize: 13 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u0627\u0644\u0627\u0633\u0645"), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700 } }, infoTarget.name)), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0644\u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644"), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700 } }, (lookup == null ? void 0 : lookup.username) || "\u2014")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A"), /* @__PURE__ */ React.createElement("div", null, (lookup == null ? void 0 : lookup.email) || "\u2014")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u0627\u0644\u062F\u0648\u0631"), /* @__PURE__ */ React.createElement("div", null, infoTarget?.role === "super_admin" ? "\u0645\u062F\u064A\u0631 \u0623\u0639\u0644\u0649" : "\u0645\u0642\u064A\u0651\u0645")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u0627\u0644\u062D\u0627\u0644\u0629"), /* @__PURE__ */ React.createElement("div", { style: { color: infoTarget.active ? "var(--green)" : "var(--red)" } }, infoTarget.active ? "\u0645\u0641\u0639\u0651\u0644" : "\u0645\u0639\u0637\u0651\u0644")), infoTarget?.role !== "super_admin" && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11, marginBottom: 4 } }, "\u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A \u0627\u0644\u0625\u0636\u0627\u0641\u064A\u0629"), perms.length ? perms.map((p) => /* @__PURE__ */ React.createElement("div", { key: p.key }, "\u2022 ", p.label)) : /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)" } }, "\u0644\u0627 \u062A\u0648\u062C\u062F \u0635\u0644\u0627\u062D\u064A\u0627\u062A \u0625\u0636\u0627\u0641\u064A\u0629")), infoTarget.created_at && /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { color: "var(--ink-3)", fontSize: 11 } }, "\u062A\u0627\u0631\u064A\u062E \u0627\u0644\u0625\u0646\u0634\u0627\u0621"), /* @__PURE__ */ React.createElement("div", null, fmtDate(infoTarget.created_at)))));
-    })(), open && /* @__PURE__ */ React.createElement(Modal, { title: "\u0625\u0636\u0627\u0641\u0629 \u0645\u0633\u062A\u062E\u062F\u0645", onClose: () => setOpen(false), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", onClick: submit, disabled: saving }, saving ? "\u062C\u0627\u0631\u0650 \u0627\u0644\u062D\u0641\u0638\u2026" : "\u062D\u0641\u0638"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setOpen(false) }, "\u0625\u0644\u063A\u0627\u0621")) }, /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0644\u0627\u0633\u0645" }, /* @__PURE__ */ React.createElement("input", { style: s.input, value: name, onChange: (e) => setName(e.target.value) })), /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0644\u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 (\u0628\u062F\u0648\u0646 \u0645\u0633\u0627\u0641\u0627\u062A \u0623\u0648 \u0631\u0645\u0648\u0632)" }, /* @__PURE__ */ React.createElement("input", { style: s.input, value: username, onChange: (e) => setUsername(e.target.value.replace(/\s/g, "")) })), /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0644\u0628\u0631\u064A\u062F \u0627\u0644\u0625\u0644\u0643\u062A\u0631\u0648\u0646\u064A \u0627\u0644\u062D\u0642\u064A\u0642\u064A (\u0644\u0627\u0633\u062A\u0631\u062C\u0627\u0639 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631)" }, /* @__PURE__ */ React.createElement("input", { type: "email", style: s.input, value: email, onChange: (e) => setEmail(e.target.value), placeholder: "example@gmail.com" })), /* @__PURE__ */ React.createElement(Field, { label: "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631" }, /* @__PURE__ */ React.createElement("input", { type: "password", style: s.input, value: password, onChange: (e) => setPassword(e.target.value) })), /* @__PURE__ */ React.createElement(Field, { label: "\u0627\u0644\u062F\u0648\u0631" }, /* @__PURE__ */ React.createElement("select", { style: s.input, value: role, onChange: (e) => setRole(e.target.value) }, /* @__PURE__ */ React.createElement("option", { value: "evaluator" }, "\u0645\u0642\u064A\u0651\u0645"), /* @__PURE__ */ React.createElement("option", { value: "super_admin" }, "\u0645\u062F\u064A\u0631 \u0623\u0639\u0644\u0649"))), role === "evaluator" && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 6, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: "var(--ink-2)", marginBottom: 4 } }, "\u0635\u0644\u0627\u062D\u064A\u0627\u062A \u0625\u0636\u0627\u0641\u064A\u0629 (\u0627\u062E\u062A\u064A\u0627\u0631\u064A)"), PERMISSION_DEFS.map((p) => /* @__PURE__ */ React.createElement(Switch, { key: p.key, checked: newPerms[p.key], onChange: (v) => setNewPerms({ ...newPerms, [p.key]: v }), label: p.label, description: p.description }))), err && /* @__PURE__ */ React.createElement("div", { style: s.errText }, err)), permTarget && /* @__PURE__ */ React.createElement(Modal, { title: `\u0635\u0644\u0627\u062D\u064A\u0627\u062A ${permTarget.name}`, onClose: () => setPermTarget(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "primary", onClick: () => {
-      onUpdatePermissions(permTarget.id, editPerms);
-      setPermTarget(null);
-    } }, "\u062D\u0641\u0638 \u0627\u0644\u0635\u0644\u0627\u062D\u064A\u0627\u062A"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setPermTarget(null) }, "\u0625\u0644\u063A\u0627\u0621")) }, PERMISSION_DEFS.map((p) => /* @__PURE__ */ React.createElement(Switch, { key: p.key, checked: editPerms[p.key], onChange: (v) => setEditPerms({ ...editPerms, [p.key]: v }), label: p.label, description: p.description }))), deleteTarget && /* @__PURE__ */ React.createElement(Modal, { title: "حذف وصول المستخدم للتطبيق", onClose: () => setDeleteTarget(null), footer: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Btn, { variant: "danger", disabled: confirmText.trim() !== deleteTarget.name.trim(), onClick: () => {
-      onDelete(deleteTarget.id, deleteTarget.name);
-      setDeleteTarget(null);
-    } }, "تأكيد حذف الوصول"), /* @__PURE__ */ React.createElement(Btn, { variant: "ghost", onClick: () => setDeleteTarget(null) }, "\u062A\u0631\u0627\u062C\u0639")) }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "var(--red)", marginBottom: 12, fontWeight: 600 } }, "\u0644\u0648 \u0633\u0628\u0642 \u0644\u0647\u0630\u0627 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0625\u0646\u0647 \u0642\u064A\u0651\u0645 \u0623\u064A \u0645\u0648\u0638\u0641\u060C \u0644\u0646 \u064A\u0642\u0628\u0644 \u0627\u0644\u0646\u0638\u0627\u0645 \u0627\u0644\u062D\u0630\u0641 \u062D\u0641\u0627\u0638\u064B\u0627 \u0639\u0644\u0649 \u0633\u062C\u0644 \u0627\u0644\u062A\u0642\u064A\u064A\u0645\u0627\u062A \u2014 \u0627\u0633\u062A\u062E\u062F\u0645 \u0627\u0644\u062A\u0639\u0637\u064A\u0644 \u0628\u062F\u0644\u064B\u0627 \u0645\u0646 \u0630\u0644\u0643 \u0641\u064A \u0647\u0630\u0647 \u0627\u0644\u062D\u0627\u0644\u0629."), /* @__PURE__ */ React.createElement(Field, { label: `\u0627\u0643\u062A\u0628 \u0627\u0633\u0645 "${deleteTarget.name}" \u0628\u0627\u0644\u0643\u0627\u0645\u0644 \u0644\u0644\u062A\u0623\u0643\u064A\u062F` }, /* @__PURE__ */ React.createElement("input", { style: s.input, value: confirmText, onChange: (e) => setConfirmText(e.target.value) }))));
+    function openPerms(u){setPermTarget(u);setEditPerms({canManageEmployees:!!u.can_manage_employees,canCreateCycle:!!u.can_create_cycle,canEditCategories:!!u.can_edit_categories,canManageAllEvaluations:!!u.can_manage_all_evaluations});}
+    async function toggleUser(u){if(busyId||u.id===ownId)return;setBusyId(u.id);try{await onToggle(u.id,!u.active);}finally{setBusyId(null);}}
+    function requestDelete(u){if(u.id===ownId||u.active)return;setInfoId(null);setDeleteTarget(u);setConfirmText("");}
+    const field=(label,value)=>h("div",{key:label},h("small",null,label),h("strong",null,value||"—"));
+    return h("div",{className:"account-management"},
+      h(Btn,{variant:"primary",style:{width:"100%",marginBottom:12},onClick:()=>setOpen(true)},h(Icon,{svg:ICONS.plus,size:16})," إضافة مستخدم"),
+      h("div",{style:{display:"grid",gap:8}},profiles.filter(Boolean).map(u=>h("div",{key:u.id,style:{...s.rowCard,cursor:"default",width:"100%",boxSizing:"border-box"}},
+        h("button",{type:"button",onClick:()=>setInfoId(u.id),style:{display:"flex",alignItems:"center",gap:10,flex:1,minWidth:0,background:"none",border:0,padding:0,cursor:"pointer",textAlign:"right",color:"var(--ink)"}},h("div",{style:{...s.avatarCircle,background:avatarColor(u.name).bg,color:avatarColor(u.name).fg,flex:"none"}},u.name.slice(0,1)),h("span",{style:{display:"grid",gap:3,minWidth:0}},h("strong",{style:{fontSize:14}},u.name),h("small",{style:{fontSize:11,color:"var(--ink-3)"}},u.role==="super_admin"?"مدير أعلى":"مقيّم",u.active?" · نشط":" · معطّل"))),
+        u.id!==ownId&&h("button",{type:"button",onClick:()=>openPerms(u),style:s.iconBtn,"aria-label":`صلاحيات ${u.name}`},h(Icon,{svg:ICONS.shield,size:17}))))),
+      infoUser&&(()=>{const lookup=userLookup.find(l=>l.user_id===infoUser.id),perms=PERMISSION_DEFS.filter(p=>infoUser[p.key.replace(/([A-Z])/g,m=>"_"+m.toLowerCase())]);return h(Modal,{title:"بيانات الحساب",account:true,onClose:()=>setInfoId(null),footer:h(React.Fragment,null,
+        infoUser.id!==ownId&&h(Btn,{variant:infoUser.active?"danger":"primary",disabled:busyId===infoUser.id,onClick:()=>toggleUser(infoUser)},busyId===infoUser.id?"جارِ التحديث…":infoUser.active?"إيقاف الحساب":"تفعيل الحساب"),
+        infoUser.id!==ownId&&!infoUser.active&&h(Btn,{variant:"danger",onClick:()=>requestDelete(infoUser)},"حذف الوصول"),
+        h(Btn,{variant:"ghost",onClick:()=>setInfoId(null)},"إغلاق"))},
+        h("div",{className:"account-details"},h("div",{className:"account-details-hero"},h("div",{style:{...s.avatarCircle,background:avatarColor(infoUser.name).bg,color:avatarColor(infoUser.name).fg}},infoUser.name.slice(0,1)),h("span",null,h("strong",null,infoUser.name),h("small",null,infoUser.active?"حساب نشط":"حساب معطّل"))),
+        h("div",{className:"account-details-grid"},field("اسم الدخول",lookup?.username),field("الدور",infoUser.role==="super_admin"?"مدير أعلى":"مقيّم"),field("البريد الإلكتروني",lookup?.email),field("تاريخ الإنشاء",infoUser.created_at?fmtDate(infoUser.created_at):"—")),
+        infoUser.role!=="super_admin"&&h("div",{className:"account-permissions"},h("strong",null,"الصلاحيات الإضافية"),h("div",null,perms.length?perms.map(p=>p.label).join(" · "):"لا توجد صلاحيات إضافية")),
+        infoUser.id===ownId&&h("small",null,"هذا حسابك؛ لا يمكن إيقافه أو حذفه من هنا.")));
+      })(),
+      open&&h(Modal,{title:"إضافة مستخدم",account:true,onClose:()=>!saving&&setOpen(false),footer:h(React.Fragment,null,h(Btn,{variant:"primary",onClick:submit,disabled:saving},saving?"جارِ الحفظ…":"حفظ المستخدم"),h(Btn,{variant:"ghost",onClick:()=>setOpen(false),disabled:saving},"إلغاء"))},
+        h(Field,{label:"الاسم"},h("input",{style:s.input,value:name,onChange:e=>setName(e.target.value)})),
+        h(Field,{label:"اسم الدخول (دون مسافات)"},h("input",{style:s.input,value:username,onChange:e=>setUsername(e.target.value.replace(/\s/g,""))})),
+        h(Field,{label:"البريد الإلكتروني لاسترجاع كلمة المرور"},h("input",{type:"email",style:s.input,value:email,onChange:e=>setEmail(e.target.value),placeholder:"example@gmail.com"})),
+        h(Field,{label:"كلمة المرور"},h("input",{type:"password",style:s.input,value:password,onChange:e=>setPassword(e.target.value)})),
+        h(Field,{label:"الدور"},h("select",{style:s.input,value:role,onChange:e=>setRole(e.target.value)},h("option",{value:"evaluator"},"مقيّم"),h("option",{value:"super_admin"},"مدير أعلى"))),
+        role==="evaluator"&&h("div",{style:{marginTop:8}},h("strong",null,"صلاحيات إضافية (اختياري)"),PERMISSION_DEFS.map(p=>h(Switch,{key:p.key,checked:newPerms[p.key],onChange:v=>setNewPerms({...newPerms,[p.key]:v}),label:p.label,description:p.description}))),
+        err&&h("div",{style:s.errText},err)),
+      permTarget&&h(Modal,{title:`صلاحيات ${permTarget.name}`,account:true,onClose:()=>setPermTarget(null),footer:h(React.Fragment,null,h(Btn,{variant:"primary",onClick:async()=>{if(busyId)return;setBusyId(permTarget.id);try{const ok=await onUpdatePermissions(permTarget.id,editPerms);if(ok!==false)setPermTarget(null);}finally{setBusyId(null);}},disabled:busyId===permTarget.id},busyId===permTarget.id?"جارِ الحفظ…":"حفظ الصلاحيات"),h(Btn,{variant:"ghost",onClick:()=>setPermTarget(null)},"إلغاء"))},PERMISSION_DEFS.map(p=>h(Switch,{key:p.key,checked:editPerms[p.key],onChange:v=>setEditPerms({...editPerms,[p.key]:v}),label:p.label,description:p.description}))),
+      deleteTarget&&h(Modal,{title:"حذف وصول المستخدم للتطبيق",account:true,onClose:()=>setDeleteTarget(null),footer:h(React.Fragment,null,h(Btn,{variant:"danger",disabled:confirmText.trim()!==deleteTarget.name.trim()||!!busyId,onClick:async()=>{if(busyId)return;setBusyId(deleteTarget.id);try{const ok=await onDelete(deleteTarget.id,deleteTarget.name);if(ok!==false)setDeleteTarget(null);}finally{setBusyId(null);}}},busyId===deleteTarget.id?"جارِ الحذف…":"تأكيد حذف الوصول"),h(Btn,{variant:"ghost",onClick:()=>setDeleteTarget(null)},"تراجع"))},h("p",{style:{fontSize:13,lineHeight:1.7,color:"var(--red)"}},"الحذف يمنع الوصول للتطبيق. لو لدى المستخدم تقييمات سابقة، استخدم إيقاف الحساب للحفاظ على السجل. حساب Supabase Auth منفصل."),h(Field,{label:`اكتب اسم "${deleteTarget.name}" كاملًا للتأكيد`},h("input",{style:s.input,value:confirmText,onChange:e=>setConfirmText(e.target.value)}))));
   }
   function AdminCategories({ categories, ratingBands, onAddCategory, onUpdateCategory, onUpdateBands, onArchiveCategory, onArchiveBand }) {
     const [open, setOpen] = useState(false);
@@ -2187,7 +2281,7 @@ var __startElmCafeApp__ = (() => {
   function ReportsOverall({employees,cycles,evaluations,computeScore,ratingFor,onOpenEmployee,initialCycleId,cycleAwards=[],awardsReady=true,onAward}) {
     const h=React.createElement;
     const [cycleId,setCycleId]=useState(initialCycleId||cycles.find(c=>c.status==="active")?.id||cycles[0]?.id||"");
-    const [filter,setFilter]=useState("all"),[query,setQuery]=useState(""),[awardOpen,setAwardOpen]=useState(false),[selectedWinner,setSelectedWinner]=useState(""),[savingAward,setSavingAward]=useState(false);
+    const [filter,setFilter]=useState("all"),[query,setQuery]=useState(""),[printMarkup,setPrintMarkup]=useState(""),[awardOpen,setAwardOpen]=useState(false),[selectedWinner,setSelectedWinner]=useState(""),[savingAward,setSavingAward]=useState(false);
     useEffect(()=>{if(initialCycleId)setCycleId(initialCycleId);else if(!cycleId&&cycles.length)setCycleId(cycles.find(c=>c.status==="active")?.id||cycles[0].id);},[initialCycleId,cycles]);
     const cycle=cycles.find(c=>c.id===cycleId);
     const rows=employees.map(emp=>{const evs=cycle?evaluations.filter(e=>e.employee_id===emp.id&&e.cycle_id===cycle.id&&e.status==="active"):[];const score=evs.length?computeScore(emp.id,cycle.id):null;return{emp,score,total:evs.length,rating:score===null?"لم يُقيّم":ratingFor(score)};}).sort((a,b)=>(b.score??-1)-(a.score??-1)||a.emp.name.localeCompare(b.emp.name,"ar"));
@@ -2226,7 +2320,7 @@ var __startElmCafeApp__ = (() => {
         !savedAward&&cycle.status==="closed"&&h("button",{type:"button",className:"award-approve-button",disabled:!awardsReady||!leaders.length,onClick:()=>{setSelectedWinner(leaders.length===1?leaders[0].emp.id:"");setAwardOpen(true);}},leaders.length>1?"اختيار الفائز من المتعادلين":"اعتماد الفائز وحفظ النتيجة"),
         !savedAward&&cycle.status!=="closed"&&h("div",{className:"award-setup-note"},"اعتماد الفائز يظهر بعد إغلاق الدورة. لا يوجد حد أدنى للتقييمات."),
         !awardsReady&&h("div",{className:"award-setup-note"},"لتفعيل سجل الفائز المحفوظ، شغّل ملف إعداد سجل الفائز في Supabase."),
-        h("div",{className:"report-toolbar"},h("div",null,h("span",{className:"eyebrow"},"تفاصيل الدورة"),h("h2",null,"الموظفون")),h("div",{className:"report-actions"},h("button",{className:"text-action",type:"button",onClick:exportCsv},"تنزيل بيانات التقرير (CSV)"),h("button",{className:"text-action",type:"button",onClick:()=>{const section=document.querySelector(".report-screen .print-report");if(!section)return;const win=window.open("","_blank");if(!win){window.print();return;}win.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقرير ${cycle.name.replace(/[<>&]/g,"")}</title><style>body{font:14px Arial,sans-serif;color:#17251c;margin:24px;direction:rtl}.print-report{display:block}.print-report-head{display:flex;justify-content:space-between;border-bottom:2px solid #2e4635;padding-bottom:18px}.print-report-summary{display:flex;gap:12px;margin:18px 0}.print-report-summary>div{border:1px solid #ccd5cc;padding:10px;flex:1}.print-report-summary small,.print-report-summary strong{display:block}.print-report-table{width:100%;border-collapse:collapse}.print-report-table th,.print-report-table td{padding:9px;border-bottom:1px solid #d5dcd6;text-align:right}.print-report-table th{background:#e8eee8}footer{border-top:1px solid #ccd5cc;margin-top:22px;padding-top:10px}@media print{@page{size:A4;margin:15mm}body{margin:0}tr{break-inside:avoid}}</style></head><body>${section.outerHTML}</body></html>`);win.document.close();setTimeout(()=>{win.focus();win.print();},350);}},"طباعة تقرير الدورة"))),
+        h("div",{className:"report-toolbar"},h("div",null,h("span",{className:"eyebrow"},"تفاصيل الدورة"),h("h2",null,"الموظفون")),h("div",{className:"report-actions"},h("button",{className:"text-action",type:"button",onClick:exportCsv},"تنزيل بيانات التقرير (CSV)"),h("button",{className:"text-action",type:"button",onClick:()=>{const section=document.querySelector(".report-screen .print-report");if(section)setPrintMarkup(section.innerHTML);}},"معاينة وطباعة التقرير"))),
         h("input",{className:"modern-search",value:query,onChange:e=>setQuery(e.target.value),placeholder:"ابحث عن موظف","aria-label":"بحث التقارير"}),
         h("div",{className:"segmented"},[["all","الكل"],["rated","تم تقييمهم"],["pending","لم يُقيّموا"]].map(([key,label])=>h("button",{key,type:"button",className:filter===key?"selected":"",onClick:()=>setFilter(key)},label))),
         h("section",{className:"print-report","aria-label":"تقرير الدورة للطباعة"},
@@ -2237,6 +2331,7 @@ var __startElmCafeApp__ = (() => {
           h("table",{className:"print-report-table"},h("thead",null,h("tr",null,["م","الموظف","الوظيفة","رقم الموظف","النتيجة","عدد التقييمات","التقدير"].map(label=>h("th",{key:label},label)))),h("tbody",null,rows.map((r,index)=>h("tr",{key:r.emp.id},h("td",null,index+1),h("td",null,r.emp.name),h("td",null,r.emp.profession||"—"),h("td",null,r.emp.employee_code||"—"),h("td",null,r.score===null?"—":Math.round(r.score)+" / 100"),h("td",null,r.total),h("td",null,r.rating))))),
           h("footer",null,"يعرض التقرير التقييمات النشطة فقط. التقييمات الملغاة لا تدخل في النتيجة.")),
         filtered.length?h("div",{className:"report-grid"},filtered.map(r=>h("button",{key:r.emp.id,type:"button",className:"report-tile",onClick:()=>onOpenEmployee(r.emp.id)},h("span",{className:"report-rank"},r.total?"#"+(rows.indexOf(r)+1):"—"),h("span",{className:"report-score"},r.score===null?"—":Math.round(r.score),h("small",null,r.score===null?"بلا تقييم":"/ 100")),h("strong",null,r.emp.name),h("small",null,r.emp.profession||"موظف"),h("span",{className:r.total?"status-chip done":"status-chip"},r.total?r.total+" تقييم · "+r.rating:"لم يُقيّم بعد")))):h("div",{className:"dash-empty"},"لا توجد نتائج مطابقة.")),
+      printMarkup&&ReactDOM.createPortal(h("div",{className:"report-print-preview",role:"dialog","aria-modal":true,"aria-label":"معاينة تقرير الدورة"},h("div",{className:"report-preview-toolbar"},h("button",{type:"button",onClick:()=>window.print()},"طباعة / حفظ PDF"),h("button",{type:"button",onClick:()=>setPrintMarkup("")},"إغلاق المعاينة")),h("div",{className:"report-preview-page"},h("section",{className:"print-report",dangerouslySetInnerHTML:{__html:printMarkup}}))),document.body),
       awardOpen&&h(Modal,{title:leaders.length>1?"اختيار الفائز من المتعادلين":"تأكيد الفائز بالدورة",onClose:()=>!savingAward&&setAwardOpen(false),footer:h(React.Fragment,null,h(Btn,{variant:"primary",disabled:!selectedWinner||savingAward,onClick:confirmWinner},savingAward?"جارِ الحفظ…":"حفظ واعتماد الفائز"),h(Btn,{variant:"ghost",disabled:savingAward,onClick:()=>setAwardOpen(false)},"رجوع"))},
         h("div",{className:"award-candidate-list"},leaders.map(r=>h("label",{key:r.emp.id,className:"award-candidate "+(selectedWinner===r.emp.id?"selected":"")},h("input",{type:"radio",name:"cycle-winner",value:r.emp.id,checked:selectedWinner===r.emp.id,onChange:()=>setSelectedWinner(r.emp.id)}),h("span",null,h("strong",null,r.emp.name),h("small",null,r.emp.profession||"موظف"," · ",r.total," تقييم")),h("b",null,Math.round(r.score)," / 100")))),
         h("p",{className:"award-modal-note"},leaders.length>1?"النتيجة متعادلة؛ اختار الفائز بنفسك. لن يختار التطبيق تلقائيًا.":"سيحفظ التطبيق اسم الفائز ونتيجته وعدد تقييماته وقت الاعتماد.")));
@@ -2251,21 +2346,36 @@ var __startElmCafeApp__ = (() => {
       h("div",{className:"quick-search-results"},results.length?results.map(e=>h("button",{key:e.id,type:"button",onClick:()=>onOpen(e.id)},h("span",{className:"person-avatar",style:{background:avatarColor(e.name).bg,color:avatarColor(e.name).fg}},e.name.slice(0,1)),h("span",null,h("strong",null,e.name),h("small",null,e.profession||"موظف"," · ",e.employee_code)),h(Icon,{svg:ICONS.back,size:15}))):h("div",{className:"dash-empty"},query?"لا توجد نتائج مطابقة.":"اكتب اسم الموظف أو رقمه."))));
   }
   function NotificationsModal({ evaluations, employees, onClose, onReview }) {
-    const h = React.createElement;
-    const items = evaluations.filter(e => e.is_violation && e.status === "active").sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-    const unread = items.filter(e => !e.violation_reviewed).length;
+    const h=React.createElement;
+    const items=evaluations.filter(e=>e.is_violation&&e.status==="active")
+      .slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    const unread=items.filter(e=>!e.violation_reviewed).length;
+    const [expandedId,setExpandedId]=useState(()=>items.find(e=>!e.violation_reviewed)?.id||items[0]?.id||null);
+    const [reviewingId,setReviewingId]=useState(null);
+    async function review(id){
+      if(reviewingId)return;
+      setReviewingId(id);
+      try{await onReview(id);}finally{setReviewingId(null);}
+    }
     return h(React.Fragment,null,
       h("div",{className:"notification-dismiss",onClick:onClose,"aria-hidden":"true"}),
       h("aside",{className:"notification-popover",role:"dialog","aria-label":"إشعارات المخالفات"},
-        h("div",{className:"notification-heading"},h("div",null,h("strong",null,"إشعارات المخالفات"),h("small",null,unread ? `${unread} بحاجة للمراجعة` : "كل الإشعارات تمت مراجعتها")),h("button",{type:"button",onClick:onClose,"aria-label":"إغلاق الإشعارات"},"×")),
-        h("div",{className:"notification-list"},items.length ? items.map(e => {
-          const empName = employees.find(emp => emp.id === e.employee_id)?.name || "موظف";
-          return h("article",{key:e.id,className:`notification-item ${e.violation_reviewed ? "reviewed" : ""}`},
-            h("div",{className:"notification-item-top"},h("strong",null,empName),h("time",null,relTime(e.created_at))),
-            h("p",null,e.category_name,e.note ? ` · ${e.note}` : ""),
-            h("small",null,"سجله: ",e.evaluator_name),
-            !e.violation_reviewed && h("button",{type:"button",onClick:()=>onReview(e.id)},"تمت المراجعة"));
-        }) : h("div",{className:"notification-empty"},"لا توجد إشعارات مخالفة."))));
+        h("div",{className:"notification-heading"},
+          h("div",null,h("strong",null,"إشعارات المخالفات"),h("small",null,unread?`${unread} بحاجة للمراجعة`:"كل الإشعارات تمت مراجعتها")),
+          h("button",{type:"button",onClick:onClose,"aria-label":"إغلاق الإشعارات"},h(Icon,{svg:ICONS.x,size:18}))),
+        h("div",{className:"notification-list"},items.length?items.map(e=>{
+          const empName=employees.find(emp=>emp.id===e.employee_id)?.name||"موظف";
+          const open=expandedId===e.id;
+          return h("article",{key:e.id,className:`notification-item ${e.violation_reviewed?"reviewed":"unread"}`},
+            h("button",{type:"button",className:"notification-summary",onClick:()=>setExpandedId(open?null:e.id),"aria-expanded":open,"aria-controls":`notification-detail-${e.id}`},
+              h("span",{className:"notification-item-top"},h("strong",null,empName),h("time",null,relTime(e.created_at))),
+              h("span",{className:"notification-category"},h("b",null,e.category_name||"مخالفة"),h("small",null,e.violation_reviewed?"تمت المراجعة":"تحتاج مراجعة"))),
+            open&&h("div",{className:"notification-detail",id:`notification-detail-${e.id}`},
+              h("span",{className:"notification-detail-label"},"سبب تسجيل المخالفة"),
+              h("p",null,e.note?.trim()||"لم يكتب المقيم وصفًا لهذه المخالفة."),
+              h("div",{className:"notification-meta"},h("span",null,"المقيم: ",e.evaluator_name||"—"),h("time",null,fmtDateTime(e.created_at))),
+              !e.violation_reviewed&&h("button",{type:"button",className:"notification-review",disabled:reviewingId===e.id,onClick:()=>review(e.id)},reviewingId===e.id?"جارٍ الحفظ…":"تحديد كمراجَعة")));
+        }):h("div",{className:"notification-empty"},"لا توجد مخالفات تحتاج إلى متابعة."))));
   }
   function AuditLogScreen({ audit, displayTarget, onTrash, onTrashAll }) {
     const [selected, setSelected] = useState(null);
