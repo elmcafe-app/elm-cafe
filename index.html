@@ -35,7 +35,7 @@
     --bg: #F7F4EC; --bg-2: #FFFFFF;
     --ink: #211E18; --ink-2: #4B463C; --ink-3: #8C8578; --ink-4: #C9C3B4;
     --border: #ECE7DB; --border-strong: #D6CFBD;
-    --forest: #2E4635; --forest-10: #E4EAE3;
+    --forest: #2E4635; --forest-10: #E4EAE3; --action-green:#24533a;
     --green: #3B6D24; --green-10: #E9F2E0;
     --red: #A6382C; --red-10: #F7E7E3;
     --gold: #C9A227; --gold-dark: #8A6A16; --gold-10: #F7EFD6;
@@ -47,7 +47,7 @@
     --bg: #0b0c0e; --bg-2: rgba(26,28,32,.85);
     --ink: #f7f7f5; --ink-2: #d8d9dc; --ink-3: #a7aab0; --ink-4: #747780;
     --border: #34363c; --border-strong: #555962;
-    --forest: #d1c09a; --forest-10: #303034;
+    --forest: #8bc6a0; --forest-10: #25362c; --action-green:#24533a;
     --green: #9bd8b2; --green-10: #1c3027;
     --red: #ffa9a3; --red-10: #392827;
     --gold: #e3c986; --gold-dark: #f1dba4; --gold-10: #383126;
@@ -437,11 +437,11 @@
   /* Full width operation lists with clear secondary links. */
   .evaluation-hub,.evaluation-hub .dashboard-panel,.more-screen { width:100%;box-sizing:border-box;min-width:0; }
   .evaluation-hub-head { padding:8px 1px 9px; }.evaluation-hub-head h1 { font-size:22px; }.evaluation-hub-head p { font-size:12px;line-height:1.6; }
-  .evaluation-hub .dashboard-panel { padding:12px !important; }.evaluation-hub .section-heading { align-items:center; }.evaluation-hub .section-heading .text-action { min-height:44px;white-space:nowrap; }
+  .evaluation-hub .dashboard-panel { padding:0 !important;border:0 !important;background:transparent !important;box-shadow:none !important; }.evaluation-hub .section-heading { align-items:center; }.evaluation-hub .section-heading .text-action { min-height:44px;white-space:nowrap; }
   .quick-evaluation-grid { display:grid;grid-template-columns:minmax(0,1fr);gap:9px; }.quick-evaluation-item { width:100%;gap:8px; }
   .quick-evaluation-pick { min-height:66px;padding:10px 13px; }.quick-evaluation-pick strong { font-size:14px; }.quick-evaluation-profile { min-width:48px;width:48px;min-height:48px; }
   .evaluation-hub-footnote { color:var(--ink-3);font-size:11px; }
-  .more-screen { display:grid;gap:9px;align-content:start; }.more-screen-heading { padding:4px 1px 6px; }.more-screen-heading h1 { font-size:22px;margin:0 0 4px; }.more-screen-heading p { font-size:12px;color:var(--ink-2);margin:0; }
+  .more-screen { display:grid;gap:9px;align-content:start;padding-bottom:calc(34px + env(safe-area-inset-bottom,0px)); }.more-screen-heading { padding:4px 1px 6px; }.more-screen-heading h1 { font-size:22px;margin:0 0 4px; }.more-screen-heading p { font-size:12px;color:var(--ink-2);margin:0; }
   .more-screen .more-row { width:100%;box-sizing:border-box;min-height:58px; }
   @media(min-width:700px){.quick-evaluation-grid,.more-screen-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
   /* Portaled dialogs keep the app shell fixed while the content alone scrolls. */
@@ -454,6 +454,20 @@
   .report-preview-toolbar { flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px max(4px,calc((100vw - 850px)/2)); }.report-preview-toolbar button { min-height:44px;padding:9px 15px;border:1px solid var(--glass-border);border-radius:12px;background:var(--glass-strong);color:var(--ink);font:inherit;font-weight:700; }.report-preview-toolbar button:first-child { background:var(--forest);color:#fff; }
   .report-preview-page { direction:rtl;overflow:auto;overscroll-behavior:contain;flex:1;min-height:0;width:min(850px,100%);margin:0 auto;background:white;color:#17251c;padding:18px;box-sizing:border-box;border-radius:12px;box-shadow:0 8px 28px var(--glass-shadow); }.report-preview-page .print-report { display:block !important;direction:rtl; }.report-preview-page .print-report-head { display:flex;justify-content:space-between;border-bottom:2px solid #2e4635;padding-bottom:12px; }.report-preview-page .print-report-summary { display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:14px 0; }.report-preview-page .print-report-summary>div { padding:8px;border:1px solid #ccd5cc;display:grid; }.report-preview-page .print-report-table { width:100%;border-collapse:collapse;font-size:12px; }.report-preview-page .print-report-table th,.report-preview-page .print-report-table td { padding:7px 4px;text-align:right;border-bottom:1px solid #d5dcd6; }.report-preview-page .print-report-table th { background:#e8eee8; }.report-preview-page .print-report footer { margin-top:15px;font-size:11px; }
   @media print { body:has(.report-print-preview) #root { display:none !important; } body:has(.report-print-preview) .report-print-preview,body:has(.report-print-preview) .report-print-preview * { visibility:visible !important; } .report-print-preview { position:static !important;display:block !important;padding:0 !important;background:#fff !important; }.report-preview-toolbar { display:none !important; }.report-preview-page { overflow:visible !important;width:100% !important;max-width:none !important;padding:0 !important;border:0 !important;box-shadow:none !important; }.report-preview-page .print-report-summary { grid-template-columns:repeat(4,1fr); } }
+  /* Strong green is reserved for actions. Glass stays on the shell and dialogs. */
+  .executive-hero,.work-hero { background:linear-gradient(135deg,#173b29,#24583a 62%,#36734b) !important;box-shadow:0 13px 29px rgba(15,54,31,.25) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important; }
+  html[data-theme="dark"] .executive-hero,html[data-theme="dark"] .work-hero { background:linear-gradient(135deg,#123422,#205638 68%,#2b6945) !important; }
+  .profile-primary-action,.profile-actions button:first-child,.create-cycle,.award-approve-button,.reward-redeem,.rewards-hero button,.reward-option-controls button,.certificate-launch button,.employee-reward-balance button,.notification-review,.report-preview-toolbar button:first-child { background:var(--action-green) !important;color:#fff !important; }
+  .dash-cycle-icon { background:var(--action-green) !important;color:#fff !important; }
+  button[style*="background: var(--forest)"],button[style*="background:var(--forest)"],html[data-theme="dark"] #root button[style*="background: var(--forest)"] { background:var(--action-green) !important;color:#fff !important; }
+  .executive-hero .hero-actions button { background:rgba(255,255,255,.14) !important;color:#fff !important; }
+  .evaluation-hub .quick-evaluation-grid { width:100%; }.evaluation-hub .quick-evaluation-pick { width:100%;background:var(--glass-strong) !important; }.evaluation-hub .quick-evaluation-item { width:100%; }.evaluation-hub .modern-search { box-sizing:border-box; }
+  .more-screen-grid { grid-template-columns:minmax(0,1fr); }.more-screen .more-row { text-align:right; }
+  .report-preview-page .print-report { display:block !important; }.report-preview-page .print-report-head { gap:15px;align-items:start; }.report-preview-page .print-report-head h1 { font-size:22px;margin:5px 0; }.report-preview-page .print-report-head p { font-size:12px; }.report-preview-page .print-report-stamp { display:grid;text-align:left;font-size:11px;white-space:nowrap; }
+  .report-preview-page .print-report-table { min-width:650px;border-collapse:collapse;font-size:12px; }.report-preview-page .print-report-table th,.report-preview-page .print-report-table td { padding:9px 7px;text-align:right;border:1px solid #d5dcd6;vertical-align:top; }.report-preview-page .print-report-table th { background:#e8eee8;color:#1d3828;font-weight:800; }.report-preview-page .print-report-table tbody tr:nth-child(even) { background:#f7f9f6; }
+  .report-preview-page .print-report-summary>div { background:#f3f6f0; }.report-preview-page .print-report-summary small { color:#53665a; }.report-preview-page .print-report-summary strong { font-size:17px; }.report-preview-page .print-report footer { border-top:1px solid #bccac0;padding-top:10px; }
+  .report-print-message { width:min(850px,100%);margin:2px auto 8px;padding:10px;border-radius:10px;background:#fff2d3;color:#513d16;font-size:12px;line-height:1.6; }
+  @media print { .report-preview-page .print-report-table { min-width:0 !important;table-layout:fixed !important; }.report-preview-page .print-report-table th,.report-preview-page .print-report-table td { font-size:9pt;padding:2.5mm 1.5mm;overflow-wrap:anywhere; } }
 </style>
 </head>
 <body>
@@ -943,28 +957,21 @@ var __startElmCafeApp__ = (() => {
     }
     useEffect(() => {
       if (!session) return;
-      let gesture=null, frame=0, returnTimer=0, desired=0;
+      let gesture=null, returnTimer=0, refreshTimer=0;
       const surface=()=>document.querySelector('.app-main-content');
-      const apply=()=>{
-        frame=0;
-        const el=surface();
-        if(el){el.style.transition='none';el.style.transform=`translate3d(0,${desired}px,0)`;}
-      };
       const follow=distance=>{
-        desired=Math.max(0,(distance-6)*.92);
-        if(!frame)frame=requestAnimationFrame(apply);
+        const el=surface();
+        if(el){el.style.transition='none';el.style.transform=`translate3d(0,${Math.max(0,distance)}px,0)`;}
       };
       const release=()=>{
-        if(frame){cancelAnimationFrame(frame);frame=0;}
-        desired=0;
         const el=surface();
         if(!el)return;
-        el.style.transition='transform .44s cubic-bezier(.22,.72,.18,1)';
+        el.style.transition='transform .52s cubic-bezier(.22,.7,.2,1)';
         el.style.transform='translate3d(0,0,0)';
         clearTimeout(returnTimer);
         returnTimer=setTimeout(()=>{
           if(el.isConnected){el.style.transition='';el.style.transform='';}
-        },470);
+        },550);
       };
       const onStart=event=>{
         if(event.touches.length!==1||refreshing||document.querySelector('[role="dialog"], .certificate-overlay'))return;
@@ -995,7 +1002,7 @@ var __startElmCafeApp__ = (() => {
         gesture=null;
         setPullState('');
         release();
-        if(shouldRefresh)manualRefresh();
+        if(shouldRefresh)refreshTimer=setTimeout(()=>manualRefresh(),550);
       };
       const onCancel=()=>{gesture=null;setPullState('');release();};
       window.addEventListener('touchstart',onStart,{passive:true});
@@ -1007,8 +1014,8 @@ var __startElmCafeApp__ = (() => {
         window.removeEventListener('touchmove',onMove);
         window.removeEventListener('touchend',onEnd);
         window.removeEventListener('touchcancel',onCancel);
-        if(frame)cancelAnimationFrame(frame);
         clearTimeout(returnTimer);
+        clearTimeout(refreshTimer);
       };
     },[session,refreshing]);
     async function addAudit(action, target, details = "") {
@@ -1039,6 +1046,9 @@ var __startElmCafeApp__ = (() => {
       if (screen === "newEval" && hasUnsavedRef.current) setPendingNav(() => doNav);
       else doNav();
     }
+    useEffect(() => {
+      if (session) window.scrollTo(0, 0);
+    }, [screen]);
     function goBack() {
       const doNav = () => {
         setStack((s2) => {
@@ -2087,9 +2097,9 @@ var __startElmCafeApp__ = (() => {
     const recentEvaluations = cycleEvals.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,3);
     const notRated = activeEmployees.filter(e=>!evaluated.has(e.id));
     return h("div",{className:"executive-dashboard"},
-      h("section",{className:"executive-hero"},h("span",{className:"eyebrow"},"ELM CAFE · CONTROL CENTER"),h("h1",null,"لوحة التحكم"),h("p",null,activeCycle?activeCycle.name:"لا توجد دورة تقييم نشطة"),
-        h("div",{className:"hero-progress-label"},h("span",null,"تغطية التقييمات"),h("strong",null,coverage,"٪")),h("div",{className:"hero-progress",role:"progressbar","aria-valuenow":coverage,"aria-valuemin":0,"aria-valuemax":100},h("span",{style:{width:`${coverage}%`}})),
-        h("div",{className:"hero-actions"},h("button",{type:"button",onClick:()=>onGo("home")},"افتح الموظفين",h(Icon,{svg:ICONS.back,size:16})),h("button",{type:"button",onClick:()=>onGo("adminCycles")},"الدورات"))),
+      h("section",{className:"executive-hero"},h("span",{className:"eyebrow"},"ELM CAFE · أداء الدورة"),h("h1",null,"لوحة التحكم"),h("p",null,activeCycle?activeCycle.name:"لا توجد دورة تقييم نشطة"),
+        h("div",{className:"hero-progress-label"},h("span",null,"موظفون لديهم تقييم في الدورة"),h("strong",null,evaluated.size," / ",activeEmployees.length)),h("div",{className:"hero-progress",role:"progressbar","aria-valuenow":coverage,"aria-valuemin":0,"aria-valuemax":100,"aria-label":"نسبة الموظفين الذين لديهم تقييم"},h("span",{style:{width:`${coverage}%`}})),
+        h("div",{className:"hero-actions"},activeCycle&&notRated.length?h("button",{type:"button",onClick:()=>onNewEval(notRated[0].id)},"قيّم ",notRated[0].name,h(Icon,{svg:ICONS.back,size:16})):h("button",{type:"button",onClick:()=>onGo(activeCycle?"reportsOverall":"adminCycles")},activeCycle?"افتح تقرير الدورة":"افتح دورة تقييم"),h("button",{type:"button",onClick:()=>onGo("reportsOverall")},"نتائج الفريق"))),
       h("div",{className:"executive-stats"},[
         ["الفريق",activeEmployees.length,"home",ICONS.users],
         ["تم تقييمهم",evaluated.size,"reportsOverall",ICONS.check],
@@ -2281,7 +2291,7 @@ var __startElmCafeApp__ = (() => {
   function ReportsOverall({employees,cycles,evaluations,computeScore,ratingFor,onOpenEmployee,initialCycleId,cycleAwards=[],awardsReady=true,onAward}) {
     const h=React.createElement;
     const [cycleId,setCycleId]=useState(initialCycleId||cycles.find(c=>c.status==="active")?.id||cycles[0]?.id||"");
-    const [filter,setFilter]=useState("all"),[query,setQuery]=useState(""),[printMarkup,setPrintMarkup]=useState(""),[awardOpen,setAwardOpen]=useState(false),[selectedWinner,setSelectedWinner]=useState(""),[savingAward,setSavingAward]=useState(false);
+    const [filter,setFilter]=useState("all"),[query,setQuery]=useState(""),[printMarkup,setPrintMarkup]=useState(""),[printMessage,setPrintMessage]=useState(""),[awardOpen,setAwardOpen]=useState(false),[selectedWinner,setSelectedWinner]=useState(""),[savingAward,setSavingAward]=useState(false);
     useEffect(()=>{if(initialCycleId)setCycleId(initialCycleId);else if(!cycleId&&cycles.length)setCycleId(cycles.find(c=>c.status==="active")?.id||cycles[0].id);},[initialCycleId,cycles]);
     const cycle=cycles.find(c=>c.id===cycleId);
     const rows=employees.map(emp=>{const evs=cycle?evaluations.filter(e=>e.employee_id===emp.id&&e.cycle_id===cycle.id&&e.status==="active"):[];const score=evs.length?computeScore(emp.id,cycle.id):null;return{emp,score,total:evs.length,rating:score===null?"لم يُقيّم":ratingFor(score)};}).sort((a,b)=>(b.score??-1)-(a.score??-1)||a.emp.name.localeCompare(b.emp.name,"ar"));
@@ -2301,6 +2311,20 @@ var __startElmCafeApp__ = (() => {
       const reportRows=[summary,["الدورة",cycle.name],["من",fmtDate(cycle.start_date),"إلى",fmtDate(cycle.end_date)],["تاريخ التصدير",new Date().toLocaleDateString("ar-EG")],["عدد الموظفين",rows.length,"تم تقييمهم",rated.length,"متوسط النقاط",average??"—"],[],headers,...data];
       const blob=new Blob(["\uFEFFsep=;\r\n"+reportRows.map(csvRow).join("\r\n")],{type:"text/csv;charset=utf-8"});
       const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="elm-cafe-"+String(cycle.name).replace(/[^\w\u0600-\u06FF-]+/g,"-")+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }
+    function openPrintableReport(){
+      if(!printMarkup)return;
+      setPrintMessage("");
+      const page=window.open("","_blank");
+      if(!page){setPrintMessage("المتصفح منع صفحة الطباعة. افتح رابط التطبيق في Safari أو Chrome ثم اضغط طباعة.");return;}
+      const title="تقرير دورة ELM CAFE";
+      page.document.open();
+      page.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>
+        *{box-sizing:border-box}body{margin:0;background:#e8ece8;color:#17251c;font:14px Arial,Tahoma,sans-serif;direction:rtl}.toolbar{position:sticky;top:0;background:#f7f9f7;padding:12px;display:flex;gap:9px;justify-content:center;border-bottom:1px solid #cbd4cb}.toolbar button{min-height:44px;padding:9px 17px;border:1px solid #b8c8bb;border-radius:10px;background:#24533a;color:white;font:700 14px Arial;cursor:pointer}.toolbar button:last-child{background:#fff;color:#24533a}.paper{width:min(100%,850px);min-width:650px;background:white;margin:18px auto;padding:28px;box-shadow:0 8px 28px #0002}.print-report-head{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #24533a;padding-bottom:15px;margin-bottom:16px}.print-report-head h1{font-size:22px;margin:6px 0}.print-report-head p{margin:0}.print-report-stamp{display:grid;text-align:left;white-space:nowrap}.print-report-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:15px 0 20px}.print-report-summary>div{display:grid;gap:3px;padding:11px;border:1px solid #ccd5cc;background:#f4f7f3}.print-report-summary small{color:#526458}.print-report-summary strong{font-size:18px}.print-report h2{font-size:16px;margin:15px 0 9px}.print-report-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px}.print-report-table th,.print-report-table td{border:1px solid #ced8ce;text-align:right;padding:8px 6px;vertical-align:top;overflow-wrap:anywhere}.print-report-table th{background:#e6eee6;color:#183724}.print-report-table tr:nth-child(even){background:#f8faf8}.print-report-table tr{break-inside:avoid}.print-report footer{border-top:1px solid #ccd5cc;margin-top:17px;padding-top:9px;font-size:11px}.print-award{padding:10px;border:1px solid #b49a5a;margin:12px 0}
+        @media(max-width:700px){body{overflow-x:auto}.paper{margin:0;box-shadow:none}.toolbar{min-width:650px}}@media print{@page{size:A4 portrait;margin:14mm 11mm}body{background:#fff}.toolbar{display:none}.paper{min-width:0;width:100%;margin:0;padding:0;box-shadow:none}.print-report-table{font-size:9pt}.print-report-table th,.print-report-table td{padding:2mm 1.5mm}}
+      </style></head><body><div class="toolbar"><button type="button" onclick="window.print()">طباعة / حفظ PDF</button><button type="button" onclick="window.close()">إغلاق</button></div><main class="paper"><section class="print-report">${printMarkup}</section></main></body></html>`);
+      page.document.close();
+      try{page.focus();page.print();}catch(_){setPrintMessage("استخدم زر الطباعة في الصفحة التي فُتحت.");}
     }
     async function confirmWinner(){
       const selected=leaders.find(r=>r.emp.id===selectedWinner);if(!selected||savingAward)return;
@@ -2331,7 +2355,7 @@ var __startElmCafeApp__ = (() => {
           h("table",{className:"print-report-table"},h("thead",null,h("tr",null,["م","الموظف","الوظيفة","رقم الموظف","النتيجة","عدد التقييمات","التقدير"].map(label=>h("th",{key:label},label)))),h("tbody",null,rows.map((r,index)=>h("tr",{key:r.emp.id},h("td",null,index+1),h("td",null,r.emp.name),h("td",null,r.emp.profession||"—"),h("td",null,r.emp.employee_code||"—"),h("td",null,r.score===null?"—":Math.round(r.score)+" / 100"),h("td",null,r.total),h("td",null,r.rating))))),
           h("footer",null,"يعرض التقرير التقييمات النشطة فقط. التقييمات الملغاة لا تدخل في النتيجة.")),
         filtered.length?h("div",{className:"report-grid"},filtered.map(r=>h("button",{key:r.emp.id,type:"button",className:"report-tile",onClick:()=>onOpenEmployee(r.emp.id)},h("span",{className:"report-rank"},r.total?"#"+(rows.indexOf(r)+1):"—"),h("span",{className:"report-score"},r.score===null?"—":Math.round(r.score),h("small",null,r.score===null?"بلا تقييم":"/ 100")),h("strong",null,r.emp.name),h("small",null,r.emp.profession||"موظف"),h("span",{className:r.total?"status-chip done":"status-chip"},r.total?r.total+" تقييم · "+r.rating:"لم يُقيّم بعد")))):h("div",{className:"dash-empty"},"لا توجد نتائج مطابقة.")),
-      printMarkup&&ReactDOM.createPortal(h("div",{className:"report-print-preview",role:"dialog","aria-modal":true,"aria-label":"معاينة تقرير الدورة"},h("div",{className:"report-preview-toolbar"},h("button",{type:"button",onClick:()=>window.print()},"طباعة / حفظ PDF"),h("button",{type:"button",onClick:()=>setPrintMarkup("")},"إغلاق المعاينة")),h("div",{className:"report-preview-page"},h("section",{className:"print-report",dangerouslySetInnerHTML:{__html:printMarkup}}))),document.body),
+      printMarkup&&ReactDOM.createPortal(h("div",{className:"report-print-preview",role:"dialog","aria-modal":true,"aria-label":"معاينة تقرير الدورة"},h("div",{className:"report-preview-toolbar"},h("button",{type:"button",onClick:openPrintableReport},"فتح الطباعة / حفظ PDF"),h("button",{type:"button",onClick:()=>{setPrintMarkup("");setPrintMessage("");}},"إغلاق المعاينة")),printMessage&&h("p",{className:"report-print-message",role:"status"},printMessage),h("div",{className:"report-preview-page"},h("section",{className:"print-report",dangerouslySetInnerHTML:{__html:printMarkup}}))),document.body),
       awardOpen&&h(Modal,{title:leaders.length>1?"اختيار الفائز من المتعادلين":"تأكيد الفائز بالدورة",onClose:()=>!savingAward&&setAwardOpen(false),footer:h(React.Fragment,null,h(Btn,{variant:"primary",disabled:!selectedWinner||savingAward,onClick:confirmWinner},savingAward?"جارِ الحفظ…":"حفظ واعتماد الفائز"),h(Btn,{variant:"ghost",disabled:savingAward,onClick:()=>setAwardOpen(false)},"رجوع"))},
         h("div",{className:"award-candidate-list"},leaders.map(r=>h("label",{key:r.emp.id,className:"award-candidate "+(selectedWinner===r.emp.id?"selected":"")},h("input",{type:"radio",name:"cycle-winner",value:r.emp.id,checked:selectedWinner===r.emp.id,onChange:()=>setSelectedWinner(r.emp.id)}),h("span",null,h("strong",null,r.emp.name),h("small",null,r.emp.profession||"موظف"," · ",r.total," تقييم")),h("b",null,Math.round(r.score)," / 100")))),
         h("p",{className:"award-modal-note"},leaders.length>1?"النتيجة متعادلة؛ اختار الفائز بنفسك. لن يختار التطبيق تلقائيًا.":"سيحفظ التطبيق اسم الفائز ونتيجته وعدد تقييماته وقت الاعتماد.")));
