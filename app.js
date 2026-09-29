@@ -1,5 +1,5 @@
 var __startElmCafeApp__ = (() => {
-  window.ELM_CAFE_VERSION = "1.2.2";
+  window.ELM_CAFE_VERSION = "1.2.3";
   const { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } = React;
   const SUPABASE_URL = "https://izfimghzcasnbmdsftps.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_FnhXzXCDLHTwvGGkZBBrkA_UPrm-tZ3";
@@ -1723,7 +1723,7 @@ var __startElmCafeApp__ = (() => {
     }, {})).sort((a,b) => b.count - a.count).slice(0, 5);
     return h("div", { className:"employee-profile" },
       h("section", { className:"profile-hero" },
-        h("span", { className:"person-avatar", style:{ background:avatarColor(employee.name).bg, color:avatarColor(employee.name).fg } }, employetr(e.name).trim().slice(0,1)),
+        h("span", { className:"person-avatar", style:{ background:avatarColor(employee.name).bg, color:avatarColor(employee.name).fg } }, String(employee.name || "").trim().slice(0,1)),
         h("span", { className:"eyebrow" }, "لوحة الموظف"), h("h1", null, employee.name),
         h("p", null, employee.profession || "موظف", " · رقم ", employee.employee_code),
         h("div", { className:"profile-score" }, h("strong", null, score === null ? "—" : Math.round(score)), h("span", null, score === null ? "لم يُقيّم في الدورة الحالية" : `${ratingFor(score)} · من 100`)),
@@ -2008,7 +2008,7 @@ var __startElmCafeApp__ = (() => {
   function loadScreenModule(group){
     if(window.ELM_MODULES?.[group])return Promise.resolve(window.ELM_MODULES[group]);
     if(moduleLoads.has(group))return moduleLoads.get(group);
-    const promise=new Promise((resolve,reject)=>{const script=document.createElement("script");script.src="./"+group+".js?v=1.2.2";const timer=setTimeout(()=>fail(),15000);function fail(){clearTimeout(timer);script.remove();moduleLoads.delete(group);reject(new Error("Screen module unavailable"));}script.onerror=fail;script.onload=()=>{clearTimeout(timer);if(window.ELM_MODULES?.[group])resolve(window.ELM_MODULES[group]);else fail();};document.head.appendChild(script);});moduleLoads.set(group,promise);return promise;
+    const promise=new Promise((resolve,reject)=>{const script=document.createElement("script");script.src="./"+group+".js?v=1.2.3";const timer=setTimeout(()=>fail(),15000);function fail(){clearTimeout(timer);script.remove();moduleLoads.delete(group);reject(new Error("Screen module unavailable"));}script.onerror=fail;script.onload=()=>{clearTimeout(timer);if(window.ELM_MODULES?.[group])resolve(window.ELM_MODULES[group]);else fail();};document.head.appendChild(script);});moduleLoads.set(group,promise);return promise;
   }
   class ScreenBoundary extends React.Component{
     constructor(props){super(props);this.state={error:false};}

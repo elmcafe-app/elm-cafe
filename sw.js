@@ -1,6 +1,6 @@
-// ELM CAFE 1.2.2. Cache static assets only; never Auth/API responses or employee data.
+// ELM CAFE 1.2.3. Cache static assets only; never Auth/API responses or employee data.
 const CACHE_PREFIX='elm-assets-'+encodeURIComponent(self.registration.scope)+'-';
-const CACHE_NAME=CACHE_PREFIX+'1.2.2';
+const CACHE_NAME=CACHE_PREFIX+'1.2.3';
 const ASSETS=["./","./index.html","./app.js","./app.css","./i18n.js","./public-config.js","./manifest.json","./elm-cafe-logo.png","./apple-touch-icon.png","./pwa-icon-192.png","./pwa-icon-512.png","./elm-arabic-1.ttf","./elm-arabic-2.ttf","./react.js","./react-dom.js","./supabase.js","./management.js","./reports.js","./records.js"];
 const ALLOWED=new Set(ASSETS.map(p=>new URL(p,self.registration.scope).pathname));
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(ASSETS)));});
