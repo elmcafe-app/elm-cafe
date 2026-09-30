@@ -1,5 +1,5 @@
 var __startElmCafeApp__ = (() => {
-  window.ELM_CAFE_VERSION = "1.2.3";
+  window.ELM_CAFE_VERSION = "1.2.4";
   const { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } = React;
   const SUPABASE_URL = "https://izfimghzcasnbmdsftps.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_FnhXzXCDLHTwvGGkZBBrkA_UPrm-tZ3";
@@ -567,7 +567,20 @@ var __startElmCafeApp__ = (() => {
           if(version===tableRefreshVersion.current[table])setViolationInbox(data||[]);
           return;
         }
-        if (table === "profiles") { await refetchProfiles(); return; }
+        if (table === "profiles") {
+          const rows = await fetchProfiles();
+          if (version !== tableRefreshVersion.current[table]) return;
+          setProfiles(rows);
+          if (rows.find(row => row.id === session.id)?.active === false) {
+            await supabase.auth.signOut({ scope: "local" });
+            setSession(null);
+            setIsOwner(false);
+            setStack([]);
+            setScreen("login");
+            showToast("حسابك معطّل. لا يمكن تسجيل تقييمات جديدة.", "error");
+          }
+          return;
+        }
         const paged = {
           evaluations:["created_at",setEvaluations], cycles:["created_at",setCycles],
           audit_log:["created_at",setAudit], employee_reward_earnings:["earned_at",setRewardEarnings],
@@ -1038,6 +1051,11 @@ var __startElmCafeApp__ = (() => {
         onDone: async (rec) => {
           var _a;
           try {
+          const { data: account, error: accountError } = await supabase.from("profiles").select("active").eq("id", session.id).single();
+          if (accountError || account?.active !== true) {
+            showToast("تعذّر التحقق من حالة الحساب أو الحساب معطّل. لم يُحفظ التقييم.", "error");
+            return false;
+          }
           const { data, error } = await supabase.from("evaluations").insert(rec).select().single();
           if (error) {
             showToast(`تعذّر الحفظ: ${error.message}`, "error");
@@ -1154,7 +1172,16 @@ var __startElmCafeApp__ = (() => {
           const username = u.username.trim().toLowerCase();
           const realEmail = u.email.trim().toLowerCase();
           const {data,error}=await supabase.functions.invoke("elm-cafe-create-account",{body:u});
-          if(error||!data?.id){showToast(data?.error||"تعذر إنشاء الحساب. تأكد من نشر وظيفة إنشاء الحساب وإعداد قاعدة البيانات، ثم راجع التفاصيل في سجل الوظيفة.","error");return false;}
+          if(error||!data?.id){
+            let detail=data?.error;
+            if (!detail && error?.context?.json) {
+              try { detail=(await error.context.json())?.error; } catch (_) {}
+            }
+            const status=error?.context?.status;
+            if (status===404) detail="وظيفة إنشاء الحساب elm-cafe-create-account غير منشورة في مشروع Supabase هذا.";
+            if (!detail && status===401) detail="جلسة الدخول انتهت. سجّل الدخول مجددًا.";
+            throw new Error(detail || "تعذّر إنشاء الحساب. راجع سجل وظيفة elm-cafe-create-account في Supabase.");
+          }
           const newProfile = {
             id: data.id,
             name: u.name,
@@ -1197,20 +1224,15 @@ var __startElmCafeApp__ = (() => {
           return true;
         },
         onDelete: async (id, name) => {
-          if (!isOwner || id === session.id) { showToast("لا يمكن حذف هذا الحساب", "error"); return false; }
+          if (!isOwner || id === session.id) throw new Error("لا يمكن إلغاء وصول هذا الحساب.");
           const { error } = await supabase.rpc("owner_remove_app_account", { p_id:id });
           if (error) {
-            if (error.message.includes("foreign key") || error.code === "23503") {
-              showToast("\u0644\u0627 \u064A\u0645\u0643\u0646 \u062D\u0630\u0641 \u0647\u0630\u0627 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0646\u0647\u0627\u0626\u064A\u064B\u0627 \u0644\u0623\u0646\u0647 \u0642\u0627\u0645 \u0628\u062A\u0642\u064A\u064A\u0645\u0627\u062A \u0633\u0627\u0628\u0642\u0629 \u2014 \u0627\u0633\u062A\u062E\u062F\u0645 \u0627\u0644\u062A\u0639\u0637\u064A\u0644 \u0628\u062F\u0644\u064B\u0627 \u0645\u0646 \u0630\u0644\u0643", "error");
-            } else {
-              showToast(`\u062A\u0639\u0630\u0651\u0631 \u0627\u0644\u062D\u0630\u0641: ${error.message}`, "error");
-            }
-            return false;
+            throw new Error(error.code === "23503" ? "هناك تقييمات مرتبطة بالحساب. يلزم تشغيل تحديث أمان الحسابات لإلغاء الوصول مع حفظ السجل." : `تعذّر إلغاء الوصول: ${error.message}`);
           }
-          setProfiles((prev) => prev.filter((p) => p.id !== id));
+          setProfiles((prev) => prev.map((p) => p.id === id ? { ...p, active:false } : p));
           setUserLookup(prev=>prev.filter(row=>row.user_id!==id));
-          await addAudit("\u062D\u0630\u0641 \u0645\u0633\u062A\u062E\u062F\u0645 \u0646\u0647\u0627\u0626\u064A\u064B\u0627", name);
-          showToast("تم حذف وصول المستخدم إلى التطبيق. حساب الدخول في Supabase Auth يُدار منفصلًا.");
+          await addAudit("إلغاء وصول مستخدم", name);
+          showToast("تم إلغاء وصول المستخدم. تاريخ تقييماته محفوظ.");
           return true;
         }
       }
@@ -2008,7 +2030,7 @@ var __startElmCafeApp__ = (() => {
   function loadScreenModule(group){
     if(window.ELM_MODULES?.[group])return Promise.resolve(window.ELM_MODULES[group]);
     if(moduleLoads.has(group))return moduleLoads.get(group);
-    const promise=new Promise((resolve,reject)=>{const script=document.createElement("script");script.src="./"+group+".js?v=1.2.3";const timer=setTimeout(()=>fail(),15000);function fail(){clearTimeout(timer);script.remove();moduleLoads.delete(group);reject(new Error("Screen module unavailable"));}script.onerror=fail;script.onload=()=>{clearTimeout(timer);if(window.ELM_MODULES?.[group])resolve(window.ELM_MODULES[group]);else fail();};document.head.appendChild(script);});moduleLoads.set(group,promise);return promise;
+    const promise=new Promise((resolve,reject)=>{const script=document.createElement("script");script.src="./"+group+".js?v=1.2.4";const timer=setTimeout(()=>fail(),15000);function fail(){clearTimeout(timer);script.remove();moduleLoads.delete(group);reject(new Error("Screen module unavailable"));}script.onerror=fail;script.onload=()=>{clearTimeout(timer);if(window.ELM_MODULES?.[group])resolve(window.ELM_MODULES[group]);else fail();};document.head.appendChild(script);});moduleLoads.set(group,promise);return promise;
   }
   class ScreenBoundary extends React.Component{
     constructor(props){super(props);this.state={error:false};}
