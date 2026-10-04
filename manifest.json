@@ -1,6 +1,6 @@
 {
   "id": "./",
-  "version": "1.2.4",
+  "version": "1.2.2",
   "name": "ELM CAFE — تقييم الموظفين",
   "short_name": "ELM CAFE",
   "description": "نظام تقييم ومتابعة أداء موظفي ELM CAFE",
@@ -29,6 +29,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "./pwa-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

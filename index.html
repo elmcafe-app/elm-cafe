@@ -13,11 +13,11 @@
 <link rel="manifest" href="./manifest.json" />
 
 
-<script>document.documentElement.classList.add("elm-booting");try { document.documentElement.dataset.theme = localStorage.getItem('elm-theme') === 'dark' ? 'dark' : 'light'; } catch (_) { document.documentElement.dataset.theme = 'light'; }</script>
+<script>document.documentElement.classList.add("elm-booting");(function(){var choice='auto';try{choice=localStorage.getItem('elm-theme')||'auto'}catch(_){}if(!/^(light|dark|auto)$/.test(choice))choice='auto';var dark=choice==='dark'||(choice==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.themeChoice=choice;document.documentElement.dataset.theme=dark?'dark':'light';document.querySelector('meta[name="theme-color"]')?.setAttribute('content',dark?'#202328':'#f4f4f2')})();</script>
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="icon" href="./elm-cafe-logo.png" />
 
-<link rel="stylesheet" href="./app.css?v=1.2.4">
+<link rel="stylesheet" href="./app.css?v=1.2.2-test-ui">
 </head>
 <body>
 <div id="initial-splash" class="initial-splash" role="status" aria-label="جارِ تحميل ELM CAFE"><img src="./elm-cafe-logo.png" alt="ELM CAFE"><span class="splash-pulse" aria-hidden="true"></span></div>
@@ -47,9 +47,9 @@
 <script src="./react.js"></script>
 <script src="./react-dom.js"></script>
 <script src="./supabase.js"></script>
-<script src="./i18n.js?v=1.2.4"></script>
-<script src="./public-config.js?v=1.2.4"></script>
-<script src="./app.js?v=1.2.4"></script>
+<script src="./i18n.js?v=1.2.2"></script>
+<script src="./public-config.js?v=1.2.2"></script>
+<script src="./app.js?v=1.2.2-test-ui"></script>
 
 <script>
 if('serviceWorker' in navigator && window.isSecureContext){navigator.serviceWorker.register('./sw.js').catch(function(){});}

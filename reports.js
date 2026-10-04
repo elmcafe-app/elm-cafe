@@ -1,8 +1,8 @@
 /* ELM CAFE 1.2.0: loaded only when a related screen is opened. */
 window.ELM_MODULES=window.ELM_MODULES||{};
 window.ELM_MODULES.reports=function(deps){
-const {Btn,EmptyState,Field,ICONS,Icon,Modal,fmtDate,fmtDateTime,locale,matches,s,tr,useEffect,useState}=deps;
-function ReportsOverall({employees,cycles,evaluations,computeScore,ratingFor,onOpenEmployee,initialCycleId,cycleAwards=[],awardsReady=true,onAward}) {
+const {Btn,EmptyState,EmployeeCard,Field,ICONS,Icon,Modal,fmtDate,fmtDateTime,locale,matches,s,tr,useEffect,useState}=deps;
+function ReportsOverall({employees,cycles,evaluations,computeScore,ratingFor,ratingBands,onOpenEmployee,initialCycleId,cycleAwards=[],awardsReady=true,onAward}) {
     const h=React.createElement;
     const [cycleId,setCycleId]=useState(initialCycleId||cycles.find(c=>c.status==="active")?.id||cycles[0]?.id||"");
     const [filter,setFilter]=useState("all"),[query,setQuery]=useState(""),[printMarkup,setPrintMarkup]=useState(""),[printMessage,setPrintMessage]=useState(""),[awardOpen,setAwardOpen]=useState(false),[selectedWinner,setSelectedWinner]=useState(""),[savingAward,setSavingAward]=useState(false);
@@ -30,10 +30,18 @@ function ReportsOverall({employees,cycles,evaluations,computeScore,ratingFor,onO
       const blob=new Blob(["\uFEFFsep=;\r\n"+reportRows.map(csvRow).join("\r\n")],{type:"text/csv;charset=utf-8"});
       const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="elm-cafe-"+String(cycle.name).replace(/[^\w\u0600-\u06FF-]+/g,"-")+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
     }
-    function openPrintableReport(){
+    async function openPrintableReport(){
       if(!printMarkup)return;
       setPrintMessage("");
-      try{window.print();}catch(_){setPrintMessage("تعذر فتح الطباعة من هذا المتصفح. افتح الموقع في Safari أو Chrome وأعد المحاولة.");}
+      let page;
+      try{
+        if(document.fonts?.load)await document.fonts.load('700 14px "Elm Certificate"',"تقرير نتائج الموظفين");
+        if(document.fonts?.ready)await document.fonts.ready;
+        page=document.createElement("style");page.textContent="@page{size:A4 portrait;margin:15mm 13mm}";document.head.appendChild(page);
+        const clear=()=>{page?.remove();window.removeEventListener("afterprint",clear);};
+        window.addEventListener("afterprint",clear,{once:true});
+        window.print();setTimeout(clear,60000);
+      }catch(_){setPrintMessage("تعذر فتح الطباعة من هذا المتصفح. افتح الموقع في Safari أو Chrome وأعد المحاولة.");}
     }
     async function confirmWinner(){
       const selected=leaders.find(r=>r.emp.id===selectedWinner);if(!selected||savingAward)return;
@@ -63,7 +71,10 @@ function ReportsOverall({employees,cycles,evaluations,computeScore,ratingFor,onO
           h("h2",null,"نتائج الموظفين"),
           h("table",{className:"print-report-table"},h("thead",null,h("tr",null,["م","الموظف","الوظيفة","رقم الموظف","النتيجة","عدد التقييمات","التقدير"].map(label=>h("th",{key:label},label)))),h("tbody",null,rows.map((r,index)=>h("tr",{key:r.emp.id},h("td",null,index+1),h("td",null,r.emp.name),h("td",null,r.emp.profession||"—"),h("td",null,r.emp.employee_code||"—"),h("td",null,r.score===null?"—":Math.round(r.score)+" / 100"),h("td",null,r.total),h("td",null,r.rating))))),
           h("footer",null,"يعرض التقرير التقييمات النشطة فقط. التقييمات الملغاة لا تدخل في النتيجة.")),
-        filtered.length?h("div",{className:"report-grid"},filtered.map(r=>h("button",{key:r.emp.id,type:"button",className:"report-tile",onClick:()=>onOpenEmployee(r.emp.id)},h("span",{className:"report-rank"},r.total?"#"+(rows.indexOf(r)+1):"—"),h("span",{className:"report-score"},r.score===null?"—":Math.round(r.score),h("small",null,r.score===null?"بلا تقييم":"/ 100")),h("strong",null,r.emp.name),h("small",null,r.emp.profession||"موظف"),h("span",{className:r.total?"status-chip done":"status-chip"},r.total?r.total+" تقييم · "+r.rating:"لم يُقيّم بعد")))):h("div",{className:"dash-empty"},"لا توجد نتائج مطابقة.")),
+        filtered.length?h("div",{className:"report-grid"},filtered.map(r=>{
+          const latest=evaluations.filter(e=>e.employee_id===r.emp.id&&e.cycle_id===cycle.id&&e.status==="active").sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0];
+          return h(EmployeeCard,{key:r.emp.id,employee:r.emp,score:r.score,latestEvaluation:latest,ratingBands,badge:r.total?`#${rows.indexOf(r)+1}`:null,onClick:()=>onOpenEmployee(r.emp.id)});
+        })):h("div",{className:"dash-empty"},"لا توجد نتائج مطابقة.")),
       printMarkup&&ReactDOM.createPortal(h("div",{className:"report-print-preview",role:"dialog","aria-modal":true,"aria-label":"معاينة تقرير الدورة"},h("div",{className:"report-preview-toolbar"},h("button",{type:"button",onClick:openPrintableReport},"فتح الطباعة / حفظ PDF"),h("button",{type:"button",onClick:()=>{setPrintMarkup("");setPrintMessage("");}},"إغلاق المعاينة")),printMessage&&h("p",{className:"report-print-message",role:"status"},printMessage),h("div",{className:"report-preview-page"},h("section",{className:"print-report",dangerouslySetInnerHTML:{__html:printMarkup}}))),document.body),
       awardOpen&&h(Modal,{title:leaders.length>1?"اختيار الفائز من المتعادلين":"تأكيد الفائز بالدورة",onClose:()=>!savingAward&&setAwardOpen(false),footer:h(React.Fragment,null,h(Btn,{variant:"primary",disabled:!selectedWinner||savingAward,onClick:confirmWinner},savingAward?"جارِ الحفظ…":"حفظ واعتماد الفائز"),h(Btn,{variant:"ghost",disabled:savingAward,onClick:()=>setAwardOpen(false)},"رجوع"))},
         h("div",{className:"award-candidate-list"},leaders.map(r=>h("label",{key:r.emp.id,className:"award-candidate "+(selectedWinner===r.emp.id?"selected":"")},h("input",{type:"radio",name:"cycle-winner",value:r.emp.id,checked:selectedWinner===r.emp.id,onChange:()=>setSelectedWinner(r.emp.id)}),h("span",null,h("strong",null,r.emp.name),h("small",null,r.emp.profession||"موظف"," · ",r.total," تقييم")),h("b",null,Math.round(r.score)," / 100")))),

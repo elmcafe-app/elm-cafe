@@ -1,8 +1,9 @@
-// ELM CAFE 1.2.4. Cache static assets only; never Auth/API responses or employee data.
+// ELM CAFE 1.2.2. Cache static assets only; never Auth/API responses or employee data.
 const CACHE_PREFIX='elm-assets-'+encodeURIComponent(self.registration.scope)+'-';
-const CACHE_NAME=CACHE_PREFIX+'1.2.4';
-const ASSETS=["./","./index.html","./app.js","./app.css","./i18n.js","./public-config.js","./manifest.json","./elm-cafe-logo.png","./apple-touch-icon.png","./pwa-icon-192.png","./pwa-icon-512.png","./elm-arabic-1.ttf","./elm-arabic-2.ttf","./react.js","./react-dom.js","./supabase.js","./management.js","./reports.js","./records.js"];
-const ALLOWED=new Set(ASSETS.map(p=>new URL(p,self.registration.scope).pathname));
+const CACHE_NAME=CACHE_PREFIX+'1.2.2-test-ui';
+const ASSETS=["./","./index.html","./app.js","./app.css","./i18n.js","./public-config.js","./manifest.json","./elm-cafe-logo.png","./apple-touch-icon.png","./pwa-icon-192.png","./pwa-icon-512.png","./pwa-icon-maskable-512.png","./elm-arabic-1.ttf","./elm-arabic-2.ttf","./react.js","./react-dom.js","./supabase.js","./management.js","./reports.js","./records.js"];
+const OPTIONAL=["./noto-arabic-variable.woff2","./noto-latin-variable.woff2","./html2pdf.bundle.min.js"];
+const ALLOWED=new Set([...ASSETS,...OPTIONAL].map(p=>new URL(p,self.registration.scope).pathname));
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(ASSETS)));});
 // No skipWaiting: an open session/form must not receive mixed release files.
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith(CACHE_PREFIX)&&name!==CACHE_NAME)await caches.delete(name);await self.clients.claim();})()));
