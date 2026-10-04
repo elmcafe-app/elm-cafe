@@ -1,7 +1,7 @@
 /* ELM CAFE 1.2.0: loaded only when a related screen is opened. */
 window.ELM_MODULES=window.ELM_MODULES||{};
 window.ELM_MODULES.reports=function(deps){
-const {Btn,EmptyState,EmployeeCard,Field,ICONS,Icon,Modal,fmtDate,fmtDateTime,locale,matches,s,tr,useEffect,useState}=deps;
+const {Btn,EmptyState,EmployeeCard,Field,ICONS,Icon,Modal,fmtDate,fmtDateTime,locale,matches,makeA4Pdf,savePdf,s,tr,useEffect,useState}=deps;
 function ReportsOverall({employees,cycles,evaluations,computeScore,ratingFor,ratingBands,onOpenEmployee,initialCycleId,cycleAwards=[],awardsReady=true,onAward}) {
     const h=React.createElement;
     const [cycleId,setCycleId]=useState(initialCycleId||cycles.find(c=>c.status==="active")?.id||cycles[0]?.id||"");
@@ -30,18 +30,26 @@ function ReportsOverall({employees,cycles,evaluations,computeScore,ratingFor,rat
       const blob=new Blob(["\uFEFFsep=;\r\n"+reportRows.map(csvRow).join("\r\n")],{type:"text/csv;charset=utf-8"});
       const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="elm-cafe-"+String(cycle.name).replace(/[^\w\u0600-\u06FF-]+/g,"-")+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
     }
-    async function openPrintableReport(){
+    function openPrintableReport(){
       if(!printMarkup)return;
       setPrintMessage("");
-      let page;
       try{
-        if(document.fonts?.load)await document.fonts.load('700 14px "Elm Certificate"',"تقرير نتائج الموظفين");
-        if(document.fonts?.ready)await document.fonts.ready;
-        page=document.createElement("style");page.textContent="@page{size:A4 portrait;margin:15mm 13mm}";document.head.appendChild(page);
-        const clear=()=>{page?.remove();window.removeEventListener("afterprint",clear);};
+        const page=document.createElement("style");page.textContent="@page{size:A4 portrait;margin:15mm 13mm}";document.head.appendChild(page);
+        const clear=()=>{page.remove();window.removeEventListener("afterprint",clear);};
         window.addEventListener("afterprint",clear,{once:true});
         window.print();setTimeout(clear,60000);
       }catch(_){setPrintMessage("تعذر فتح الطباعة من هذا المتصفح. افتح الموقع في Safari أو Chrome وأعد المحاولة.");}
+    }
+    async function downloadReport(){
+      if(!printMarkup)return;
+      setPrintMessage("جارٍ تجهيز PDF…");
+      try{
+        const source=document.querySelector(".report-preview-page .print-report");
+        if(!source)throw new Error("report preview missing");
+        const blob=await makeA4Pdf(source,{landscape:false,filename:"ELM-CAFE-report.pdf"});
+        await savePdf(blob,"ELM-CAFE-report.pdf");
+        setPrintMessage("");
+      }catch(error){if(error?.name!=="AbortError")setPrintMessage("تعذّر إنشاء PDF. أعد المحاولة أو اطبع من المتصفح.");}
     }
     async function confirmWinner(){
       const selected=leaders.find(r=>r.emp.id===selectedWinner);if(!selected||savingAward)return;
@@ -56,7 +64,8 @@ function ReportsOverall({employees,cycles,evaluations,computeScore,ratingFor,rat
       h("section",{className:"report-head"},h("span",{className:"eyebrow"},"تحليل الأداء"),h("h1",null,"تقارير الفريق"),h("label",null,"دورة التقييم",h("select",{value:cycleId,onChange:e=>setCycleId(e.target.value)},cycles.map(c=>h("option",{key:c.id,value:c.id},c.name))))),
       !cycle?h(EmptyState,{icon:h(Icon,{svg:ICONS.file,size:28}),title:"لا توجد دورة",body:"أنشئ دورة تقييم أولًا."}):h(React.Fragment,null,
         h("div",{className:"report-stats"},[["تم تقييمهم",rated.length],["لم يُقيّموا",rows.length-rated.length],["متوسط النقاط",average??"—"]].map(([label,value])=>h("div",{key:label},h("strong",null,value),h("small",null,label)))),
-        (savedAward||best)&&h("div",{className:"mvp-card"},h("span",{className:"mvp-medal"},"★"),h("span",{className:"mvp-copy"},h("small",null,savedAward?"الفائز المعتمد بالمكافأة":"أعلى نتيجة حاليًا"),h("strong",null,savedAward?savedAward.employee_name:(leaders.length>1?leaders.length+" موظفين متعادلون":best.emp.name)),h("small",null,savedAward?savedAward.chosen_by_name:(leaders.length>1?"الاختيار النهائي لك":best.emp.profession||"موظف"))),h("span",{className:"mvp-score"},savedAward?savedAward.score:Math.round(best.score),h("small",null,"من 100"))),
+        h("div",{className:"rating-legend","aria-label":"دليل ألوان التقدير"},(ratingBands||[]).filter(b=>!b.deleted_at).slice().sort((a,b)=>Number(b.min)-Number(a.min)).map((band,index)=>h("span",{key:band.id||band.label},h("i",{className:"rating-tone tone-"+Math.min(index,4),"aria-hidden":true}),band.label," ",h("bdi",{dir:"ltr"},`${band.min}–${band.max}`)))),
+        (savedAward||best)&&h("div",{className:"mvp-card"},h("span",{className:"mvp-medal","aria-hidden":true},h(Icon,{svg:ICONS.star,size:24})),h("span",{className:"mvp-copy"},h("small",null,savedAward?"الفائز المعتمد بالمكافأة":"أعلى نتيجة حاليًا"),h("strong",null,savedAward?savedAward.employee_name:(leaders.length>1?leaders.length+" موظفين متعادلون":best.emp.name)),h("small",null,savedAward?savedAward.chosen_by_name:(leaders.length>1?"الاختيار النهائي لك":best.emp.profession||"موظف"))),h("span",{className:"mvp-score"},savedAward?savedAward.score:Math.round(best.score),h("small",null,"من 100"))),
         savedAward&&h("div",{className:"award-snapshot-note"},h("strong",null,"النتيجة المحفوظة: "),savedAward.employee_name," · ",savedAward.score," من 100 · ",savedAward.evaluation_count," تقييم · اعتمده ",savedAward.chosen_by_name," · ",fmtDateTime(savedAward.created_at),"۔"),
         !savedAward&&cycle.status==="closed"&&h("button",{type:"button",className:"award-approve-button",disabled:!awardsReady||!leaders.length,onClick:()=>{setSelectedWinner(leaders.length===1?leaders[0].emp.id:"");setAwardOpen(true);}},leaders.length>1?"اختيار الفائز من المتعادلين":"اعتماد الفائز وحفظ النتيجة"),
         !savedAward&&cycle.status!=="closed"&&h("div",{className:"award-setup-note"},"اعتماد الفائز يظهر بعد إغلاق الدورة. لا يوجد حد أدنى للتقييمات."),
@@ -69,15 +78,15 @@ function ReportsOverall({employees,cycles,evaluations,computeScore,ratingFor,rat
           h("div",{className:"print-report-summary"},[["إجمالي الموظفين",rows.length],["تم تقييمهم",rated.length],["لم يُقيّموا",rows.length-rated.length],["متوسط النقاط",average??"—"]].map(([label,value])=>h("div",{key:label},h("small",null,label),h("strong",null,value)))),
           savedAward&&h("div",{className:"print-award"},"الفائز المعتمد بالمكافأة: ",h("strong",null,savedAward.employee_name)," — ",savedAward.score," من 100"),
           h("h2",null,"نتائج الموظفين"),
-          h("table",{className:"print-report-table"},h("thead",null,h("tr",null,["م","الموظف","الوظيفة","رقم الموظف","النتيجة","عدد التقييمات","التقدير"].map(label=>h("th",{key:label},label)))),h("tbody",null,rows.map((r,index)=>h("tr",{key:r.emp.id},h("td",null,index+1),h("td",null,r.emp.name),h("td",null,r.emp.profession||"—"),h("td",null,r.emp.employee_code||"—"),h("td",null,r.score===null?"—":Math.round(r.score)+" / 100"),h("td",null,r.total),h("td",null,r.rating))))),
+          h("table",{className:"print-report-table"},h("thead",null,h("tr",null,["م","الموظف","الوظيفة","رقم الموظف","النتيجة","عدد التقييمات","التقدير"].map(label=>h("th",{key:label},label)))),h("tbody",null,rows.map((r,index)=>h("tr",{key:r.emp.id},h("td",null,index+1),h("td",null,r.emp.name),h("td",null,r.emp.profession||"—"),h("td",null,r.emp.employee_code||"—"),h("td",null,r.score===null?"—":h("bdi",{dir:"ltr"},`${Math.round(r.score)} / 100`)),h("td",null,r.total),h("td",null,r.rating))))),
           h("footer",null,"يعرض التقرير التقييمات النشطة فقط. التقييمات الملغاة لا تدخل في النتيجة.")),
         filtered.length?h("div",{className:"report-grid"},filtered.map(r=>{
           const latest=evaluations.filter(e=>e.employee_id===r.emp.id&&e.cycle_id===cycle.id&&e.status==="active").sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0];
           return h(EmployeeCard,{key:r.emp.id,employee:r.emp,score:r.score,latestEvaluation:latest,ratingBands,badge:r.total?`#${rows.indexOf(r)+1}`:null,onClick:()=>onOpenEmployee(r.emp.id)});
         })):h("div",{className:"dash-empty"},"لا توجد نتائج مطابقة.")),
-      printMarkup&&ReactDOM.createPortal(h("div",{className:"report-print-preview",role:"dialog","aria-modal":true,"aria-label":"معاينة تقرير الدورة"},h("div",{className:"report-preview-toolbar"},h("button",{type:"button",onClick:openPrintableReport},"فتح الطباعة / حفظ PDF"),h("button",{type:"button",onClick:()=>{setPrintMarkup("");setPrintMessage("");}},"إغلاق المعاينة")),printMessage&&h("p",{className:"report-print-message",role:"status"},printMessage),h("div",{className:"report-preview-page"},h("section",{className:"print-report",dangerouslySetInnerHTML:{__html:printMarkup}}))),document.body),
+      printMarkup&&ReactDOM.createPortal(h("div",{className:"report-print-preview",role:"dialog","aria-modal":true,"aria-label":"معاينة تقرير الدورة"},h("div",{className:"report-preview-toolbar"},h("button",{type:"button",onClick:openPrintableReport},"طباعة"),h("button",{type:"button",onClick:downloadReport},"تنزيل / مشاركة PDF"),h("button",{type:"button",onClick:()=>{setPrintMarkup("");setPrintMessage("");}},"إغلاق المعاينة")),h("small",{className:"report-print-help"},"من المشاركة ← طباعة، ثم قرّب بإصبعين على المعاينة لحفظ PDF"),printMessage&&h("p",{className:"report-print-message",role:"status"},printMessage),h("div",{className:"report-preview-page"},h("section",{className:"print-report",dangerouslySetInnerHTML:{__html:printMarkup}}))),document.body),
       awardOpen&&h(Modal,{title:leaders.length>1?"اختيار الفائز من المتعادلين":"تأكيد الفائز بالدورة",onClose:()=>!savingAward&&setAwardOpen(false),footer:h(React.Fragment,null,h(Btn,{variant:"primary",disabled:!selectedWinner||savingAward,onClick:confirmWinner},savingAward?"جارِ الحفظ…":"حفظ واعتماد الفائز"),h(Btn,{variant:"ghost",disabled:savingAward,onClick:()=>setAwardOpen(false)},"رجوع"))},
-        h("div",{className:"award-candidate-list"},leaders.map(r=>h("label",{key:r.emp.id,className:"award-candidate "+(selectedWinner===r.emp.id?"selected":"")},h("input",{type:"radio",name:"cycle-winner",value:r.emp.id,checked:selectedWinner===r.emp.id,onChange:()=>setSelectedWinner(r.emp.id)}),h("span",null,h("strong",null,r.emp.name),h("small",null,r.emp.profession||"موظف"," · ",r.total," تقييم")),h("b",null,Math.round(r.score)," / 100")))),
+        h("div",{className:"award-candidate-list"},leaders.map(r=>h("label",{key:r.emp.id,className:"award-candidate "+(selectedWinner===r.emp.id?"selected":"")},h("input",{type:"radio",name:"cycle-winner",value:r.emp.id,checked:selectedWinner===r.emp.id,onChange:()=>setSelectedWinner(r.emp.id)}),h("span",null,h("strong",null,r.emp.name),h("small",null,r.emp.profession||"موظف"," · ",r.total," تقييم")),h("b",null,h("bdi",{dir:"ltr"},`${Math.round(r.score)} / 100`))))),
         h("p",{className:"award-modal-note"},leaders.length>1?"النتيجة متعادلة؛ اختار الفائز بنفسك. لن يختار التطبيق تلقائيًا.":"سيحفظ التطبيق اسم الفائز ونتيجته وعدد تقييماته وقت الاعتماد.")));
   }
 function EvaluatorActivityScreen({ evaluations, activeCycle, cycles }) {
